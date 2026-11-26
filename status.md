@@ -3,8 +3,8 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-26
-**Current phase:** Planning complete. Phase 1 (Foundations and walking skeleton) not started.
-**Branch:** none active; start Phase 1 on a new branch from `main`
+**Current phase:** Phase 1 (Foundations and walking skeleton) in progress; Phase 2 follows in the same PR.
+**Branch:** `claude/intelligent-sagan-imj1bh`
 
 ## Summary
 
@@ -17,7 +17,7 @@ The repository holds research, planning and documentation only. No code, tooling
 
 ## In progress
 
-Nothing.
+- Phase 1 and Phase 2, one PR with a commit per work item (owner decision 2026-11-26). Starting with Phase 1 work item 1 (tooling, ADR 0006).
 
 ## Next steps
 
@@ -39,6 +39,13 @@ Nothing.
 ## Decisions
 
 Scope decisions made 2026-11-26 are recorded in [project_plan.md](project_plan.md#scope). Architecture decisions are in [docs/adr/](docs/adr/README.md).
+
+Owner decisions 2026-11-26 (start of Phase 1):
+
+- Tooling: Python 3.12, uv, pytest, ruff, mypy strict, FastMCP 4.x pinned (ADR 0006).
+- FHIR modeling: narrow internal Pydantic models; `fhir.resources` only in tests to validate persona bundles (ADR 0007).
+- Verification sprints: the agent checks codes against authoritative public sources and may mark them Verified, recording source, version and date.
+- Phases 1 and 2 ship as one PR with a commit per work item.
 
 ## Known gaps and cautions
 

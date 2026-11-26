@@ -1,0 +1,10 @@
+# Clinician-facing wording. Changing any text here is a clinical content change:
+# open a clinical content change issue and get the project owner's approval.
+version = "0.1.0"
+
+# The standard notice from docs/clinical/intended_use.md. Returned by get_server_info
+# and attached to every recommendation.
+standard_notice = "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment."
+
+# The approved phrasing for a positive referral suggestion.
+approved_recommendation = "Consider referral for formal ADHD screening."

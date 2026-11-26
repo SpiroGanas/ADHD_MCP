@@ -2,7 +2,7 @@
 
 An MCP server that reads a patient's FHIR record and tells a clinician whether a formal adult ADHD screening should be considered, and why.
 
-> **Status: planning.** No server code exists yet. This repository currently holds the research, architecture, and project plan that future developers and AI agents will build from. See [status.md](status.md) for the current state.
+> **Status: early development.** A walking-skeleton server and the FHIR access layer exist; no clinical tools are built yet. See [status.md](status.md) for the current state.
 
 > **This tool recommends referral for screening. It never diagnoses.** It is decision support for clinicians, not a patient-facing product, and it is not validated for clinical use.
 
@@ -38,7 +38,7 @@ The clinical basis is in [research/veteran_self_harm_risk_screening.md](research
 - **Data:** HL7 FHIR R4 (US Core profiles), synthetic data for all development and testing
 - **Terminologies:** ICD-10-CM, LOINC, RxNorm, SNOMED CT
 
-Exact versions and supporting libraries are chosen in Phase 1 and recorded as [architecture decision records](docs/adr/README.md).
+Exact versions are pinned in [ADR 0006](docs/adr/0006-tooling-versions.md): Python 3.12, FastMCP 4.2, uv, pytest, ruff and mypy.
 
 ## Planned MCP tools
 
@@ -87,7 +87,27 @@ Eight phases of about one month each for a single developer. Full detail is in [
 
 ## Getting started
 
-There is nothing to install or run yet. Setup and run instructions will be added here when Phase 1 delivers the walking skeleton.
+Requires [uv](https://docs.astral.sh/uv/).
+
+```bash
+uv sync
+```
+
+```bash
+./scripts/check
+```
+
+```bash
+uv run adhd-mcp
+```
+
+`uv sync` installs everything, `./scripts/check` runs lint, format, type checks and tests, and `uv run adhd-mcp` starts the server over stdio. To see what the server exposes without a client:
+
+```bash
+uv run fastmcp inspect src/adhd_mcp/server.py:create_server
+```
+
+All commands are listed in [CLAUDE.md](CLAUDE.md#commands).
 
 To contribute, read [CONTRIBUTING.md](CONTRIBUTING.md), then [status.md](status.md) for what is next.
 
