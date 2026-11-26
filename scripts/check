@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Run the full check suite: lint, format check, type check, tests with coverage.
+# Same steps as CI. Usage: ./scripts/check
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+echo "== ruff check";     uv run ruff check .
+echo "== ruff format";    uv run ruff format --check .
+echo "== mypy";           uv run mypy
+echo "== synthetic data"; uv run python scripts/check_synthetic_data.py
+echo "== pytest";         uv run pytest --cov --cov-report=term
