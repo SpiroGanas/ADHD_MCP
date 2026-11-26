@@ -97,7 +97,9 @@ Defined in Phase 1 ([ADR 0006](docs/adr/0006-tooling-versions.md)). Requires [uv
 | Install everything (runtime and dev) | `uv sync` |
 | Full check suite (run before every commit) | `./scripts/check` |
 | Tests only (unit, contract, tool) | `uv run pytest` |
+| Start the local FHIR server | `docker compose up -d fhir` ([docs/dev/local_fhir_server.md](docs/dev/local_fhir_server.md)) |
 | Integration tests (need the local FHIR server) | `uv run pytest -m integration` |
+| Rebuild persona bundles after editing definitions | `uv run python scripts/build_personas.py` |
 | Lint / format / type check | `uv run ruff check .` / `uv run ruff format .` / `uv run mypy` |
 | Update contract snapshots (deliberate act) | `UPDATE_SNAPSHOTS=1 uv run pytest tests/contract` |
 | Run the server over stdio | `uv run adhd-mcp` |
