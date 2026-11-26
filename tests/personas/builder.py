@@ -32,12 +32,14 @@ def concept(*codings: dict[str, str]) -> dict[str, Any]:
 class PersonaBuilder:
     """Builds one persona's resources with globally unique, obviously synthetic ids."""
 
-    def __init__(self, key: str, *, gender: str, birth_date: str) -> None:
+    def __init__(
+        self, key: str, *, gender: str, birth_date: str, number: int | None = None
+    ) -> None:
         self.key = key
         self.patient_id = f"{key}-patient"
         self.resources: list[Resource] = []
         self._counters: dict[str, int] = {}
-        number = int(key[1:])
+        number = int(key[1:]) if number is None else number
         self.resources.append(
             {
                 "resourceType": "Patient",
