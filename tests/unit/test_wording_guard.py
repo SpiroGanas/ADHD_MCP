@@ -17,6 +17,26 @@ DIAGNOSTIC_SENTENCES = [
     "The patient is positive for ADHD.",
     "He suffers from ADHD.",
     "The patient is diagnosed with ADHD by this assessment.",
+    # Phrasings found missing in the Phase 1-2 safety review:
+    "The patient has undiagnosed ADHD.",
+    "The patient has possible ADHD.",
+    "The patient has adult-onset ADHD.",
+    "ADHD is likely.",
+    "ADHD suspected.",
+    "Presentation suggests ADHD.",
+    "Veteran with ADHD.",
+    "Patient diagnosed with ADHD.",
+    "Diagnosis - ADHD",
+    "High probability of ADHD.",
+    "The patient has ADD.",
+    "Shows signs of ADHD.",
+    # Other conditions and suicide-risk statements:
+    "The patient has PTSD.",
+    "Veteran with bipolar disorder.",
+    "The patient has depression.",
+    "Patient is suicidal.",
+    "The veteran is at high risk of suicide.",
+    "Patient is at low risk for suicide.",
 ]
 
 ACCEPTABLE_SENTENCES = [
@@ -26,6 +46,12 @@ ACCEPTABLE_SENTENCES = [
     "PHQ-9 item 9 screen positive on 2025-01-02.",
     "It is not a diagnosis.",
     "This tool never diagnoses.",
+    "A PTSD code (F43.10) is recorded in Condition/p09-cond-1.",
+    "Stimulant-related disorder code recorded.",
+    "No evidence of an existing ADHD diagnosis was found.",
+    "Suicidal ideation code recorded; complete a suicide risk evaluation first.",
+    "Consider an ASRS screen; add the result to the record.",
+    "The patient has added a new address.",
 ]
 
 
