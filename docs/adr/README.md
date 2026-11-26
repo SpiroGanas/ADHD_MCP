@@ -19,5 +19,6 @@ A short record of each decision that would be costly to reverse: what was decide
 | [0004](0004-synthetic-first-fhir-abstraction.md) | Synthetic data first behind a FHIR abstraction | Accepted |
 | [0005](0005-adhd-first-condition-plugins.md) | ADHD first, conditions as plugins | Accepted |
 | [0006](0006-tooling-versions.md) | Tooling and pinned versions | Accepted |
+| [0007](0007-fhir-modeling.md) | Narrow internal FHIR models | Accepted |
 
-Expected next: 0007 FHIR modeling library (Phase 2); 0008 drug-class source (Phase 4).
+Expected next: 0008 drug-class source (Phase 4).

@@ -1,0 +1,27 @@
+# Canonical code system URIs and the aliases servers are known to send.
+# Not clinical judgment; still reviewed like other data files.
+version = "0.1.0"
+
+[[systems]]
+uri = "http://hl7.org/fhir/sid/icd-10-cm"
+name = "ICD-10-CM"
+uppercase_codes = true
+aliases = ["urn:oid:2.16.840.1.113883.6.90", "http://hl7.org/fhir/sid/icd-10-cm/"]
+
+[[systems]]
+uri = "http://snomed.info/sct"
+name = "SNOMED CT"
+uppercase_codes = false
+aliases = ["urn:oid:2.16.840.1.113883.6.96"]
+
+[[systems]]
+uri = "http://loinc.org"
+name = "LOINC"
+uppercase_codes = false
+aliases = ["urn:oid:2.16.840.1.113883.6.1", "http://loinc.org/"]
+
+[[systems]]
+uri = "http://www.nlm.nih.gov/research/umls/rxnorm"
+name = "RxNorm"
+uppercase_codes = false
+aliases = ["urn:oid:2.16.840.1.113883.6.88"]
