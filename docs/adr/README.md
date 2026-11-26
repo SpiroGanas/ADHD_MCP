@@ -1,0 +1,22 @@
+# Architecture Decision Records
+
+A short record of each decision that would be costly to reverse: what was decided, why, and what was given up.
+
+## How to use
+
+- Copy [0000-template.md](0000-template.md) to the next number with a short title.
+- Keep it to one page. Write it in the same pull request as the change it explains.
+- Never edit the decision of an accepted ADR. Write a new one that supersedes it and update the status of the old one.
+- Ask the project owner before accepting an ADR that changes scope, clinical behavior or a tool contract.
+
+## Index
+
+| ADR | Title | Status |
+|---|---|---|
+| [0001](0001-python-and-fastmcp.md) | Python and FastMCP | Accepted |
+| [0002](0002-read-only-task-specific-tools.md) | Read-only, task-specific tools | Accepted |
+| [0003](0003-rules-first-with-scorer-slot.md) | Deterministic rules first, with a scorer slot | Accepted |
+| [0004](0004-synthetic-first-fhir-abstraction.md) | Synthetic data first behind a FHIR abstraction | Accepted |
+| [0005](0005-adhd-first-condition-plugins.md) | ADHD first, conditions as plugins | Accepted |
+
+Expected next: 0006 tooling versions (Phase 1); 0007 FHIR modeling library (Phase 2); 0008 drug-class source (Phase 4).
