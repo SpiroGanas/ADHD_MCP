@@ -1,0 +1,246 @@
+{
+  "resourceType": "Bundle",
+  "id": "p05-bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "p05-patient",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+              "code": "HTEST"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "urn:adhd-mcp:synthetic-id",
+            "value": "SYN-0005"
+          }
+        ],
+        "name": [
+          {
+            "family": "Synthetic",
+            "given": [
+              "Persona05"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1988-07-19"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "p05-enc-1",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "EMER"
+        },
+        "subject": {
+          "reference": "Patient/p05-patient"
+        },
+        "period": {
+          "start": "2024-05-11T13:00:00Z",
+          "end": "2024-05-11T19:00:00Z"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p05-cond-1",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "S06.0X1A",
+              "display": "Concussion with loss of consciousness of 30 minutes or less"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p05-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p05-enc-1"
+        },
+        "recordedDate": "2024-05-11"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p05-cond-2",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "Z87.820",
+              "display": "Personal history of traumatic brain injury"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p05-patient"
+        },
+        "recordedDate": "2025-01-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p05-cond-3",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "R41.840",
+              "display": "Attention and concentration deficit"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p05-patient"
+        },
+        "recordedDate": "2025-01-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p05-cond-4",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "G47.00",
+              "display": "Insomnia, unspecified"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p05-patient"
+        },
+        "recordedDate": "2025-02-20"
+      }
+    }
+  ]
+}
