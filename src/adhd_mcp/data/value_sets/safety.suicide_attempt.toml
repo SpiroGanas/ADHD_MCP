@@ -1,0 +1,15 @@
+id = "safety.suicide_attempt"
+version = "0.1.0"
+title = "Suicide attempt"
+description = "Safety gate signal. Written with placeholder and 7th character, e.g. T14.91XA. The sibling T14.90 (injury, unspecified) must not match. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "T14.91"
+display = "Suicide attempt"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

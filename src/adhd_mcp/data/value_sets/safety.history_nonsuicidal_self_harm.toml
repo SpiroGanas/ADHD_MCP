@@ -1,0 +1,15 @@
+id = "safety.history_nonsuicidal_self_harm"
+version = "0.1.0"
+title = "Personal history of nonsuicidal self-harm"
+description = "Safety gate signal. Z91.5 has only Z91.51 and Z91.52. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Z91.52"
+display = "Personal history of nonsuicidal self-harm"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

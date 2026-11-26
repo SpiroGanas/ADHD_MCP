@@ -1,0 +1,26 @@
+id = "symptom.attention_executive"
+version = "0.1.0"
+title = "Attention and executive-function symptoms"
+description = "R41.840 carries Excludes1 F90.-. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "R41.840"
+display = "Attention and concentration deficit"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "R41.844"
+display = "Frontal lobe and executive function deficit"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

@@ -1,0 +1,20 @@
+id = "cssrs_screener"
+version = "0.1.0"
+title = "Columbia Suicide Severity Rating Scale, screener (C-SSRS)"
+licensing_note = "C-SSRS is copyright Dr. Kelly Posner. No item text is stored here. The screener is scored by risk level, not by a sum; there is no total-score code."
+
+[[codes]]
+role = "panel"
+system = "http://loinc.org"
+code = "93373-9"
+display = "Columbia - suicide severity rating scale screener - recent [C-SSRS]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[codes]]
+role = "risk_level"
+system = "http://loinc.org"
+code = "93374-7"
+display = "Suicide risk level"
+verified = false
+note = "Answer list LL465-6: Low LA9194-7, Moderate LA6751-7, High LA9193-9. Confirmed only through search-index summaries of loinc.org. Which risk levels make the gate positive (research: moderate or high) is defined in Phase 3."

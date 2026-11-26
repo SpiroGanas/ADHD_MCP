@@ -1,0 +1,37 @@
+id = "auditc"
+version = "0.1.0"
+title = "Alcohol Use Disorders Identification Test - Consumption (AUDIT-C)"
+
+[[codes]]
+role = "panel"
+system = "http://loinc.org"
+code = "72109-2"
+display = "Alcohol Use Disorder Identification Test - Consumption [AUDIT-C]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[codes]]
+role = "total_score"
+system = "http://loinc.org"
+code = "75626-2"
+display = "Total score [AUDIT-C]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[cutoffs]]
+id = "positive"
+sex = "male"
+code = "75626-2"
+operator = ">="
+value = 4
+verified = false
+note = "VA/DoD SUD guideline 2021 pocket card. One secondary summary says 5; check the guideline PDF before verifying."
+
+[[cutoffs]]
+id = "positive"
+sex = "female"
+code = "75626-2"
+operator = ">="
+value = 3
+verified = false
+note = "VA/DoD SUD guideline 2021 pocket card. Check the guideline PDF before verifying."

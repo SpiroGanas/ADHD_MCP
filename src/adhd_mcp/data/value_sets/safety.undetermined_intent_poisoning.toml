@@ -1,0 +1,15 @@
+id = "safety.undetermined_intent_poisoning"
+version = "0.1.0"
+title = "Poisoning, undetermined intent (T36-T65)"
+description = "Safety gate signal (undetermined intent counts). Same character-position rule as intentional self-poisoning; 4 = undetermined. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "regex"
+code = "T(?:3[6-9]|[45][0-9]|6[0-5])\\.(?:[0-9A-Z]{2}4[ADS]?|[0-9A-Z]4X[ADS])"
+display = "T36-T65 codes whose intent digit is 4"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

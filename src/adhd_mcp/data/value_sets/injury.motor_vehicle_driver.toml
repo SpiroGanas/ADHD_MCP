@@ -1,0 +1,444 @@
+id = "injury.motor_vehicle_driver"
+version = "0.1.0"
+title = "Car or motorcycle driver injured in a transport accident"
+description = "Driver is the 4th character: V40-V48 use 0 (nontraffic) and 5 (traffic); V49 and V20-V29 use 0 and 4. '(driver) (passenger)' codes such as V49.3, V49.8, V49.9, V29.3, V29.8 and V29.9 are not counted. V20-V29 include electric (assisted) bicycle drivers (5th character 1; open question). FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V40.0"
+display = "Car driver injured in collision with pedestrian or animal in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V40.5"
+display = "Car driver injured in collision with pedestrian or animal in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V41.0"
+display = "Car driver injured in collision with pedal cycle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V41.5"
+display = "Car driver injured in collision with pedal cycle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V42.0"
+display = "Car driver injured in collision with two- or three-wheeled motor vehicle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V42.5"
+display = "Car driver injured in collision with two- or three-wheeled motor vehicle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V43.0"
+display = "Car driver injured in collision with car, pick-up truck or van in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V43.5"
+display = "Car driver injured in collision with car, pick-up truck or van in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V44.0"
+display = "Car driver injured in collision with heavy transport vehicle or bus in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V44.5"
+display = "Car driver injured in collision with heavy transport vehicle or bus in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V45.0"
+display = "Car driver injured in collision with railway train or railway vehicle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V45.5"
+display = "Car driver injured in collision with railway train or railway vehicle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V46.0"
+display = "Car driver injured in collision with other nonmotor vehicle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V46.5"
+display = "Car driver injured in collision with other nonmotor vehicle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V47.0"
+display = "Car driver injured in collision with fixed or stationary object in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V47.5"
+display = "Car driver injured in collision with fixed or stationary object in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V48.0"
+display = "Car driver injured in noncollision transport accident in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V48.5"
+display = "Car driver injured in noncollision transport accident in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V49.0"
+display = "Driver injured in collision with other and unspecified motor vehicles in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V49.4"
+display = "Driver injured in collision with other and unspecified motor vehicles in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V20.0"
+display = "Motorcycle driver injured in collision with pedestrian or animal in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V20.4"
+display = "Motorcycle driver injured in collision with pedestrian or animal in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V21.0"
+display = "Motorcycle driver injured in collision with pedal cycle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V21.4"
+display = "Motorcycle driver injured in collision with pedal cycle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V22.0"
+display = "Motorcycle driver injured in collision with two- or three-wheeled motor vehicle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V22.4"
+display = "Motorcycle driver injured in collision with two- or three-wheeled motor vehicle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V23.0"
+display = "Motorcycle driver injured in collision with car, pick-up truck or van in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V23.4"
+display = "Motorcycle driver injured in collision with car, pick-up truck or van in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V24.0"
+display = "Motorcycle driver injured in collision with heavy transport vehicle or bus in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V24.4"
+display = "Motorcycle driver injured in collision with heavy transport vehicle or bus in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V25.0"
+display = "Motorcycle driver injured in collision with railway train or railway vehicle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V25.4"
+display = "Motorcycle driver injured in collision with railway train or railway vehicle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V26.0"
+display = "Motorcycle driver injured in collision with other nonmotor vehicle in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V26.4"
+display = "Motorcycle driver injured in collision with other nonmotor vehicle in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V27.0"
+display = "Motorcycle driver injured in collision with fixed or stationary object in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V27.4"
+display = "Motorcycle driver injured in collision with fixed or stationary object in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V28.0"
+display = "Motorcycle driver injured in noncollision transport accident in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V28.4"
+display = "Motorcycle driver injured in noncollision transport accident in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V29.0"
+display = "Motorcycle driver injured in collision with other and unspecified motor vehicles in nontraffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "V29.4"
+display = "Motorcycle driver injured in collision with other and unspecified motor vehicles in traffic accident"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

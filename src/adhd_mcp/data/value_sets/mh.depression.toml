@@ -1,0 +1,37 @@
+id = "mh.depression"
+version = "0.1.0"
+title = "Depressive disorders (F32, F33, F34.1)"
+description = "F32 includes F32.81 premenstrual dysphoric disorder and F32.A depression, unspecified (open question on F32.81). FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "F32"
+display = "Depressive episode"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "F33"
+display = "Major depressive disorder, recurrent"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "F34.1"
+display = "Dysthymic disorder"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List (icd10c-tabular-April-1-2026.xml, sha256 f161f818...2935)"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

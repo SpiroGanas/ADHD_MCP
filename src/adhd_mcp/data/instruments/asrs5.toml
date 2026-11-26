@@ -1,0 +1,16 @@
+id = "asrs5"
+version = "0.1.0"
+title = "Adult ADHD Self-Report Scale for DSM-5, 6-item screener (ASRS-5)"
+licensing_note = "No item text is stored here."
+
+# No LOINC code was found for the ASRS-5 or for the ASRS v1.1 Part A total.
+# LOINC 62750-5, named in the research, is a PhenX protocol term, not a score.
+# How ASRS results are recognized in FHIR data is an open design question.
+
+[[cutoffs]]
+id = "positive"
+code = "asrs5-total"
+operator = ">="
+value = 14
+verified = false
+note = "Ustun et al., JAMA Psychiatry 2017 (PMID 28384801), weighted score range 0-24; checked through the abstract only. Errata exist (2017, 2019)."
