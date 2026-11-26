@@ -23,7 +23,7 @@ To use another local server, set `ADHD_MCP_TEST_FHIR_URL` (default `http://local
 ## Safety
 
 - `scripts/load_personas.py` is test tooling and writes to the server. The MCP server itself never writes.
-- The loader refuses any host other than `localhost`, `127.0.0.1` or the compose service name `fhir`, unless `--allow-remote-test-server` is given. Never point it at a server holding real data.
+- The loader refuses any host other than loopback (`localhost`, `127.0.0.1`, `::1`) unless `--allow-remote-test-server` is given. Never point it at a server holding real data.
 
 ## Stop it
 

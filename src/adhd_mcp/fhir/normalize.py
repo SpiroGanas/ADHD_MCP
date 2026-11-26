@@ -97,7 +97,11 @@ def _concepts(raw: Iterable[Raw] | None) -> tuple[Coding, ...]:
 def _value(raw: Raw, prefix: str = "value") -> Value | None:  # noqa: PLR0911
     if (q := raw.get(prefix + "Quantity")) is not None:
         number = q.get("value")
-        return Value(number=float(number) if number is not None else None, unit=q.get("unit"))
+        return Value(
+            number=float(number) if number is not None else None,
+            comparator=q.get("comparator"),
+            unit=q.get("unit"),
+        )
     for suffix in ("Integer", "Decimal"):
         if (n := raw.get(prefix + suffix)) is not None:
             return Value(number=float(n))
@@ -113,6 +117,8 @@ def _value(raw: Raw, prefix: str = "value") -> Value | None:  # noqa: PLR0911
             return Value(date=parse_fhir_date(raw[prefix + suffix]))
     if raw.get(prefix + "String") is not None:
         return Value(has_text=True)
+    if any(key.startswith(prefix) and key != prefix for key in raw):
+        return Value(unsupported=True)
     return None
 
 

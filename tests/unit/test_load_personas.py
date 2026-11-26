@@ -19,3 +19,9 @@ def test_transaction_puts_every_persona_resource_at_its_own_id() -> None:
             "method": "PUT",
             "url": f"{resource['resourceType']}/{resource['id']}",
         }
+
+
+@pytest.mark.parametrize("url", ["http://fhir/fhir", "http://fhir.internal.example:8080/fhir"])
+def test_only_loopback_hosts_are_allowed(url: str) -> None:
+    with pytest.raises(SystemExit, match="non-local"):
+        load(url)

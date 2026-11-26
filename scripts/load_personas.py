@@ -3,7 +3,7 @@
 Usage: uv run python scripts/load_personas.py [--url http://localhost:8080/fhir]
 
 This test tool writes (a transaction of PUTs). It is not part of the server, which is
-read-only. It refuses any host other than a local test server unless --allow-remote-test-server
+read-only. It refuses any host other than loopback (localhost) unless --allow-remote-test-server
 is given, so synthetic data is never pushed to a real system by accident.
 """
 
@@ -21,7 +21,7 @@ sys.path.insert(0, str(ROOT))
 from tests.personas import load_bundle, persona_ids  # noqa: E402
 
 DEFAULT_URL = "http://localhost:8080/fhir"
-LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "fhir"})
+LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
 
 
 def transaction() -> dict[str, Any]:

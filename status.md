@@ -8,7 +8,7 @@ Read this first. Update it whenever the state of the work changes (rules in [CLA
 
 ## Summary
 
-A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR access layer is complete: a read-only port with fixture and HTTP adapters (both pass one shared suite, the HTTP adapter also against a live HAPI FHIR server), normalization to typed records, a typed record reader, and a terminology store with 34 verified ICD-10-CM value sets and six screening instruments (LOINC codes and cutoffs still unverified). Ten synthetic personas specify expected outcomes. No clinical tool or rule exists yet.
+A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR access layer is complete: a read-only port with fixture and HTTP adapters (both pass one shared suite, the HTTP adapter also against a live HAPI FHIR server), normalization to typed records, a typed record reader, and a terminology store with 33 verified ICD-10-CM value sets and six screening instruments (LOINC codes and cutoffs still unverified). Ten synthetic personas specify expected outcomes. No clinical tool or rule exists yet.
 
 ## Done
 
@@ -19,13 +19,13 @@ A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR acc
 
 ## In progress
 
-- Phases 1 and 2 pull request: waiting for CI (first run of the CI and integration workflows) and review.
+- Phases 1 and 2 pull request: waiting for CI (first run of the CI and integration workflows) and review. The clinical safety review is done; its two blocking findings and most minor ones are fixed (see the PR description).
 
 ## Next steps
 
 1. Watch the PR through CI and review; fix anything that fails.
 2. Project owner: make the CI checks required for merge on `main` (repository settings; Phase 1 exit criterion the agent cannot set). Answer open questions 1, 2 and 7 to 12 below.
-3. Phase 3, work item 1, `check_safety_gate`. First write the persona expectations (p03 positive; p07 and p08 `clear_limited_data`; others clear) and a rule card draft, then the first failing test: an evidence assembler returns a positive gate citing `p03-cond-1` for R45.851, using `PatientRecords.conditions(..., value_set=load_value_set("safety.suicidal_ideation"))`. LOINC-based checks (PHQ-9 item 9, C-SSRS) cannot be active until follow-up F2 verifies those codes.
+3. Phase 3, work item 1, `check_safety_gate`. First write the persona expectations (p03 positive; p07 and p08 `clear_limited_data`; others clear) and a rule card draft, then the first failing test: an evidence assembler returns a positive gate citing `p03-cond-1` for R45.851, using `PatientRecords.conditions(..., value_set=load_value_set("safety.suicidal_ideation"))`. LOINC-based checks (PHQ-9 item 9, C-SSRS) cannot be active until follow-up F2 verifies those codes, and no `safety.*` value set may be used in an active check until follow-up F1 (FY2027, hash comparison, human spot-check) is done. Do not use `since` on safety-gate Condition searches: it drops conditions without a recordedDate.
 
 ## Open questions for the project owner
 
@@ -43,6 +43,7 @@ A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR acc
 | 10 | Substance codes: include F13 (sedatives), F16 (hallucinogens), F18 (inhalants)? Count caffeine (F15 includes it)? Exclude Y90.0 (blood alcohol under 20 mg/100 ml)? | Phase 4 |
 | 11 | Other signal boundaries: count electric-bicycle drivers in V20-V29? Keep F32.81 (premenstrual dysphoric disorder) inside the depression family? Add G47.09 (other insomnia)? Use an explicit subset of Z55/Z56 rather than whole categories? Which housing codes count: homelessness Z59.0, housing instability Z59.81, inadequate housing Z59.1? | Phase 4 |
 | 12 | How should ASRS results be recognised in FHIR data, given no LOINC score code was found (follow-up F3)? | Phase 3 |
+| 13 | FHIR servers can return OperationOutcome warnings in a search (for example truncated or withheld results). Today the port returns only a list and drops them. Change the port to return them so outputs can disclose incomplete data? Proposal: yes, before the Phase 3 data-completeness note. This changes the port interface | Phase 3 |
 
 ## Decisions
 

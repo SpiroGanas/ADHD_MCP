@@ -22,17 +22,21 @@ class _Record(BaseModel):
 class Value(BaseModel):
     """A value from an observation, component or questionnaire answer.
 
-    Free-text values are not kept; ``has_text`` records only that one was present.
+    Free-text values are not kept; ``has_text`` records only that one was present. A value of
+    a type not normalized here (Range, Ratio, Period, Time, ...) sets ``unsupported`` so it
+    is never mistaken for a missing value.
     """
 
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     number: float | None = None
+    comparator: str | None = None
     unit: str | None = None
     codings: tuple[Coding, ...] = ()
     boolean: bool | None = None
     date: DateRange | None = None
     has_text: bool = False
+    unsupported: bool = False
 
 
 class PatientRecord(_Record):

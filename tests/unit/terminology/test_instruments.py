@@ -81,3 +81,11 @@ def test_packaged_instruments_load() -> None:
 def test_unknown_instrument_is_an_error() -> None:
     with pytest.raises(LookupError):
         load_instrument("nope", strict=False)
+
+
+def test_strict_loading_refuses_every_packaged_instrument_while_unverified() -> None:
+    for instrument_id in packaged_instrument_ids():
+        instrument = load_instrument(instrument_id, strict=False)
+        if instrument.unverified():
+            with pytest.raises(UnverifiedContentError):
+                load_instrument(instrument_id, strict=True)

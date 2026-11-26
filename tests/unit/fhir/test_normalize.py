@@ -345,3 +345,31 @@ def test_service_request_and_flag() -> None:
     )
     assert isinstance(flag, FlagRecord)
     assert flag.period is not None
+
+
+def test_quantity_comparator_is_kept() -> None:
+    record = normalize(
+        {
+            "resourceType": "Observation",
+            "id": "o4",
+            "status": "final",
+            "valueQuantity": {"value": 20, "comparator": "<", "unit": "mg/dL"},
+        }
+    )
+    assert isinstance(record, ObservationRecord)
+    assert record.value == Value(number=20.0, comparator="<", unit="mg/dL")
+
+
+@pytest.mark.parametrize(
+    "element",
+    [
+        {"valueRange": {"low": {"value": 1}}},
+        {"valueRatio": {"numerator": {"value": 1}}},
+        {"valuePeriod": {"start": "2024"}},
+        {"valueTime": "10:00:00"},
+    ],
+)
+def test_unsupported_value_types_are_flagged_not_lost(element: dict[str, Any]) -> None:
+    record = normalize({"resourceType": "Observation", "id": "o5", "status": "final", **element})
+    assert isinstance(record, ObservationRecord)
+    assert record.value == Value(unsupported=True)
