@@ -7,14 +7,29 @@ from importlib.resources import files
 from pydantic import BaseModel, ConfigDict
 
 
-class Wording(BaseModel):
-    """Approved clinician-facing text, loaded from ``data/wording.toml``."""
-
+class _Frozen(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class ForbiddenPattern(_Frozen):
+    id: str
+    pattern: str
+
+
+class DiagnosticLanguage(_Frozen):
+    """Phrasings that state or imply a diagnosis; ``{condition}`` is a placeholder."""
+
+    conditions: list[str]
+    patterns: list[ForbiddenPattern]
+
+
+class Wording(_Frozen):
+    """Approved clinician-facing text, loaded from ``data/wording.toml``."""
 
     version: str
     standard_notice: str
     approved_recommendation: str
+    diagnostic_language: DiagnosticLanguage
 
 
 @cache

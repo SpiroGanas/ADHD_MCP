@@ -8,3 +8,45 @@ standard_notice = "This is a suggestion to consider referral for formal screenin
 
 # The approved phrasing for a positive referral suggestion.
 approved_recommendation = "Consider referral for formal ADHD screening."
+
+# Phrasings that state or imply a diagnosis (standing invariant 1). Every tool output is
+# scanned for these in tests. Patterns are Python regular expressions, matched
+# case-insensitively; "{condition}" is replaced by the alternation of condition names below.
+[diagnostic_language]
+conditions = [
+    "ADHD",
+    "attention[- ]deficit(?:[/ -]hyperactivity)?(?: disorder)?",
+    "autism(?: spectrum disorder)?",
+]
+
+[[diagnostic_language.patterns]]
+id = "subject-has-condition"
+pattern = "\\b(?:has|have|had)\\s+(?:adult\\s+)?(?:{condition})\\b"
+
+[[diagnostic_language.patterns]]
+id = "suffers-from"
+pattern = "\\bsuffer(?:s|ing)?\\s+from\\s+(?:adult\\s+)?(?:{condition})\\b"
+
+[[diagnostic_language.patterns]]
+id = "consistent-with"
+pattern = "\\b(?:consistent\\s+with|indicative\\s+of|diagnostic\\s+of|meets?\\s+(?:the\\s+)?criteria\\s+for)\\s+(?:adult\\s+)?(?:{condition})\\b"
+
+[[diagnostic_language.patterns]]
+id = "likely-condition"
+pattern = "\\b(?:likely|probable|probably|presumed|suspected|confirmed|positive\\s+for)\\s+(?:adult\\s+)?(?:{condition})\\b"
+
+[[diagnostic_language.patterns]]
+id = "condition-confirmed"
+pattern = "\\b(?:{condition})\\s+(?:is\\s+)?(?:confirmed|present|detected|identified)\\b"
+
+[[diagnostic_language.patterns]]
+id = "diagnosis-label"
+pattern = "\\bdiagnosis\\s*:\\s*(?:adult\\s+)?(?:{condition})\\b"
+
+[[diagnostic_language.patterns]]
+id = "is-a-diagnosis"
+pattern = "\\b(?:is|constitutes|represents)\\s+an?\\s+(?:\\w+\\s+)?diagnosis\\b"
+
+[[diagnostic_language.patterns]]
+id = "diagnosed-with"
+pattern = "\\b(?:is|are|was|be)\\s+diagnosed\\s+(?:with|as)\\b"
