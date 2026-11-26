@@ -17,13 +17,16 @@ The repository holds research, planning and documentation only. No code, tooling
 
 ## In progress
 
-- Phase 1 and Phase 2, one PR with a commit per work item (owner decision 2026-11-26). Starting with Phase 1 work item 1 (tooling, ADR 0006).
+Phases 1 and 2 in one PR (owner decision), one commit per work item, on `claude/intelligent-sagan-imj1bh`.
+
+- Phase 1: all items committed (tooling, layout, CI, skeleton, harness, domain models, wording guard, verification sprint 1).
+- Phase 2 committed: item 4 normalization (`src/adhd_mcp/fhir/`), item 5 terminology store (`src/adhd_mcp/terminology/`), item 9 verification sprint 2.
+- Phase 2 remaining: item 1 FHIR port, item 2 fixture adapter, item 3 HTTP adapter (shared adapter suite), item 6 personas, item 7 bulk generator, item 8 local FHIR server (`docker-compose.yml` exists) and integration CI job.
 
 ## Next steps
 
-1. Project owner answers the open questions below (questions 1 and 2 are needed by Phase 3).
-2. Begin Phase 1, work item 1: choose and pin tooling (Python version, FastMCP version, package manager, test runner, linter, type checker). Check current FastMCP and MCP specification documentation first. Record the result as ADR 0006 and fill in the "Commands" section of CLAUDE.md.
-3. Phase 1, work items 2 to 5: repository layout, CI, the `get_server_info` walking skeleton, and the test harness. First failing test: the server lists exactly one tool, `get_server_info`.
+1. Write the shared adapter behaviour suite (`tests/adapters/`), first test: the fixture adapter returns a persona's conditions; then the port and fixture adapter.
+2. HTTP adapter against a stubbed server, then personas, bulk generator, integration tests, PR.
 
 ## Open questions for the project owner
 
