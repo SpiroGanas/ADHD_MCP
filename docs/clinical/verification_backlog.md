@@ -18,7 +18,7 @@ Authoritative sources: the CDC ICD-10-CM browser and current fiscal-year tabular
 
 Checked by the Claude Code agent under the project owner's delegation of 2026-11-26.
 
-- **ICD-10-CM** items were checked against the official CMS/NCHS tabular list, FY2026 April 1 2026 update (`icd10c-tabular-April-1-2026.xml`, sha256 `f161f8182aff3ce3a2a78e202f8259c08eaee2c670a9e45b0072445c52302935`), parsed directly. Every value set was then run against every code in that file using the project's own matcher. Items are marked Verified or Corrected on that basis. **FY2027 (effective 2026-10-01) was not checked directly** because cdc.gov and cms.gov were not reachable from the build environment; secondary change summaries report no FY2027 change to any code in scope. Follow-up item F1 below.
+- **ICD-10-CM** items were checked against the CMS/NCHS tabular list, FY2026 April 1 2026 update (`icd10c-tabular-April-1-2026.xml`, sha256 `f161f8182aff3ce3a2a78e202f8259c08eaee2c670a9e45b0072445c52302935`). **The file was obtained from the PyPI package `simple-icd-10-cm` 1.5.0, which redistributes it; its hash has not yet been compared with a file downloaded from CMS or NCHS**, because cdc.gov and cms.gov were not reachable from the build environment. Every value set was run against every code in the file with the project's own matcher (`scripts/verify_icd10cm_value_sets.py`; output in [verification/icd10cm_fy2026_check.md](verification/icd10cm_fy2026_check.md)). Items are marked Verified or Corrected on that basis. **FY2027 (effective 2026-10-01), the current fiscal year, was not checked directly**; secondary change summaries report no FY2027 change to any code in scope. All entries were checked by the agent; no human has spot-checked them yet. Follow-up item F1.
 - **LOINC codes and cutoffs** could only be confirmed through search-engine summaries of loinc.org and abstracts; loinc.org, ptsd.va.gov and healthquality.va.gov were not reachable. They stay **Unverified**, with the finding recorded. Follow-up item F2.
 - The value set files in `src/adhd_mcp/data/value_sets/` and instrument files in `src/adhd_mcp/data/instruments/` carry the same status per entry.
 
@@ -77,7 +77,7 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 
 | # | Item | Needed by |
 |---|---|---|
-| F1 | Re-check every ICD-10-CM value set against the FY2027 tabular and addenda (cdc.gov or cms.gov must be reachable) | Before Phase 5 release of a ruleset |
+| F1 | Compare the tabular file's hash with a CMS/NCHS download; re-run `scripts/verify_icd10cm_value_sets.py` against the FY2027 tabular and addenda (cdc.gov or cms.gov must be reachable); have a human spot-check the `safety.*` value sets | Phase 3 for the `safety.*` sets, before any `safety.*` set is used in an active check; Phase 4 for the rest |
 | F2 | Verify every LOINC code on loinc.org directly (record the LOINC version), and the AUDIT-C, PC-PTSD-5, PHQ-2, PHQ-9 item 9 and ASRS-5 cutoffs against the primary publications | Phase 3 |
 | F3 | Find how ASRS results are coded in FHIR data, since no LOINC score code was found | Phase 3 |
 
