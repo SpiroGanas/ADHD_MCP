@@ -1,0 +1,56 @@
+"""Standing invariant 4: no tool or adapter can write to a FHIR server.
+
+Behavioural proof is in tests/adapters (every request the HTTP adapter makes is a GET).
+These structural checks stop a write path from being added quietly.
+"""
+
+import inspect
+import re
+from pathlib import Path
+
+import adhd_mcp
+from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
+from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
+from adhd_mcp.fhir.port import FhirReadPort
+
+READ_METHODS = {"read_patient", "search"}
+SOURCE_ROOT = Path(adhd_mcp.__file__).parent
+WRITE_CALL = re.compile(
+    r"\.(post|put|patch|delete)\(|method\s*=\s*[\"'](POST|PUT|PATCH|DELETE)[\"']"
+    r"|[\"'](POST|PUT|PATCH|DELETE)[\"']\s*,",
+    re.IGNORECASE,
+)
+
+
+def public_methods(cls: type) -> set[str]:
+    return {
+        name
+        for name, member in inspect.getmembers(cls)
+        if not name.startswith("_") and callable(member)
+    }
+
+
+def test_port_declares_only_read_methods() -> None:
+    assert public_methods(FhirReadPort) == READ_METHODS
+
+
+def test_adapters_expose_no_write_methods() -> None:
+    assert public_methods(FixtureFhirAdapter) == READ_METHODS | {"from_directory"}
+    assert public_methods(HttpFhirAdapter) == READ_METHODS | {"aclose"}
+
+
+def test_no_source_file_issues_an_http_write() -> None:
+    offenders = [
+        f"{path.relative_to(SOURCE_ROOT)}:{n}"
+        for path in SOURCE_ROOT.rglob("*.py")
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+        if WRITE_CALL.search(line)
+    ]
+    assert offenders == []
+
+
+def test_write_pattern_detects_write_calls() -> None:
+    assert WRITE_CALL.search("await client.post(url, json=x)")
+    assert WRITE_CALL.search('client.request(method="PUT", url=u)')
+    assert WRITE_CALL.search('client.request("DELETE", u)')
+    assert not WRITE_CALL.search("await client.get(url)")
