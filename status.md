@@ -4,7 +4,7 @@ Read this first. Update it whenever the state of the work changes (rules in [CLA
 
 **Last updated:** 2026-11-26
 **Current phase:** Planning complete. Phase 1 (Foundations and walking skeleton) not started.
-**Branch:** `claude/brave-volta-fl1c39`
+**Branch:** none active; start Phase 1 on a new branch from `main`
 
 ## Summary
 
@@ -13,7 +13,7 @@ The repository holds research, planning and documentation only. No code, tooling
 ## Done
 
 - Research report and source notes ([research/](research/)), merged earlier.
-- Planning and documentation set (2026-11-26): README, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, project_plan.md, this file, architecture document, ADRs 0001 to 0005, clinical documents, GitHub templates, Claude Code commands and reviewer subagent.
+- Planning and documentation set (2026-11-26, [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2)): README, CLAUDE.md, AGENTS.md, CONTRIBUTING.md, project_plan.md, this file, architecture document, ADRs 0001 to 0005, clinical documents, GitHub templates, Claude Code commands and reviewer subagent.
 
 ## In progress
 
@@ -21,7 +21,7 @@ Nothing.
 
 ## Next steps
 
-1. Project owner reviews the planning documents, especially [project_plan.md](project_plan.md) and the open questions below.
+1. Project owner answers the open questions below (questions 1 and 2 are needed by Phase 3).
 2. Begin Phase 1, work item 1: choose and pin tooling (Python version, FastMCP version, package manager, test runner, linter, type checker). Check current FastMCP and MCP specification documentation first. Record the result as ADR 0006 and fill in the "Commands" section of CLAUDE.md.
 3. Phase 1, work items 2 to 5: repository layout, CI, the `get_server_info` walking skeleton, and the test harness. First failing test: the server lists exactly one tool, `get_server_info`.
 
@@ -50,3 +50,4 @@ Scope decisions made 2026-11-26 are recorded in [project_plan.md](project_plan.m
 | PR | Subject | State |
 |---|---|---|
 | [SpiroGanas/ADHD_MCP#1](https://github.com/SpiroGanas/ADHD_MCP/pull/1) | Research report | Merged |
+| [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2) | Project plan, architecture and working documentation | Merged |
