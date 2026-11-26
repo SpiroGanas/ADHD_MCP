@@ -1,7 +1,9 @@
 """A FHIR R4 adapter over HTTP. Read-only: it issues GET requests and nothing else.
 
 * Search follows ``next`` links to the end, but only within the configured server's origin
-  and base path (a server cannot redirect the client elsewhere).
+  and base path (a server cannot redirect the client elsewhere), and at most ``max_pages``.
+* Resources of the searched type without an id are passed on, so normalization reports
+  them as skipped instead of their vanishing here.
 * Timeouts, connection errors, 429 and 5xx are retried with exponential backoff; a numeric
   ``Retry-After`` is honoured up to ``max_backoff``. Other failures are not retried.
 * A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
@@ -42,6 +44,7 @@ class HttpFhirAdapter:
         backoff_base: float = 0.5,
         max_backoff: float = 8.0,
         page_size: int = 100,
+        max_pages: int = 1000,
         sleep: Sleep = asyncio.sleep,
     ) -> None:
         url = httpx2.URL(base_url.rstrip("/"))
@@ -58,6 +61,7 @@ class HttpFhirAdapter:
         self._backoff_base = backoff_base
         self._max_backoff = max_backoff
         self._page_size = page_size
+        self._max_pages = max_pages
         self._sleep = sleep
 
     async def __aenter__(self) -> Self:
@@ -82,7 +86,7 @@ class HttpFhirAdapter:
             url.scheme == self._base.scheme
             and url.host == self._base.host
             and url.port == self._base.port
-            and url.path.startswith(self._base.path)
+            and (url.path == self._base.path or url.path.startswith(self._base.path + "/"))
         )
 
     def _delay(self, attempt: int, response: httpx2.Response | None) -> float:
@@ -152,20 +156,29 @@ class HttpFhirAdapter:
 
         label = f"search {resource_type}"
         results: dict[tuple[str, str], RawResource] = {}
+        without_id: list[RawResource] = []
         url: httpx2.URL | None = self._url(resource_type)
         page_params: dict[str, str] | None = params
+        pages = 0
         while url is not None:
+            pages += 1
+            if pages > self._max_pages:
+                raise FhirRequestError(
+                    f"{label}: stopped after {self._max_pages} pages", transient=False
+                )
             bundle = await self._get(url, label, page_params)
             if not isinstance(bundle, dict) or bundle.get("resourceType") != "Bundle":
                 raise FhirRequestError(f"{label}: response is not a Bundle", transient=False)
             for entry in bundle.get("entry") or []:
                 resource = entry.get("resource") or {}
                 kind = resource.get("resourceType")
-                if kind in (resource_type, "Medication") and resource.get("id"):
+                if kind == resource_type and not resource.get("id"):
+                    without_id.append(resource)  # reported as skipped by normalization
+                elif kind in (resource_type, "Medication") and resource.get("id"):
                     results[(kind, resource["id"])] = resource
             url = self._next_link(bundle, label)
             page_params = None
-        return list(results.values())
+        return list(results.values()) + without_id
 
     def _next_link(self, bundle: dict[str, Any], label: str) -> httpx2.URL | None:
         for link in bundle.get("link") or []:

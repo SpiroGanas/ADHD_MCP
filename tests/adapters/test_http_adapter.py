@@ -6,7 +6,9 @@ import pytest
 
 from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
+from adhd_mcp.fhir.normalize import normalize_many
 from adhd_mcp.fhir.port import SEARCHABLE_TYPES
+from adhd_mcp.fhir.records import SkipReason
 from tests.adapters.shared_suite import SharedAdapterSuite, bundle_ids
 from tests.helpers.fake_fhir_server import BASE, FakeFhirServer
 from tests.personas import all_resources
@@ -178,3 +180,46 @@ async def test_operation_outcome_entries_are_ignored(
 def test_base_url_must_be_http_or_https() -> None:
     with pytest.raises(ValueError, match="base URL"):
         HttpFhirAdapter("ftp://fhir.test/r4")
+
+
+async def test_resources_without_an_id_are_passed_on_to_be_reported(
+    adapter: HttpFhirAdapter, server: FakeFhirServer
+) -> None:
+    bundle = {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "entry": [
+            {"resource": {"resourceType": "Condition"}},
+            {"resource": {"resourceType": "Condition"}},
+            {"resource": {"resourceType": "Condition", "id": "c1"}},
+        ],
+    }
+    server.fail_next = [httpx2.Response(200, json=bundle)]
+    found = await adapter.search("Condition", "p01-patient")
+    assert len(found) == 3
+    skipped = normalize_many(found).skipped
+    assert [s.reason for s in skipped] == [SkipReason.NO_ID, SkipReason.NO_ID]
+
+
+async def test_refuses_a_next_link_outside_the_base_path(
+    adapter: HttpFhirAdapter, server: FakeFhirServer
+) -> None:
+    server.next_link_base = "http://fhir.test/r4-other"
+    with pytest.raises(FhirRequestError, match="origin"):
+        await adapter.search("Condition", "p01-patient")
+
+
+async def test_stops_a_paging_loop(server: FakeFhirServer, sleeps: Sleeps) -> None:
+    loop = {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "link": [{"relation": "next", "url": f"{BASE}/Condition?patient=p01-patient"}],
+        "entry": [],
+    }
+    server.fail_next = [httpx2.Response(200, json=loop) for _ in range(10)]
+    async with HttpFhirAdapter(
+        BASE, transport=server.transport(), max_pages=5, sleep=sleeps
+    ) as adapter:
+        with pytest.raises(FhirRequestError, match="pages"):
+            await adapter.search("Condition", "p01-patient")
+    assert len(server.requests) == 5
