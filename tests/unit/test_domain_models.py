@@ -114,3 +114,66 @@ def test_recommendation_vocabulary_is_fixed() -> None:
 def test_exclusion_found_requires_references() -> None:
     with pytest.raises(ValidationError, match="references"):
         ExclusionCheck(check="existing ADHD diagnosis", found=True)
+
+
+def gate(status: SafetyGateStatus) -> SafetyGateResult:
+    evidence_items = [evidence(signal="suicidal_ideation", weight_class=None)]
+    return SafetyGateResult(
+        status=status,
+        checks_performed=["self-harm codes"],
+        evidence=evidence_items if status is SafetyGateStatus.POSITIVE else [],
+    )
+
+
+def recommendation(
+    code: RecommendationCode, gate_status: SafetyGateStatus, **extra: object
+) -> Recommendation:
+    fields: dict[str, object] = {
+        "recommendation": code,
+        "condition_to_screen": "adult ADHD",
+        "safety_gate": gate(gate_status),
+        "basis": [evidence()],
+        "versions": {"server": "0.1.0", "tool_contract": "0.1.0"},
+    }
+    fields.update(extra)
+    return Recommendation.model_validate(fields)
+
+
+@pytest.mark.parametrize(
+    "code", [c for c in RecommendationCode if c is not RecommendationCode.ADDRESS_SAFETY_GATE_FIRST]
+)
+def test_a_positive_gate_allows_only_address_safety_gate_first(code: RecommendationCode) -> None:
+    with pytest.raises(ValidationError, match="safety gate"):
+        recommendation(code, SafetyGateStatus.POSITIVE)
+    assert (
+        recommendation(
+            RecommendationCode.ADDRESS_SAFETY_GATE_FIRST, SafetyGateStatus.POSITIVE
+        ).safety_gate.status
+        is SafetyGateStatus.POSITIVE
+    )
+
+
+@pytest.mark.parametrize(
+    "code", [RecommendationCode.CONSIDER_REFERRAL, RecommendationCode.NO_RECOMMENDATION]
+)
+def test_an_unavailable_gate_never_yields_a_clean_or_referral_result(
+    code: RecommendationCode,
+) -> None:
+    with pytest.raises(ValidationError, match="safety gate"):
+        recommendation(code, SafetyGateStatus.DATA_UNAVAILABLE)
+
+
+def test_address_safety_gate_first_needs_a_positive_gate() -> None:
+    with pytest.raises(ValidationError, match="safety gate"):
+        recommendation(RecommendationCode.ADDRESS_SAFETY_GATE_FIRST, SafetyGateStatus.CLEAR)
+
+
+def test_a_referral_suggestion_needs_evidence() -> None:
+    with pytest.raises(ValidationError, match="basis"):
+        recommendation(RecommendationCode.CONSIDER_REFERRAL, SafetyGateStatus.CLEAR, basis=[])
+
+
+def test_safety_gate_is_serialised_before_the_recommendation() -> None:
+    rec = recommendation(RecommendationCode.CONSIDER_REFERRAL, SafetyGateStatus.CLEAR)
+    keys = list(rec.model_dump())
+    assert keys.index("safety_gate") < keys.index("recommendation")

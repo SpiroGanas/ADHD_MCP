@@ -123,15 +123,40 @@ class Versions(_Frozen):
 
 
 class Recommendation(_Frozen):
-    """Result of an assessment. The schema is fixed by contract tests in Phase 5."""
+    """Result of an assessment. The schema is fixed by contract tests in Phase 5.
 
+    The safety gate is the first field, so it is presented first. Validators keep the
+    recommendation consistent with the gate: a positive gate allows only
+    "address safety gate first"; an unavailable gate never yields a clean or referral result;
+    a referral suggestion must cite evidence.
+    """
+
+    safety_gate: SafetyGateResult
     recommendation: RecommendationCode
     is_diagnosis: Literal[False] = False
     condition_to_screen: str
     suggested_next_step: str | None = None
-    safety_gate: SafetyGateResult
     basis: list[EvidenceItem] = Field(default_factory=list)
     exclusions_checked: list[ExclusionCheck] = Field(default_factory=list)
     decision_trace: list[RuleTraceEntry] = Field(default_factory=list)
     data_completeness: list[DataCompleteness] = Field(default_factory=list)
     versions: Versions
+
+    @model_validator(mode="after")
+    def _consistent_with_gate(self) -> Self:
+        gate = self.safety_gate.status
+        code = self.recommendation
+        if (gate is SafetyGateStatus.POSITIVE) != (
+            code is RecommendationCode.ADDRESS_SAFETY_GATE_FIRST
+        ):
+            raise ValueError(
+                "a positive safety gate requires, and only it allows, address_safety_gate_first"
+            )
+        if gate is SafetyGateStatus.DATA_UNAVAILABLE and code in {
+            RecommendationCode.CONSIDER_REFERRAL,
+            RecommendationCode.NO_RECOMMENDATION,
+        }:
+            raise ValueError("an unavailable safety gate cannot yield a clean or referral result")
+        if code is RecommendationCode.CONSIDER_REFERRAL and not self.basis:
+            raise ValueError("a referral suggestion must cite evidence in its basis")
+        return self
