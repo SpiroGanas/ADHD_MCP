@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "fastmcp": {
+      "tags": []
+    }
+  },
+  "arguments": [
+    {
+      "name": "patient_id",
+      "required": true
+    }
+  ],
+  "description": "Explain, for a clinician, why assess_referral_need gave its result for a patient, from the evidence it returned.",
+  "name": "explain_recommendation",
+  "title": "Explain a referral recommendation"
+}

@@ -1,6 +1,6 @@
 # Clinician-facing wording. Changing any text here is a clinical content change:
 # open a clinical content change issue and get the project owner's approval.
-version = "0.1.0"
+version = "0.2.0"
 
 # The standard notice from docs/clinical/intended_use.md. Returned by get_server_info
 # and attached to every recommendation.
@@ -15,6 +15,28 @@ evidence_notice = "These are findings from the health record for a clinician to 
 # Returned with a positive safety gate (Phase 3). Directs the clinician to suicide risk
 # evaluation and lethal-means counseling; it never states a level of risk.
 safety_gate_guidance = "Self-harm signals were found in the record. Before any other screening referral, follow your local suicide risk evaluation process (in VA, the Risk ID pathway: C-SSRS screener and Comprehensive Suicide Risk Evaluation) and offer lethal-means safety counseling. This tool does not assess suicide risk; review the listed evidence."
+
+# The suggested next step with a referral suggestion (research report: ASRS-5 at 14 or more,
+# then structured clinician evaluation such as DIVA-5).
+adhd_next_step = "Offer an adult ADHD screen (for example the ASRS-5), followed by clinician evaluation if the screen is positive."
+safety_next_step = "Follow the safety gate guidance before any screening referral."
+
+# Recommendation texts of assess_referral_need (Phase 5). Drafted 2026-11-27 by the agent for
+# owner review; consider_referral reuses the approved phrasing above.
+[recommendations]
+consider_referral_for_formal_screening = "Consider referral for formal ADHD screening."
+no_recommendation = "No referral for formal ADHD screening is suggested from the coded record. Coded data is incomplete, so this does not rule anything out; use clinical judgment."
+address_safety_gate_first = "Self-harm signals were found in the record. Follow the safety guidance first; no screening referral is suggested until the signals have been addressed. Other findings are listed for later review."
+already_in_care = "An ADHD code, referral, evaluation or care plan is already recorded, so no new referral is suggested."
+insufficient_data = "Too little data could be read to make a suggestion. Review the record directly."
+
+
+# Notes added to an assessment.
+[notes]
+tbi_overlap = "Traumatic brain injury codes are recorded. TBI can produce attention problems that resemble ADHD; if screening is pursued, consider neuropsychological evaluation to tell them apart."
+narcolepsy_medication = "Medication ordered for narcolepsy is recorded. It is not counted as an ADHD signal."
+exclusions_incomplete = "Not every existing-care check could be completed, so an existing ADHD referral or evaluation may be missed. Check the record before referring."
+heuristic = "This suggestion comes from a starting rule taken from published research. The rule has not been clinically validated."
 
 # Phrasings that state or imply a diagnosis (standing invariant 1) or assess suicide risk
 # (the tool surfaces self-harm signals; it never assesses risk). Every tool output is scanned

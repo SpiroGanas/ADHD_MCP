@@ -2,8 +2,10 @@
 
 from fastmcp import FastMCP
 
-from adhd_mcp import versions
+from adhd_mcp import prompts, resources, versions
 from adhd_mcp.tools import (
+    assessment,
+    draft_referral,
     existing_care,
     medication_timeline,
     problem_list,
@@ -43,6 +45,10 @@ def create_server(context: ToolContext | None = None) -> FastMCP:
     medication_timeline.register(mcp, context)
     utilization.register(mcp, context)
     psychosocial.register(mcp, context)
+    assessment.register(mcp, context)
+    draft_referral.register(mcp, context)
+    resources.register(mcp, context)
+    prompts.register(mcp)
     return mcp
 
 

@@ -1,0 +1,914 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Suggest whether a clinician should consider referring a patient for formal adult ADHD screening, with the evidence behind it. Runs the safety gate first: if self-harm signals are found the result is address_safety_gate_first and no screening referral is suggested. Then checks whether the patient is already in ADHD care, reads diagnoses, psychosocial codes, visits and medications, and applies the versioned ADHD ruleset (one high-weight signal with two or more modifiers, or two high-weight signal classes, within 1095 days). Returns one of consider_referral_for_formal_screening, no_recommendation, address_safety_gate_first, already_in_care or insufficient_data; the safety gate; every signal checked with its FHIR resources; each rule and whether it fired; exclusions; notes; and data completeness. Read-only. The ruleset is a starting heuristic from published research, not clinically validated. The result is never a diagnosis; a clinician decides.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "condition": {
+        "default": "adhd",
+        "description": "Condition to assess. Only 'adhd' in this version.",
+        "type": "string"
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "assess_referral_need",
+  "outputSchema": {
+    "additionalProperties": false,
+    "description": "The answer to: should a referral for formal screening be considered, and on what\nevidence? The safety gate is the first field.",
+    "properties": {
+      "as_of": {
+        "format": "date",
+        "type": "string"
+      },
+      "basis": {
+        "items": {
+          "additionalProperties": false,
+          "description": "One named signal and the FHIR resources it was found in.",
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Clinically relevant date, if known"
+            },
+            "references": {
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "signal": {
+              "description": "Signal name from the signal catalog",
+              "minLength": 1,
+              "type": "string"
+            },
+            "weight_class": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "high",
+                    "modifier"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Rule weight; null for safety-gate and context items"
+            }
+          },
+          "required": [
+            "signal",
+            "references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "condition_to_screen": {
+        "type": "string"
+      },
+      "data_completeness": {
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "decision_trace": {
+        "description": "Each rule, whether it fired, and the signals it counted",
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "fired": {
+              "type": "boolean"
+            },
+            "high_signals": {
+              "description": "High-weight signals counted",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "modifier_signals": {
+              "description": "Modifier signals counted",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "reason": {
+              "type": "string"
+            },
+            "rule_id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule_id",
+            "fired",
+            "reason",
+            "description",
+            "high_signals",
+            "modifier_signals"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "excluded": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Already in care for the condition: true, false, or null when unknown"
+      },
+      "exclusions_checked": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "check": {
+              "description": "What was looked for",
+              "minLength": 1,
+              "type": "string"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "outcome": {
+              "enum": [
+                "found",
+                "not_found",
+                "not_performed",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Why not performed or failed"
+            },
+            "references": {
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "check",
+            "outcome"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "type": "boolean"
+      },
+      "notes": {
+        "description": "Further points for the clinician, e.g. TBI overlap",
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "notice": {
+        "description": "The standard notice: a suggestion, never a diagnosis",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "recommendation": {
+        "enum": [
+          "consider_referral_for_formal_screening",
+          "no_recommendation",
+          "address_safety_gate_first",
+          "already_in_care",
+          "insufficient_data"
+        ],
+        "type": "string"
+      },
+      "recommendation_text": {
+        "description": "The recommendation in approved wording",
+        "type": "string"
+      },
+      "ruleset": {
+        "description": "Ruleset id, version and status; never clinically validated",
+        "type": "string"
+      },
+      "safety_gate": {
+        "additionalProperties": false,
+        "description": "The gate's status agrees with its checks (owner decision 2026-11-27):\n\n* positive if and only if a check found a signal;\n* otherwise data_unavailable if a check failed;\n* otherwise clear only if every check ran; clear_limited_data is used when a check\n  was not performed or the record holds too little data.",
+        "properties": {
+          "checks": {
+            "items": {
+              "additionalProperties": false,
+              "description": "One safety-gate check and what came of it.",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "outcome": {
+                  "enum": [
+                    "found",
+                    "not_found",
+                    "not_performed",
+                    "failed"
+                  ],
+                  "type": "string"
+                },
+                "reason": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Why the check was not performed or failed"
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "outcome"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "evidence": {
+            "description": "Signals that make the gate positive",
+            "items": {
+              "additionalProperties": false,
+              "description": "One named signal and the FHIR resources it was found in.",
+              "properties": {
+                "date": {
+                  "anyOf": [
+                    {
+                      "format": "date",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Clinically relevant date, if known"
+                },
+                "references": {
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "A pointer to the FHIR resource a fact came from.",
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "resource_type": {
+                        "enum": [
+                          "Patient",
+                          "Condition",
+                          "Observation",
+                          "QuestionnaireResponse",
+                          "MedicationRequest",
+                          "MedicationDispense",
+                          "MedicationStatement",
+                          "Medication",
+                          "Encounter",
+                          "Procedure",
+                          "ServiceRequest",
+                          "CarePlan",
+                          "Flag"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "description": "meta.versionId when the server has one"
+                      }
+                    },
+                    "required": [
+                      "resource_type",
+                      "id"
+                    ],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "signal": {
+                  "description": "Signal name from the signal catalog",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "weight_class": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "high",
+                        "modifier"
+                      ],
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Rule weight; null for safety-gate and context items"
+                }
+              },
+              "required": [
+                "signal",
+                "references"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "guidance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Fixed guidance text when positive"
+          },
+          "history": {
+            "description": "Older self-harm signals, outside the look-back window; listed for the clinician, they do not make the gate positive",
+            "items": {
+              "additionalProperties": false,
+              "description": "One named signal and the FHIR resources it was found in.",
+              "properties": {
+                "date": {
+                  "anyOf": [
+                    {
+                      "format": "date",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Clinically relevant date, if known"
+                },
+                "references": {
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "A pointer to the FHIR resource a fact came from.",
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "resource_type": {
+                        "enum": [
+                          "Patient",
+                          "Condition",
+                          "Observation",
+                          "QuestionnaireResponse",
+                          "MedicationRequest",
+                          "MedicationDispense",
+                          "MedicationStatement",
+                          "Medication",
+                          "Encounter",
+                          "Procedure",
+                          "ServiceRequest",
+                          "CarePlan",
+                          "Flag"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "description": "meta.versionId when the server has one"
+                      }
+                    },
+                    "required": [
+                      "resource_type",
+                      "id"
+                    ],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "signal": {
+                  "description": "Signal name from the signal catalog",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "weight_class": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "high",
+                        "modifier"
+                      ],
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Rule weight; null for safety-gate and context items"
+                }
+              },
+              "required": [
+                "signal",
+                "references"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "positive",
+              "clear",
+              "clear_limited_data",
+              "data_unavailable"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "checks"
+        ],
+        "type": "object"
+      },
+      "scorer": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "score": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "A statistical score, if the scorer gives one. Reported only; in this version it never changes the recommendation"
+              },
+              "version": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "version",
+              "score"
+            ],
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "signals_checked": {
+        "description": "Every catalog signal, present or not",
+        "items": {
+          "additionalProperties": false,
+          "description": "One catalog signal, present or not, and why.",
+          "properties": {
+            "count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Events or agents counted, if counted"
+            },
+            "first_date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "last_date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "present": {
+              "type": "boolean"
+            },
+            "protected": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Sensitive-data category of the signal, if any"
+            },
+            "reason": {
+              "description": "Why the signal is or is not present",
+              "type": "string"
+            },
+            "references": {
+              "description": "Resources behind the signal within the window; empty when not present",
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "signal": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "weight": {
+              "enum": [
+                "high",
+                "modifier",
+                "note"
+              ],
+              "type": "string"
+            },
+            "window_days": {
+              "description": "Days before the as-of date the signal is looked for",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "signal",
+            "title",
+            "weight",
+            "present",
+            "reason",
+            "window_days",
+            "references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "suggested_next_step": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "safety_gate",
+      "recommendation",
+      "condition_to_screen",
+      "decision_trace",
+      "versions",
+      "patient_id",
+      "as_of",
+      "notice",
+      "recommendation_text",
+      "notes",
+      "excluded",
+      "signals_checked",
+      "ruleset"
+    ],
+    "type": "object"
+  },
+  "title": "Assess Referral Need"
+}

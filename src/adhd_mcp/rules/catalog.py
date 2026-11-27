@@ -64,9 +64,6 @@ class SignalCatalog(BaseModel):
             raise ValueError("signal ids must be unique")
         return self
 
-    def signal(self, signal_id: str) -> SignalDefinition:
-        return next(s for s in self.signals if s.id == signal_id)
-
 
 def parse_catalog(text: str, *, strict: bool = True) -> SignalCatalog:
     catalog = SignalCatalog.model_validate(tomllib.loads(text))

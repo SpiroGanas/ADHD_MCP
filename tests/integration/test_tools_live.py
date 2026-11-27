@@ -27,6 +27,7 @@ TOOLS = [
     "get_medication_timeline",
     "get_utilization_summary",
     "get_psychosocial_context",
+    "assess_referral_need",
 ]
 
 

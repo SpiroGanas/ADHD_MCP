@@ -14,10 +14,12 @@ With neither data source set, patient tools return a ``not_configured`` error.
 
 import os
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from adhd_mcp.clock import Clock, SystemClock
+from adhd_mcp.conditions.adhd import adhd_plugin
+from adhd_mcp.conditions.base import ConditionRegistry
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.port import FhirReadPort
@@ -27,11 +29,19 @@ from adhd_mcp.terminology.site_codes import SiteCodes, load_site_codes
 NO_SITE_CODES = SiteCodes(id="none", version="0", title="No local code mapping")
 
 
+def default_conditions() -> ConditionRegistry:
+    """The conditions this server assesses: ADHD only in version 1.0."""
+    registry = ConditionRegistry()
+    registry.register(adhd_plugin())
+    return registry
+
+
 @dataclass(frozen=True)
 class ToolContext:
     port: FhirReadPort | None
     clock: Clock
     site_codes: SiteCodes
+    conditions: ConditionRegistry = field(default_factory=default_conditions)
 
 
 def context_from_environment(env: Mapping[str, str] = os.environ) -> ToolContext:

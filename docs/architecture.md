@@ -2,7 +2,7 @@
 
 How ADHD_MCP is put together. This is a design document that changes as phases complete; costly decisions are recorded in [adr/](adr/README.md).
 
-**Built so far (Phases 1 to 4):** the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
+**Built so far (Phases 1 to 5):** `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
 
 ## Purpose and boundary
 
@@ -66,11 +66,16 @@ src/adhd_mcp/
   models/           shared typed models and output schemas
   data/             wording, code systems, value sets, drug classes, instruments, site codes,
                     evidence tool definitions, adhd/ signal catalog and ruleset
-  resources/  prompts/  orchestration/  rules/  conditions/adhd/
+  rules/            signal catalog and ruleset loading, signal evaluation, engine, scorer slot
+  conditions/       plugin interface and registry; adhd.py (catalog, ruleset, wording, exclusions)
+  orchestration/    assess: safety gate, exclusions, evidence, rules, precedence
+  resources/  prompts/   MCP resources (ruleset, catalog, value sets, drug classes,
+                    instruments, intended use) and two clinician prompts
   privacy/  audit/                                             planned
 tests/
   unit/  contract/  tools/  property/  adapters/  integration/  (unit/evidence: assemblers)
-  golden/  evals/                                              planned
+  golden/           per-persona expectations and full-output snapshots
+  evals/                                                       planned
   helpers/          wording assertion, fake FHIR server, failing adapter
   personas/         synthetic FHIR bundles, catalog and builder
 scripts/            check, synthetic-data guard, persona build and load, population generator
@@ -128,6 +133,14 @@ docs/
 | `get_utilization_summary` | Acute care (EMER class or site-mapped urgent care) and accidental injury visits (one per visit; a self-harm code on the visit excludes it), crashes as driver (one per encounter, or per day), psychiatric stays (site-mapped). Counts in 0-30, 31-180 and 181-730 day windows; overall encounters and visit days. Missed appointments are not read (no Appointment search). Definition `data/utilization.toml` |
 | `get_psychosocial_context` | Housing, legal and education or employment domains from Condition codes and coded social-history Observation values; each found, not_found or unknown. Military separation date from a site-mapped Observation; unknown when missing. Definition `data/psychosocial.toml` |
 | `check_existing_care` | Excluded if an ADHD code is recorded, or an ADHD referral, evaluation or care plan is open or was completed within 365 days (dated by completion where known, by authored date for requests). `excluded` is false only if every check ran on complete data; otherwise null. Medication for narcolepsy is a separate finding |
+
+## Implemented: assessment
+
+- **Precedence** (`orchestration/assess.py`): positive safety gate gives `address_safety_gate_first` (signals still listed); a gate that could not be evaluated gives `insufficient_data`; already in care gives `already_in_care`; a fired rule gives `consider_referral_for_formal_screening`; an empty record or a signal source that could not be read completely gives `insufficient_data`; otherwise `no_recommendation`.
+- **One cached port per request**: the safety gate, exclusions and the four signal-supplying assemblers read through `RequestCachedPort`; a test checks no FHIR query repeats.
+- **Output**: the safety gate first; recommendation and approved text; next step; basis (present weighted signals with resource ids and dates); every signal checked with its reason; each rule with the signals it counted; exclusions; notes (TBI overlap, narcolepsy medication, incomplete exclusion checks, not clinically validated); data completeness; ruleset and scorer versions.
+- **Draft referral**: a ServiceRequest (status draft, intent proposal, no id) only for a referral suggestion; returned, never stored.
+- **Resources and prompts**: `adhd-mcp://rulesets/adhd`, `adhd-mcp://signal-catalogs/adhd`, `adhd-mcp://value-sets` and `adhd-mcp://value-sets/{id}`, `adhd-mcp://drug-classes`, `adhd-mcp://instruments` (no item text), `adhd-mcp://intended-use`; prompts `explain_recommendation` and `summarize_checks` carry only a validated patient id.
 
 ## Request flow for `assess_referral_need`
 

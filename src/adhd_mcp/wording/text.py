@@ -31,6 +31,10 @@ class Wording(_Frozen):
     approved_recommendation: str
     evidence_notice: str
     safety_gate_guidance: str
+    adhd_next_step: str
+    safety_next_step: str
+    recommendations: dict[str, str]
+    notes: dict[str, str]
     diagnostic_language: DiagnosticLanguage
 
 

@@ -1,0 +1,4 @@
+# Hashes of released rulesets. A ruleset whose status is "released" loads only if its file's
+# sha256 is listed here, so a released ruleset cannot change silently. Add an entry when the
+# project owner approves a ruleset for release; never edit an existing entry.
+released = []
