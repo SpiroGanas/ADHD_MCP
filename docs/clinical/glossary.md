@@ -21,7 +21,7 @@ Terms used across the project. Clinical figures and sources are in the [research
 | Condition plugin | The package of signal catalog, ruleset, exclusions and next-step text for one condition |
 | Persona | A hand-built synthetic patient with a narrative and an expected outcome, used as a test specification |
 | Decision trace | The record of which rules fired and which did not for one assessment |
-| Data completeness | A statement of which data categories were available, empty, withheld or failed to load |
+| Data completeness | A statement of which data categories were available, empty, incomplete, withheld, not offered by the FHIR server (`not_supported`) or failed to load |
 | Contract snapshot | A stored copy of a tool's name, description and schemas, used to detect unintended changes |
 
 ## Technical terms

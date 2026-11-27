@@ -3,8 +3,8 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phase 7 (evaluation, hardening, release preparation) code complete on the branch; pull request next. Release candidate 1.0.0rc1. Tagging 1.0.0 waits for the owner's review of the clinical content (owner decision 2026-11-27).
-**Branch:** `ccr-5c748898-yqc67t`
+**Current phase:** Phase 8 (VA readiness and extensibility) complete on the branch except the live Lighthouse run (no credentials); PR #7 open. Started 2026-11-27 ahead of the 1.0.0 tag (owner decision). Release candidate 1.0.0rc1; tagging 1.0.0 still waits for the owner's review of the clinical content.
+**Branch:** `claude/tender-lamport-y0qpyy`
 
 ## Summary
 
@@ -19,15 +19,14 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- Pull request [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) for Phase 7: open, mergeable; CI green on all four jobs, including the first container build and smoke test and the first live run of `tests/integration/test_performance_live.py` (p95 within 2 s against HAPI). Waiting for owner review.
+- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Oracle Health desk review (item 3), deployment guide (item 7) and next-stage proposal (item 8): [docs/integration/oracle_health.md](docs/integration/oracle_health.md), [docs/guide/deployment.md](docs/guide/deployment.md), [docs/next_stage_plan.md](docs/next_stage_plan.md). Clinical safety review done 2026-11-27: one blocking finding (orders-only antidepressant count on servers without dispenses or statements) resolved by owner decision to keep it and disclose it; non-blocking findings fixed (gate fails without Condition, profiles must offer Condition and Encounter, no draft for experimental rulesets, rule cards, ADR 0014 proposed). Pull request [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) open and mergeable; CI green on all four jobs (lint, types and tests; integration against HAPI; container build; secret scan). Waiting for owner review.
 
 ## Next steps
 
-1. Merge the Phase 7 pull request.
+1. Get [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) green and merged; the Lighthouse live run waits for sandbox credentials (open question 5).
 2. Project owner decisions before tagging 1.0.0 (open questions 1, 4, 14, 16, 17): review and approve, or change, the signal catalog (`reviewed_by_owner = false`), the [rule card](docs/clinical/rule_card_adhd_1.0.md), the clinician wording in `src/adhd_mcp/data/wording.toml`, the drug-class curation (ADR 0009) and medication parameters; choose a sex-balance option; approve ADR 0013.
 3. Then release: ruleset status `released` with its sha256 in `src/adhd_mcp/data/released_rulesets.toml`; rule card status Released; tool contract `1.0.0` (snapshots, tool reference); version `1.0.0` in `pyproject.toml` and `CHANGELOG.md`; regenerate the evaluation report; `uv run python scripts/release_check.py` passes; the owner tags `v1.0.0` on `main`.
 4. When the owner approves the budget and SDK: a live model driver, the model-in-the-loop run, then tool description tuning (item 5).
-5. Phase 8 (VA readiness and extensibility) after the release.
 
 ## Open questions for the project owner
 
@@ -35,7 +34,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 |---|---|---|
 | 1 | Who reviews and approves clinical content (rule cards, signal catalog)? Is there a clinician adviser? (For now the owner waived the human spot-check until release.) | Before release |
 | 4 | Model-in-the-loop live run: approve the budget (about 140 requests per model), the `anthropic` SDK as an optional `eval` dependency group, and the proposed pass bar in [model_in_the_loop.md](docs/evaluation/model_in_the_loop.md) | Before release |
-| 5 | Will VA Lighthouse sandbox access be requested, and by whom? | Phase 8 |
+| 5 | Will VA Lighthouse sandbox access be requested, and by whom? (No access as of 2026-11-27; the adapter is built from public docs and the live run waits.) | Phase 8 exit |
 | 6 | Should a priority tier be part of the 1.0 output? (Proposal: no; not built.) | Before release |
 | 9 | PC-PTSD-5 cutoff: 4 (current National Center for PTSD default) or 3? | Before LOINC verification (F2) |
 | 12 | How should ASRS results be recognised in FHIR data (follow-up F3)? | Phase 8 |
@@ -43,11 +42,21 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 | 15 | Approve the invariant-4 exception: the SMART token request is the one POST in the code (to the OAuth token endpoint, never the FHIR server) | PR review |
 | 16 | Sex balance: ruleset 1.0.0 flags 8 of 40 internalizing suggestive presentations against 32 of 32 externalizing ones. Choose an option from the [sex-balance review](docs/evaluation/sex_balance_review.md): A no change (proposed for 1.0.0), B a sex-blind "four or more modifiers" rule as draft ruleset 1.1.0, or another | Before release |
 | 17 | Approve [ADR 0013](docs/adr/0013-versioning-and-release.md): three version lines, the tool contract becoming 1.0.0 with server 1.0.0, release steps and the release check | Before release |
+| 19 | Accept [ADR 0014](docs/adr/0014-server-profiles-and-unoffered-data.md) (server profiles, `not_supported`, patient-scoped tokens) | PR review |
 | 18 | Publish the package or container image anywhere (PyPI, a container registry)? Proposal: not for 1.0; build in CI only | Before release |
 
 ## Decisions
 
 Scope decisions made 2026-11-26 are recorded in [project_plan.md](project_plan.md#scope). Architecture decisions are in [docs/adr/](docs/adr/README.md).
+
+Owner decisions 2026-11-27 (start of Phase 8):
+
+- Start Phase 8 before tagging 1.0.0; one PR with a commit per work item; version stays 1.0.0rc1, changes under "Unreleased" in the change log.
+- No Lighthouse sandbox access: build the adapter and its client-credentials auth from the public VA documentation, tested with synthetic Lighthouse-shaped responses; the live end-to-end run stays open.
+- A resource type a back end does not support is reported with a new data-completeness status `not_supported`; checks that need it are "not performed" (tool contract 0.3.0 to 0.4.0).
+- Antidepressant count on a server without dispenses or statements (safety review finding B1): keep counting from orders and disclose it in the signal's reason, not insufficient data.
+- Autism stub: exclusion on recorded autism codes (F84.0, F84.5, F84.8, F84.9) verified against the FY2027 tabular; placeholder signals reuse verified value sets; ruleset status `experimental`; registered only when enabled by an environment variable. Session moved to the ADHD_MCP environment for ftp.cdc.gov; developer.va.gov, api.va.gov, sandbox-api.va.gov, fhir.cerner.com and docs.oracle.com added to it (owner approved).
+- Lighthouse facts so far (public sandbox CapabilityStatement and OpenAPI, fetched 2026-11-27): offers Condition, Observation, Encounter, Procedure, MedicationRequest, Medication, Patient (not QuestionnaireResponse, Flag, ServiceRequest, CarePlan, MedicationDispense, MedicationStatement); no `_include`; MedicationRequest has no date search; absolute references; `_count` max 200; Observation categories laboratory, social-history, vital-signs only; CCG token: `launch` = base64 of {"patient": ICN}, assertion exp at most 300 s after iat, RS256 in the example, token lives 5 minutes. The exact CCG scopes and assertion audience (an Okta URL) were not readable here: configurable and unverified.
 
 Owner decisions 2026-11-27 (start of Phase 7):
 
@@ -90,4 +99,5 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
 | [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |
 | [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
-| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Open |
+| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Merged |
+| [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Open |

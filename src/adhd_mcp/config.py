@@ -15,11 +15,17 @@ from files named by a variable, never from the variable itself.
 | ``ADHD_MCP_AUTH_SERVERS`` | Comma-separated authorization server URLs (default: the issuer) |
 | ``ADHD_MCP_ALLOW_UNAUTHENTICATED_HTTP`` | ``1``: HTTP without auth, 127.0.0.1 only |
 | ``ADHD_MCP_FHIR_BASE_URL`` / ``ADHD_MCP_FIXTURE_DIR`` | Data source (see ``tools/context.py``) |
+| ``ADHD_MCP_FHIR_SERVER_PROFILE`` | ``generic`` (default) or ``lighthouse`` (VA Lighthouse) |
 | ``ADHD_MCP_SMART_*`` (``TOKEN_URL``, ``CLIENT_ID``, ``KEY_ID``, ``SCOPE``, |  |
 | ``PRIVATE_KEY_FILE``) | SMART backend services toward the FHIR server; all or none |
+| ``ADHD_MCP_SMART_AUDIENCE`` | The client assertion's audience (default: the token URL; |
+|  | required for ``lighthouse``) |
 | ``ADHD_MCP_AUDIT_FILE`` | Append-only JSON Lines audit file; required for HTTP |
 | ``ADHD_MCP_PRIVACY_POLICY`` | A site's privacy policy file (default: packaged policy) |
 | ``ADHD_MCP_SITE_CODES`` | Site code mapping |
+| ``ADHD_MCP_SCORER`` | ``rules-only`` (default) or ``dummy`` (Phase 8 proof; not a model) |
+| ``ADHD_MCP_EXPERIMENTAL_CONDITIONS`` | Experimental stubs to register, comma-separated |
+|  | (``autism``); none by default. Not for clinical use |
 """
 
 from collections.abc import Mapping
@@ -28,6 +34,12 @@ from pathlib import Path
 from typing import Literal
 
 import httpx2
+
+from adhd_mcp.fhir.profiles import profile_ids
+from adhd_mcp.rules.scorer import SCORERS
+
+#: Experimental stub conditions that ``ADHD_MCP_EXPERIMENTAL_CONDITIONS`` can switch on.
+EXPERIMENTAL_CONDITIONS = frozenset({"autism"})
 
 
 class ConfigError(Exception):
@@ -51,6 +63,7 @@ class SmartSettings:
     key_id: str
     scope: str
     private_key_file: Path
+    audience: str | None = None
 
 
 @dataclass(frozen=True)
@@ -62,6 +75,9 @@ class Settings:
     smart: SmartSettings | None
     audit_file: Path | None
     privacy_policy: Path | None
+    scorer: str = "rules-only"
+    fhir_server_profile: str = "generic"
+    experimental_conditions: tuple[str, ...] = ()
 
 
 def _url(env: Mapping[str, str], name: str, *, https: bool = False) -> str:
@@ -138,7 +154,23 @@ def _smart(env: Mapping[str, str]) -> SmartSettings | None:
         key_id=env["ADHD_MCP_SMART_KEY_ID"],
         scope=env["ADHD_MCP_SMART_SCOPE"],
         private_key_file=_file(env, "ADHD_MCP_SMART_PRIVATE_KEY_FILE"),
+        audience=_url(env, "ADHD_MCP_SMART_AUDIENCE", https=True)
+        if env.get("ADHD_MCP_SMART_AUDIENCE")
+        else None,
     )
+
+
+def _profile(env: Mapping[str, str], smart: SmartSettings | None) -> str:
+    profile = env.get("ADHD_MCP_FHIR_SERVER_PROFILE", "generic")
+    if profile not in profile_ids():
+        raise ConfigError(
+            f"ADHD_MCP_FHIR_SERVER_PROFILE must be one of: {', '.join(profile_ids())}"
+        )
+    if profile != "generic" and not env.get("ADHD_MCP_FHIR_BASE_URL"):
+        raise ConfigError("ADHD_MCP_FHIR_SERVER_PROFILE needs ADHD_MCP_FHIR_BASE_URL")
+    if profile == "lighthouse" and smart is not None and smart.audience is None:
+        raise ConfigError("the lighthouse profile with credentials needs ADHD_MCP_SMART_AUDIENCE")
+    return profile
 
 
 def load_settings(env: Mapping[str, str]) -> Settings:
@@ -168,12 +200,27 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         if audit is None:
             raise ConfigError("HTTP transport needs ADHD_MCP_AUDIT_FILE")
     policy = _file(env, "ADHD_MCP_PRIVACY_POLICY") if env.get("ADHD_MCP_PRIVACY_POLICY") else None
+    scorer = env.get("ADHD_MCP_SCORER", "rules-only")
+    if scorer not in SCORERS:
+        raise ConfigError(f"ADHD_MCP_SCORER must be one of: {', '.join(SCORERS)}")
+    experimental = tuple(
+        c.strip() for c in env.get("ADHD_MCP_EXPERIMENTAL_CONDITIONS", "").split(",") if c.strip()
+    )
+    if not set(experimental) <= EXPERIMENTAL_CONDITIONS:
+        raise ConfigError(
+            "ADHD_MCP_EXPERIMENTAL_CONDITIONS may name only: "
+            + ", ".join(sorted(EXPERIMENTAL_CONDITIONS))
+        )
+    smart = _smart(env)
     return Settings(
         transport=transport,  # type: ignore[arg-type]
         host=host,
         port=port,
         auth=auth,
-        smart=_smart(env),
+        smart=smart,
+        fhir_server_profile=_profile(env, smart),
         audit_file=audit,
         privacy_policy=policy,
+        scorer=scorer,
+        experimental_conditions=experimental,
     )

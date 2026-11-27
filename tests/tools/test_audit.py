@@ -1,6 +1,7 @@
 """Audit: exactly one record per tool call, failures included; trace ids; no clinical
 values or free text in any audit record or log line (standing invariant 5)."""
 
+import dataclasses
 import json
 import logging
 from datetime import UTC, datetime
@@ -16,7 +17,7 @@ from adhd_mcp.clock import FixedClock
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.server import create_server
 from adhd_mcp.terminology.site_codes import load_site_codes
-from adhd_mcp.tools.context import ToolContext
+from adhd_mcp.tools.context import ToolContext, default_conditions
 from tests.personas import all_resources
 from tests.personas.builder import PersonaBuilder
 from tests.tools.test_shared_tool_behavior import PATIENT_TOOLS
@@ -88,6 +89,24 @@ async def test_an_assessment_records_recommendation_ruleset_and_policy() -> None
     assert record.scorer == "rules-only 1.0.0"
     assert record.privacy_policy == "privacy 0.2.0"
     assert {r.id for r in record.resources_read} >= {"p01-patient", "p01-cond-8"}
+
+
+async def test_a_configured_scorer_reaches_the_output_and_the_audit_record() -> None:
+    sink = MemoryAuditSink()
+    ctx = dataclasses.replace(context(sink), conditions=default_conditions(scorer="dummy"))
+    async with Client(create_server(ctx)) as client:
+        result = await client.call_tool("assess_referral_need", {"patient_id": "p01-patient"})
+    (record,) = sink.records
+    assert record.scorer == "dummy-not-a-model 0.0.1"
+    out = result.structured_content
+    assert out is not None
+    assert out["scorer"] == {
+        "id": "dummy-not-a-model",
+        "version": "0.0.1",
+        "score": 0.0,
+        "failed": False,
+    }
+    assert out["recommendation"] == "consider_referral_for_formal_screening"
 
 
 @pytest.mark.parametrize(

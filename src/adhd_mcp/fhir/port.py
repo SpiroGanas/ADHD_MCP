@@ -51,6 +51,11 @@ class SearchResult:
 _FHIR_ID = re.compile(r"[A-Za-z0-9\-.]{1,64}")
 
 
+def is_fhir_id(value: str) -> bool:
+    """Whether ``value`` is a FHIR resource id, safe to put in a URL path."""
+    return isinstance(value, str) and _FHIR_ID.fullmatch(value) is not None
+
+
 def validate_patient_id(patient_id: str) -> str:
     """Reject anything that is not a FHIR resource id, before it reaches a URL."""
     if not isinstance(patient_id, str) or _FHIR_ID.fullmatch(patient_id) is None:
@@ -78,6 +83,8 @@ class FhirReadPort(Protocol):
         Medication searches also return the ``Medication`` resources they reference.
         Warnings mean the server may have returned less than everything (truncated,
         suppressed or withheld results); callers must disclose them.
-        Raises ``FhirRequestError`` when the request fails; no resources means none found.
+        Raises ``FhirRequestError`` when the request fails, and ``SearchNotSupportedError``
+        when the server does not offer the resource type at all; no resources means none
+        found.
         """
         ...

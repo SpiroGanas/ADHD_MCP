@@ -164,6 +164,7 @@ class DataStatus(StrEnum):
     EMPTY = "empty"
     INCOMPLETE = "incomplete"
     WITHHELD = "withheld"
+    NOT_SUPPORTED = "not_supported"
     FAILED = "failed"
 
 

@@ -1,5 +1,8 @@
 """Rulesets: versioned combination rules over a signal catalog (ADR 0010).
 
+Status ``experimental`` marks a stub that proves an interface (Phase 8): never released, and
+the condition is registered only when a setting names it.
+
 A rule fires when at least ``min_high`` distinct high-weight signals and ``min_modifiers``
 distinct modifier signals are present. A ruleset recommends when any rule fires. A released
 ruleset loads only if its file hash is pinned in ``data/released_rulesets.toml``.
@@ -35,7 +38,7 @@ class Ruleset(BaseModel):
 
     id: str
     version: str
-    status: Literal["draft", "released"]
+    status: Literal["draft", "released", "experimental"]
     effective_date: dt.date
     catalog: str
     catalog_version: str

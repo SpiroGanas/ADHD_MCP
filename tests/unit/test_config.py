@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 
 from adhd_mcp.config import ConfigError, load_settings
+from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
+from adhd_mcp.fhir.lighthouse import LighthouseCcgAuth
 from adhd_mcp.tools.context import context_from_environment
 
 SECRET = "s3cr3t-value-never-printed"
@@ -118,3 +120,65 @@ def test_smart_settings_build_an_authenticated_fhir_adapter(tmp_path: Path) -> N
     context = context_from_environment(env)
     assert context.port is not None
     assert context.port._auth is not None  # type: ignore[attr-defined]
+
+
+def test_the_scorer_defaults_to_rules_only() -> None:
+    assert load_settings({}).scorer == "rules-only"
+    assert load_settings({"ADHD_MCP_SCORER": "dummy"}).scorer == "dummy"
+
+
+def test_an_unknown_scorer_is_refused_without_echoing_it() -> None:
+    with pytest.raises(ConfigError, match="ADHD_MCP_SCORER") as raised:
+        load_settings({"ADHD_MCP_SCORER": SECRET})
+    assert SECRET not in str(raised.value)
+
+
+def lighthouse_env(key: Path) -> dict[str, str]:
+    key.write_text("unused until a token is requested")
+    return {
+        "ADHD_MCP_FHIR_BASE_URL": "https://sandbox.lighthouse.test/services/fhir/v0/r4",
+        "ADHD_MCP_FHIR_SERVER_PROFILE": "lighthouse",
+        "ADHD_MCP_SMART_TOKEN_URL": "https://sandbox.lighthouse.test/oauth2/health/system/v1/token",
+        "ADHD_MCP_SMART_AUDIENCE": "https://okta.lighthouse.test/oauth2/aus-test/v1/token",
+        "ADHD_MCP_SMART_CLIENT_ID": "adhd-mcp",
+        "ADHD_MCP_SMART_KEY_ID": "k1",
+        "ADHD_MCP_SMART_SCOPE": "launch system/Patient.read",
+        "ADHD_MCP_SMART_PRIVATE_KEY_FILE": str(key),
+    }
+
+
+def test_the_server_profile_defaults_to_generic() -> None:
+    assert load_settings({}).fhir_server_profile == "generic"
+
+
+def test_the_lighthouse_profile_builds_the_lighthouse_adapter_and_grant(tmp_path: Path) -> None:
+    env = lighthouse_env(tmp_path / "key.pem")
+    settings = load_settings(env)
+    assert settings.fhir_server_profile == "lighthouse"
+    assert settings.smart is not None
+    assert settings.smart.audience == env["ADHD_MCP_SMART_AUDIENCE"]
+    context = context_from_environment(env)
+    assert isinstance(context.port, HttpFhirAdapter)
+    assert context.port._profile.id == "lighthouse"
+    assert isinstance(context.port._auth, LighthouseCcgAuth)
+    assert context.site_codes.id == "none"
+
+
+def test_lighthouse_with_credentials_needs_the_assertion_audience(tmp_path: Path) -> None:
+    env = lighthouse_env(tmp_path / "key.pem")
+    del env["ADHD_MCP_SMART_AUDIENCE"]
+    with pytest.raises(ConfigError, match="ADHD_MCP_SMART_AUDIENCE"):
+        load_settings(env)
+
+
+@pytest.mark.parametrize(
+    "env",
+    [
+        {"ADHD_MCP_FHIR_SERVER_PROFILE": SECRET},
+        {"ADHD_MCP_FHIR_SERVER_PROFILE": "lighthouse"},
+    ],
+)
+def test_a_bad_server_profile_is_refused_without_echoing_it(env: dict[str, str]) -> None:
+    with pytest.raises(ConfigError, match="ADHD_MCP_FHIR_SERVER_PROFILE") as raised:
+        load_settings(env)
+    assert SECRET not in str(raised.value)

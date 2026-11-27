@@ -14,7 +14,7 @@ from importlib.resources import files
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, read_category
+from adhd_mcp.evidence.common import completeness, read_category, usable
 from adhd_mcp.fhir.codes import Coding
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.fhir.records import ConditionRecord
@@ -170,8 +170,9 @@ def group_conditions(
 async def assemble_problem_list(
     records: PatientRecords, patient_id: str, as_of: date, content: ProblemListContent
 ) -> ProblemListResult:
-    read = await read_category(records.conditions(patient_id))
-    notes = [completeness("Condition", read)]
+    raw = await read_category(records.conditions(patient_id))
+    notes = [completeness("Condition", raw)]
+    read = usable(raw)
     # A condition first known after the as-of date did not exist yet.
     conditions = conditions_as_of(read.records if read else (), as_of)
     return ProblemListResult(

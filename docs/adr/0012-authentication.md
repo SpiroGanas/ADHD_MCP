@@ -24,6 +24,7 @@ Hosted over HTTP the server is an OAuth 2.1 protected resource: it must validate
 
 ## Consequences
 
+- Amended by [ADR 0014](0014-server-profiles-and-unoffered-data.md) (proposed): toward VA Lighthouse the server's token is per patient (client credentials with `launch`), with a configured assertion audience.
 - Deployments must register the server with their authorization server (audience = public MCP URL) and with the FHIR server as a backend service.
 - Scope names are part of the tool contract and are listed in the protected resource metadata.
 - The read-only guard has one documented exception, which a test keeps from silently growing.

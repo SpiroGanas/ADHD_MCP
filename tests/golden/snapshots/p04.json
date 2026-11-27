@@ -243,6 +243,7 @@
     "status": "clear_limited_data"
   },
   "scorer": {
+    "failed": false,
     "id": "rules-only",
     "score": null,
     "version": "1.0.0"
@@ -481,6 +482,6 @@
     "ruleset": "adhd 1.0.0 (draft)",
     "scorer": "rules-only 1.0.0",
     "site_codes": "synthetic 0.2.0",
-    "tool_contract": "0.3.0"
+    "tool_contract": "0.4.0"
   }
 }

@@ -64,6 +64,8 @@ Recommend referral for formal screening when, within the windows above, **either
 
 Notes never count. Precedence: positive safety gate; gate not evaluable; already in care; a rule fired; insufficient data (empty record, or a signal source that could not be read completely); otherwise no recommendation.
 
+A data category the FHIR server does not offer at all (`not_supported`, Phase 8) is not a failed read. One exception to "read completely" is allowed (owner decision 2026-11-27): when the server offers no medication dispenses or statements (VA Lighthouse), the distinct-antidepressant count comes from medication orders alone, and the signal's reason says "Counted from medication orders only: the FHIR server does not offer dispenses or statements." Orders themselves are always required. An empty record on such a server is still insufficient data.
+
 ## Outputs
 
 | Recommendation | Approved text (`data/wording.toml`) | Suggested next step |

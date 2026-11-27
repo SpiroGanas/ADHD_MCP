@@ -7,7 +7,7 @@ import pytest
 
 from adhd_mcp.fhir.codes import ICD10CM, LOINC, RXNORM, SNOMED, Coding
 from adhd_mcp.fhir.dates import DatePrecision, DateRange
-from adhd_mcp.fhir.normalize import normalize, normalize_many
+from adhd_mcp.fhir.normalize import normalize, normalize_many, parse_reference
 from adhd_mcp.fhir.records import (
     ConditionRecord,
     EncounterRecord,
@@ -438,3 +438,51 @@ def test_condition_keeps_its_encounter_and_encounter_its_diagnoses() -> None:
     )
     assert isinstance(encounter_record, EncounterRecord)
     assert encounter_record.diagnoses == (ResourceRef(resource_type="Condition", id="c9"),)
+
+
+@pytest.mark.parametrize(
+    ("reference", "expected"),
+    [
+        ("Encounter/e1", ResourceRef(resource_type="Encounter", id="e1")),
+        (
+            "https://fhir.example.test/r4/Medication/I2-ABC000000",
+            ResourceRef(resource_type="Medication", id="I2-ABC000000"),
+        ),
+        (
+            "https://fhir.example.test/r4/Encounter/e1/_history/3",
+            ResourceRef(resource_type="Encounter", id="e1"),
+        ),
+        ("#contained", None),
+        ("urn:uuid:5c1b6a64-0000-0000-0000-000000000000", None),
+        ("https://fhir.example.test/r4/NotAType/x", None),
+        ("ftp://fhir.example.test/Encounter/e1", None),
+        ("Encounter/", None),
+        ("", None),
+    ],
+)
+def test_relative_and_absolute_references_are_parsed(
+    reference: str, expected: ResourceRef | None
+) -> None:
+    assert parse_reference(reference) == expected
+
+
+def test_an_absolute_medication_reference_resolves_against_the_batch() -> None:
+    """VA Lighthouse writes every reference as an absolute URL."""
+    base = "https://fhir.example.test/r4"
+    request = {
+        "resourceType": "MedicationRequest",
+        "id": "mr1",
+        "status": "active",
+        "intent": "order",
+        "subject": {"reference": f"{base}/Patient/p1"},
+        "medicationReference": {"reference": f"{base}/Medication/m1"},
+        "authoredOn": "2025-01-01",
+    }
+    medication = {
+        "resourceType": "Medication",
+        "id": "m1",
+        "code": {"coding": [{"system": RXNORM, "code": "36437"}]},
+    }
+    (record,) = normalize_many([request, medication]).records
+    assert isinstance(record, MedicationRecord)
+    assert [c.code for c in record.medication_codes] == ["36437"]

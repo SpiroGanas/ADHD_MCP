@@ -1,6 +1,6 @@
 # Tool reference
 
-Generated from the contract snapshots in `tests/contract/snapshots/` by `uv run python scripts/build_tool_reference.py`; do not edit by hand. Tool contract version **0.3.0**.
+Generated from the contract snapshots in `tests/contract/snapshots/` by `uv run python scripts/build_tool_reference.py`; do not edit by hand. Tool contract version **0.4.0**.
 
 Every tool is read-only. No result is a diagnosis: every patient tool returns `is_diagnosis: false` and a notice. The tool is not clinically validated.
 
@@ -26,7 +26,7 @@ Suggest whether a clinician should consider referring a patient for formal adult
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `as_of` | string (date) or null | no | Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future. |
-| `condition` | string | no | Condition to assess. Only 'adhd' in this version. |
+| `condition` | string | no | Condition to assess: 'adhd'. An experimental stub such as 'autism' only when the server enables it; stubs are not for clinical use. |
 | `patient_id` | string | yes | FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.' |
 
 **Output** (top-level fields)
@@ -109,14 +109,14 @@ Check a patient's FHIR record for self-harm signals that must be addressed befor
 
 ## draft_referral_proposal
 
-Draft a referral for formal adult ADHD screening from an assessment, for a clinician to review. Runs assess_referral_need; only when it suggests a referral, returns a FHIR R4 ServiceRequest with status 'draft' and intent 'proposal' that cites the evidence (reasonReference for conditions and observations, supportingInfo for visits and medications). Otherwise the draft is null and the reason is given. The draft is returned only: it has no id, is never stored and is never sent to the health record. Not a diagnosis and not an order.
+Draft a referral for formal adult ADHD screening from an assessment, for a clinician to review. Runs assess_referral_need; only when it suggests a referral, returns a FHIR R4 ServiceRequest with status 'draft' and intent 'proposal' that cites the evidence (reasonReference for conditions and observations, supportingInfo for visits and medications). Otherwise the draft is null and the reason is given. The draft is returned only: it has no id, is never stored and is never sent to the health record. Never drafts for an experimental condition. Not a diagnosis and not an order.
 
 **Inputs**
 
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `as_of` | string (date) or null | no | Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future. |
-| `condition` | string | no | Condition to assess. Only 'adhd' in this version. |
+| `condition` | string | no | Condition to assess: 'adhd'. An experimental stub such as 'autism' only when the server enables it; stubs are not for clinical use. |
 | `patient_id` | string | yes | FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.' |
 
 **Output** (top-level fields)

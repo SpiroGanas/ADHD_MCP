@@ -85,6 +85,14 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 | Sickle-cell disorders | D57 whole category, including trait D57.3 (`privacy.sickle_cell`); privacy policy only | ICD-10-CM | Verified (43 codes) | CDC/NCHS ICD-10-CM tabular FY2027; agent check 2026-11-27 |
 | Security labels | v3-ActCode ETH, ETHUD, SUD, OPIOIDUD (substance use), HIV, SCA (`data/privacy.toml`) | HL7 terminology | Verified | terminology.hl7.org CodeSystem-v3-ActCode.json, version 11.0.0; agent check 2026-11-27 |
 
+## Priority 5: experimental autism stub (Phase 8)
+
+| Item | Value | Source | Status | Checked |
+|---|---|---|---|---|
+| Autism exclusion codes | F84.0, F84.5, F84.8, F84.9 exact (`care.autism_diagnosis`); F84.2 and F84.3 left out (owner decision 2026-11-27) | ICD-10-CM | Verified (4 leaf codes) | CDC/NCHS ICD-10-CM tabular FY2027; agent check 2026-11-27 |
+
+The stub's placeholder signals reuse value sets verified above; no autism screening instrument (AQ-10, RAADS) is coded or verified.
+
 ## Follow-up verification
 
 | # | Item | Needed by |

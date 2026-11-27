@@ -40,6 +40,12 @@ def test_a_draft_ruleset_needs_no_release_entry() -> None:
     assert parse_ruleset(RULESET.format(status="draft"), released=()).status == "draft"
 
 
+def test_an_experimental_ruleset_needs_no_release_entry() -> None:
+    ruleset = parse_ruleset(RULESET.format(status="experimental"), released=())
+    assert ruleset.status == "experimental"
+    assert ruleset.validated is False
+
+
 def test_a_released_ruleset_must_match_its_pinned_hash() -> None:
     text = RULESET.format(status="released")
     digest = hashlib.sha256(text.encode()).hexdigest()

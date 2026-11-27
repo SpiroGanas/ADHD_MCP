@@ -22,13 +22,14 @@ from adhd_mcp.fhir.port import SearchWarning
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.models.domain import (
     CheckOutcome,
+    DataCompleteness,
     DataStatus,
     SafetyGateResult,
     SafetyGateStatus,
 )
 from adhd_mcp.terminology import UnverifiedContentError, ValueSet, load_value_set
 from adhd_mcp.terminology.site_codes import load_site_codes, load_site_codes_file
-from tests.helpers.failing_adapter import FailingAdapter
+from tests.helpers.failing_adapter import FailingAdapter, UnsupportingAdapter
 from tests.helpers.wording import assert_no_diagnostic_language
 from tests.personas.builder import PersonaBuilder
 from tests.personas.definitions import PHQ9_QUESTIONNAIRE
@@ -524,6 +525,60 @@ async def test_a_failed_category_makes_the_gate_data_unavailable() -> None:
     assert check.outcome is CheckOutcome.FAILED
     assert check.reason == "Could not read Flag"
     assert {n.category: n.status for n in notes}["Flag"] is DataStatus.FAILED
+
+
+async def unsupported_gate(
+    p: PersonaBuilder, unsupported: set[str]
+) -> tuple[SafetyGateResult, list[DataCompleteness]]:
+    records = PatientRecords(UnsupportingAdapter(p, unsupported))
+    return await assess_safety_gate(records, p.patient_id, AS_OF, content())
+
+
+async def test_a_type_the_server_does_not_offer_leaves_its_check_not_performed() -> None:
+    result, notes = await unsupported_gate(person(), {"Flag"})
+    check = next(c for c in result.checks if c.id == "high_risk_flag")
+    assert check.outcome is CheckOutcome.NOT_PERFORMED
+    assert check.reason == "Not performed: the FHIR server does not offer Flag."
+    assert {n.category: n.status for n in notes}["Flag"] is DataStatus.NOT_SUPPORTED
+    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+
+
+async def test_a_server_without_conditions_cannot_clear_the_gate() -> None:
+    """The coded self-harm checks rest on Conditions: without them the gate is unavailable,
+    exactly as if the read had failed (safety review 2026-11-27)."""
+    p = person()
+    p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
+    result, notes = await unsupported_gate(p, {"Condition"})
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "suicidal_ideation_code")
+    assert check.outcome is CheckOutcome.FAILED
+    assert check.reason == "Could not read Condition (not offered by the FHIR server)"
+    assert {n.category: n.status for n in notes}["Condition"] is DataStatus.NOT_SUPPORTED
+
+
+async def test_a_check_with_one_source_not_offered_is_not_performed_not_clear() -> None:
+    p = person()
+    p.condition("F32.9", "Depression", recorded=ago(10))
+    result, _ = await unsupported_gate(p, {"QuestionnaireResponse"})
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.outcome is CheckOutcome.NOT_PERFORMED
+    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+
+
+async def test_a_signal_still_makes_the_gate_positive_when_a_type_is_not_offered() -> None:
+    p = person()
+    p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
+    result, _ = await unsupported_gate(p, {"Flag", "QuestionnaireResponse"})
+    assert result.status is SafetyGateStatus.POSITIVE
+
+
+async def test_a_failure_outranks_a_type_not_offered() -> None:
+    p = person()
+    adapter = UnsupportingAdapter(p, {"QuestionnaireResponse"}, failing={"Observation"})
+    result, _ = await assess_safety_gate(PatientRecords(adapter), p.patient_id, AS_OF, content())
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.outcome is CheckOutcome.FAILED
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
 
 
 async def test_a_signal_found_elsewhere_keeps_the_gate_positive_despite_a_failure() -> None:

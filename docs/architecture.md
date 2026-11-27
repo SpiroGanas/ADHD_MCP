@@ -2,7 +2,7 @@
 
 How ADHD_MCP is put together. This is a design document that changes as phases complete; costly decisions are recorded in [adr/](adr/README.md).
 
-**Built so far (Phases 1 to 7):** the Phase 7 evaluation and hardening: a labelled synthetic cohort and evaluation harness, a model-in-the-loop harness, fault injection, a benchmark, packaging and a release check ([Implemented: evaluation and release](#implemented-evaluation-and-release)); before that, audit records, trace propagation, the sensitive-data policy, OAuth over streamable HTTP, SMART backend services and validated configuration ([ADR 0011](adr/0011-audit-tracing-and-privacy.md), [ADR 0012](adr/0012-authentication.md), [threat model](security/threat_model.md)); also `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
+**Built so far (Phases 1 to 8):** Phase 8 VA readiness and extensibility: FHIR server profiles with a VA Lighthouse profile and patient-scoped client credentials, the `not_supported` data status, an experimental autism stub condition and a dummy scorer, all off by default ([Lighthouse](integration/lighthouse.md), [Oracle Health review](integration/oracle_health.md), [deployment guide](guide/deployment.md), [next-stage proposal](next_stage_plan.md)); the Phase 7 evaluation and hardening: a labelled synthetic cohort and evaluation harness, a model-in-the-loop harness, fault injection, a benchmark, packaging and a release check ([Implemented: evaluation and release](#implemented-evaluation-and-release)); before that, audit records, trace propagation, the sensitive-data policy, OAuth over streamable HTTP, SMART backend services and validated configuration ([ADR 0011](adr/0011-audit-tracing-and-privacy.md), [ADR 0012](adr/0012-authentication.md), [threat model](security/threat_model.md)); also `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
 
 ## Purpose and boundary
 
@@ -24,7 +24,7 @@ It does not diagnose, does not write to the health record, does not contact pati
   |  Condition plugins  ADHD (first)                                       |
   |  Evidence layer     one assembler per evidence tool                    |
   |  Privacy filter     sensitive-data policy                              |
-  |  FHIR access        port + adapters (fixtures, HTTP, later Lighthouse) |
+  |  FHIR access        port + adapters (fixtures, HTTP, Lighthouse)       |
   |  Terminology store  versioned value sets and cutoffs                   |
   |  Audit and tracing  one record per call                                |
   +------------------------------------------------------------------------+
@@ -92,7 +92,9 @@ docs/
  FhirReadPort (read_patient, search -> SearchResult(resources, warnings))
                                            no write method (standing invariant 4)
    |-- FixtureFhirAdapter                   in-memory resources or bundle files
-   |-- HttpFhirAdapter                      GET only; paging, retries, origin-pinned next links
+   |-- HttpFhirAdapter                      GET only; paging, retries, origin-pinned next links;
+                                            a ServerProfile says what the server offers
+                                            (generic, or lighthouse: see integration/lighthouse.md)
           |
           v  raw FHIR JSON
  normalize_many  ->  typed records + skipped list (entered-in-error, refuted, no id, malformed)
@@ -102,6 +104,7 @@ docs/
 ```
 
 - **Search warnings**: a server's OperationOutcome issues of severity warning or worse come back as `SearchWarning` (severity and issue code only; diagnostic text is dropped). Tools report the category as `incomplete`.
+- **Server profiles** (`fhir/profiles.py`, `data/fhir_servers/`): the types a server offers (others raise `SearchNotSupportedError`, reported `not_supported`), types without date search (filtered in the adapter), whether `_include` of medications works (otherwise referenced Medications are read by id) and the page size limit. `generic` is a full FHIR R4 server; `lighthouse` is VA Lighthouse, with `LighthouseCcgAuth` (patient-scoped client credentials tokens) ([Lighthouse](integration/lighthouse.md)).
 - **Search semantics** (`fhir/search.py`) are shared by every adapter: `since` is FHIR `ge` on each type's clinical date; `updated_since` is `_lastUpdated`; medication searches include referenced `Medication` resources. Both adapters pass one shared behavioural suite (`tests/adapters/shared_suite.py`), and the HTTP adapter also passes it against a live HAPI FHIR server in CI.
 - **Normalization** rules are in [ADR 0007](adr/0007-fhir-modeling.md). Records keep the resource id and version for evidence; they keep no names, identifiers or free text.
 - **Terminology**: value sets (`data/value_sets/`) and instruments (`data/instruments/`) are TOML with per-entry verification provenance. ICD-10-CM `prefix` entries match at the category boundary (`F15` matches `F15.10`, not `F150`); `regex` entries cover families defined by character position, such as the intent character of poisoning codes. Strict loading refuses anything unverified (standing invariant 6).
@@ -121,7 +124,7 @@ docs/
 
 - **Context** (`tools/context.py`): the FHIR port, the clock and the site code mapping are injected into `create_server`. As a process the server reads `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_FIXTURE_DIR`, and `ADHD_MCP_SITE_CODES` (default `synthetic` for fixtures, no mapping for a FHIR server). Outputs report the mapping in `versions.site_codes` ([ADR 0008](adr/0008-site-codes-and-search-warnings.md)).
 - **As-of date**: every tool reads the record as of a date (default today, never the future); items dated later are ignored. Look-back windows are inclusive at both ends.
-- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings, or resources that could not be read) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one.
+- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings, or resources that could not be read), `not_supported` (the FHIR server does not offer the resource type) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one. A check that needs a type the server does not offer is "not performed", never "not found"; an assessment may proceed without dispenses and statements when medication orders were read (the timeline then uses orders), but never without orders.
 - **Record text**: no output carries display text from the record. Labels come from value sets or instrument data, or are omitted.
 - **Site codes** (`data/site_codes/`): local codes with no standard (psychiatric inpatient and residential encounters, high-risk flags, ADHD referrals, evaluations and care plans, screening questionnaires). A concept a site does not map leaves the dependent check "not performed". Only the synthetic site exists.
 - **Clinical definitions are data**: `data/safety_gate.toml`, `data/problem_list.toml`, `data/existing_care.toml`, `data/medication_timeline.toml`, `data/utilization.toml`, `data/psychosocial.toml`, each versioned and reported in outputs.
@@ -193,7 +196,7 @@ Fields of the `assess_referral_need` result. The exact schema is fixed by contra
 | Basis | List of evidence items: signal name, weight class, resource references, dates |
 | Exclusions checked | What was looked for and what was found |
 | Decision trace | Which rules fired and which did not |
-| Data completeness | Which data categories were available, empty, withheld or failed to load |
+| Data completeness | Which data categories were available, empty, incomplete, withheld, not offered by the FHIR server (`not_supported`) or failed to load |
 | Versions | Server, tool contract, ruleset, and scorer if present |
 
 ### Resources and prompts
@@ -227,8 +230,8 @@ Three independent version lines, all reported in every output and audit record. 
 
 ## Extensibility
 
-- **New condition:** add a plugin with its own signal catalog, ruleset and next-step text. The engine and evidence tools are shared.
-- **Statistical model:** implement the scorer interface. The engine runs with or without a scorer, and the scorer's identity and version flow into outputs and audit records.
+- **New condition:** add a plugin with its own signal catalog, ruleset and next-step text. The engine and evidence tools are shared. Proven in Phase 8 by the experimental autism stub (`conditions/autism.py`, `data/autism/`; registered only by `ADHD_MCP_EXPERIMENTAL_CONDITIONS=autism`), added without changing the engine or the ADHD ruleset; the ADHD golden snapshots changed only in contract fields (tool contract version, `scorer.failed`), never in a recommendation ([rule card](clinical/rule_card_autism_stub.md)).
+- **Statistical model:** implement the scorer interface (`rules/scorer.py`) and add it to `SCORERS`. The engine runs with or without a scorer, and the scorer's identity and version flow into outputs and audit records. A score is reported only; a scorer that raises gives no score and `failed: true`, and the assessment is otherwise unchanged. Proven in Phase 8 with `DummyScorer` (`ADHD_MCP_SCORER=dummy`; not a model): a test runs every persona with the scorer present, absent and failing and requires identical assessments.
 - **New FHIR back end:** implement the FHIR port and pass the shared adapter test suite.
 
 ## Security and privacy
@@ -256,6 +259,16 @@ Phase 7. Evaluation code lives under `tests/evals/` because it is test tooling: 
 - **Robustness**: fault injection through the HTTP adapter and the whole assessment (`tests/tools/test_fault_injection.py`).
 - **Performance**: `scripts/benchmark.py`; a FHIR request budget (unit test) and a latency target against local HAPI (integration test). See [evaluation/performance.md](evaluation/performance.md).
 - **Release**: wheel and sdist via `uv build`; a `Dockerfile` built and smoke-tested in CI; `scripts/release_check.py` (change log, rule card, evaluation report, contract snapshots, tool reference, README); the tool reference `docs/reference/tools.md` generated from the contract snapshots.
+
+## Data-shape findings (Phase 8)
+
+From VA Lighthouse's public documentation ([Lighthouse](integration/lighthouse.md)); not yet confirmed on sandbox data.
+
+- **Screening instruments are not exposed.** Lighthouse's Observations are laboratory results, vital signs and social history only, and it offers no QuestionnaireResponse. PHQ-9, PHQ-2, AUDIT-C, PC-PTSD-5, C-SSRS and ASRS results therefore cannot come from it, coded or local; no mapping was added. The research report's first integration question is answered "neither" for this API.
+- **Several categories are absent**: Flag, ServiceRequest, CarePlan, MedicationDispense and MedicationStatement (reported `not_supported`). Encounters are inpatient and outpatient only; Procedures are inpatient surgery only.
+- **Conditions carry ICD-10-CM with the dot** (and SNOMED CT), so the value sets match as designed.
+- **References are absolute URLs**; normalization now accepts them.
+- **No security labels** are documented ([review](security/lighthouse_security_labels.md)).
 
 ## Open design questions
 

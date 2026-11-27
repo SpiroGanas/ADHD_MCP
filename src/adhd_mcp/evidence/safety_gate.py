@@ -19,7 +19,16 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, in_window, latest, not_after, read_category
+from adhd_mcp.evidence.common import (
+    Read,
+    completeness,
+    in_window,
+    latest,
+    not_after,
+    not_offered_reason,
+    read_category,
+    usable,
+)
 from adhd_mcp.fhir.codes import Coding
 from adhd_mcp.fhir.dates import DatePrecision, DateRange
 from adhd_mcp.fhir.reader import PatientRecords, ReadResult
@@ -343,6 +352,9 @@ def _flag_hits(
 # --- assembly ------------------------------------------------------------------------
 
 _CATEGORY_ORDER = ("Condition", "Encounter", "Observation", "QuestionnaireResponse", "Flag")
+#: Not offering these is a failure, not "not performed": the coded checks rest on them, so a
+#: gate without them must never read as limited-clear.
+_ESSENTIAL = frozenset({"Condition"})
 
 
 def _needed_categories(content: GateContent) -> set[str]:
@@ -363,7 +375,7 @@ def _needed_categories(content: GateContent) -> set[str]:
 
 async def _maybe[R: BaseModel](
     wanted: bool, read: Callable[[], Awaitable[ReadResult[R]]]
-) -> ReadResult[R] | None:
+) -> Read[R]:
     return await read_category(read()) if wanted else None
 
 
@@ -376,7 +388,9 @@ def _check(
     description: str,
     content: GateContent,
     hits: _Hits | None,
+    *,
     failed: list[str],
+    not_offered: list[str],
 ) -> SafetyCheck:
     if check_id in content.not_performed:
         outcome, reason = CheckOutcome.NOT_PERFORMED, content.not_performed[check_id]
@@ -384,6 +398,8 @@ def _check(
         outcome, reason = CheckOutcome.FOUND, None
     elif failed:
         outcome, reason = CheckOutcome.FAILED, f"Could not read {', '.join(failed)}"
+    elif not_offered:
+        outcome, reason = CheckOutcome.NOT_PERFORMED, not_offered_reason(not_offered)
     else:
         outcome, reason = CheckOutcome.NOT_FOUND, None
     return SafetyCheck(id=check_id, description=description, outcome=outcome, reason=reason)
@@ -398,7 +414,7 @@ async def assess_safety_gate(
     """
     d, site = content.definition, content.site
     needed = _needed_categories(content)
-    conditions, encounters, observations, responses, flags = await asyncio.gather(
+    raw = await asyncio.gather(
         _maybe("Condition" in needed, lambda: records.conditions(patient_id)),
         _maybe("Encounter" in needed, lambda: records.encounters(patient_id)),
         _maybe("Observation" in needed, lambda: records.observations(patient_id)),
@@ -408,14 +424,12 @@ async def assess_safety_gate(
         ),
         _maybe("Flag" in needed, lambda: records.flags(patient_id)),
     )
-    read: dict[str, ReadResult[Any] | None] = {
-        "Condition": conditions,
-        "Encounter": encounters,
-        "Observation": observations,
-        "QuestionnaireResponse": responses,
-        "Flag": flags,
-    }
+    read: dict[str, Read[Any]] = dict(zip(_CATEGORY_ORDER, raw, strict=True))
     notes = [completeness(c, read[c]) for c in _CATEGORY_ORDER if c in needed]
+    conditions, encounters, observations, responses, flags = (
+        usable(read[c]) for c in _CATEGORY_ORDER
+    )
+    not_offered = {n.category for n in notes if n.status == "not_supported"}
     # A check whose data was read only in part fails, exactly like one whose data could not
     # be read: partial data never supports "not found" (owner decision 2026-11-27).
     unreadable = {
@@ -425,13 +439,28 @@ async def assess_safety_gate(
     }
 
     def failures(*categories: str) -> list[str]:
-        return [f"{c}{unreadable[c]}" for c in categories if c in unreadable]
+        failed = [f"{c}{unreadable[c]}" for c in categories if c in unreadable]
+        return failed + [
+            f"{c} (not offered by the FHIR server)"
+            for c in categories
+            if c in not_offered and c in _ESSENTIAL
+        ]
 
     checks: list[SafetyCheck] = []
     all_hits: list[_Hits] = []
 
     def record(check_id: str, description: str, hits: _Hits | None, *categories: str) -> None:
-        checks.append(_check(check_id, description, content, hits, failures(*categories)))
+        unoffered = [c for c in categories if c in not_offered and c not in _ESSENTIAL]
+        checks.append(
+            _check(
+                check_id,
+                description,
+                content,
+                hits,
+                failed=failures(*categories),
+                not_offered=unoffered,
+            )
+        )
         if hits is not None:
             all_hits.append(hits)
 

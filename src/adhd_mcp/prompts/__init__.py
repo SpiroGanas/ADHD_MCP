@@ -53,6 +53,7 @@ def register(mcp: FastMCP) -> None:
             "clinician: every safety gate check and its outcome (found, not found, not "
             "performed with its reason, failed); every exclusion check; every signal checked "
             "and why it was or was not counted; and each data category that was empty, "
-            "incomplete, withheld or failed to load. Make clear that an empty record is not "
+            "incomplete, withheld, not offered by the FHIR server or failed to load. Make "
+            "clear that an empty record is not "
             f"a clean record. {_RULES}"
         )

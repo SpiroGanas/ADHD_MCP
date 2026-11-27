@@ -23,7 +23,7 @@
       },
       "condition": {
         "default": "adhd",
-        "description": "Condition to assess. Only 'adhd' in this version.",
+        "description": "Condition to assess: 'adhd'. An experimental stub such as 'autism' only when the server enables it; stubs are not for clinical use.",
         "type": "string"
       },
       "patient_id": {
@@ -171,6 +171,7 @@
                 "empty",
                 "incomplete",
                 "withheld",
+                "not_supported",
                 "failed"
               ],
               "type": "string"
@@ -716,6 +717,11 @@
           {
             "additionalProperties": false,
             "properties": {
+              "failed": {
+                "default": false,
+                "description": "True when the scorer failed: no score, and the recommendation is the ruleset's alone, as always",
+                "type": "boolean"
+              },
               "id": {
                 "type": "string"
               },

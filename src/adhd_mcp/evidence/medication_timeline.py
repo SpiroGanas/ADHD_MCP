@@ -13,11 +13,11 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from functools import cache
 from importlib.resources import files
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category
+from adhd_mcp.evidence.common import completeness, not_after, read_category, usable
 from adhd_mcp.fhir.reader import PatientRecords, ReadResult
 from adhd_mcp.fhir.records import MedicationRecord
 from adhd_mcp.models.domain import DataCompleteness, ResourceRef
@@ -201,12 +201,13 @@ class _Assembler:
 async def assemble_medication_timeline(
     records: PatientRecords, patient_id: str, as_of: date, content: MedicationContent
 ) -> MedicationTimelineResult:
-    reads: tuple[Any, ...] = await asyncio.gather(
+    raw = await asyncio.gather(
         read_category(records.medication_requests(patient_id)),
         read_category(records.medication_dispenses(patient_id)),
         read_category(records.medication_statements(patient_id)),
     )
-    notes = [completeness(n, r) for n, r in zip(_CATEGORIES, reads, strict=True)]
+    notes = [completeness(n, r) for n, r in zip(_CATEGORIES, raw, strict=True)]
+    reads = [usable(r) for r in raw]
     a = _Assembler(content, as_of)
     d = content.definition
     requests_all = a._dated(_records(reads[0]))

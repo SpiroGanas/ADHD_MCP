@@ -17,6 +17,7 @@ What ADHD_MCP 1.0.0rc1 cannot do, and why. Every item here is also in the releva
 - **Coded data only.** Free-text notes are not read. Psychosocial problems, family history and TBI are under-coded, and a missing code is weak evidence of absence.
 - **Code formats.** ICD-10-CM codes sent without the dot do not match ([ADR 0007](adr/0007-fhir-modeling.md)). Retired RxNorm product codes are not matched ([ADR 0009](adr/0009-rxnorm-drug-classes.md)).
 - **Not read.** Missed appointments (no Appointment search); coded social-history observation values are reported but not counted by the rules.
+- **VA Lighthouse.** Built from public documentation and never run against the sandbox with credentials. Lighthouse offers no screening instruments (its Observations are labs, vital signs and social history), no flags, referrals, care plans, dispenses or statements, and only inpatient and outpatient encounters, so many checks are "not performed" there ([Lighthouse](integration/lighthouse.md)).
 - **Local codes.** Psychiatric stays, high-risk flags and ADHD referrals or evaluations rely on a site code mapping; only the synthetic site exists, so on a real server those checks report "not performed".
 - **One condition.** ADHD only; the plugin interface allows more later.
 

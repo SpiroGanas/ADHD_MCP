@@ -35,6 +35,14 @@ class SignalEvidence:
     psychosocial: Sequence[PsychosocialDomain] | None = None
     utilization_events: Sequence[UtilizationEvent] | None = None
     distinct_agents: Sequence[DistinctAgents] | None = None
+    #: The server offers no dispenses or statements, so agents come from orders alone; the
+    #: reason says so (owner decision 2026-11-27).
+    agents_from_orders_only: bool = False
+
+
+_ORDERS_ONLY = (
+    " Counted from medication orders only: the FHIR server does not offer dispenses or statements."
+)
 
 
 def _refs(refs: Sequence[ResourceRef]) -> list[ResourceRef]:
@@ -167,7 +175,10 @@ def evaluate_signal(  # noqa: PLR0911 - one return per outcome
         if d.drug_class == s.drug_class
         for a in d.agents
     ]
-    return _counted(s, agents, as_of)
+    finding = _counted(s, agents, as_of)
+    if evidence.agents_from_orders_only:
+        finding = finding.model_copy(update={"reason": finding.reason + _ORDERS_ONLY})
+    return finding
 
 
 def evaluate_signals(

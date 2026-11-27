@@ -32,7 +32,7 @@ DESCRIPTION = (
     "(reasonReference for conditions and observations, supportingInfo for visits and "
     "medications). Otherwise the draft is null and the reason is given. The draft is "
     "returned only: it has no id, is never stored and is never sent to the health record. "
-    "Not a diagnosis and not an order."
+    "Never drafts for an experimental condition. Not a diagnosis and not an order."
 )
 
 #: ServiceRequest.reasonReference may point only to these resource types (FHIR R4).
@@ -94,7 +94,12 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         wording = load_wording()
         draft = None
         why = None
-        if result.recommendation is RecommendationCode.CONSIDER_REFERRAL:
+        if plugin.ruleset.status == "experimental":
+            why = (
+                f"No draft: ruleset {plugin.ruleset.label} is an experimental stub and not "
+                "for clinical use."
+            )
+        elif result.recommendation is RecommendationCode.CONSIDER_REFERRAL:
             draft = build_draft(
                 request.patient_id, plugin.title, plugin.ruleset.label, result, context.privacy
             )

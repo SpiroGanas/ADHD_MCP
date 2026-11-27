@@ -5,7 +5,7 @@ from importlib.metadata import version
 SERVER_NAME = "adhd-mcp"
 
 #: Changes when a tool's name, inputs or output schema changes.
-TOOL_CONTRACT_VERSION = "0.3.0"
+TOOL_CONTRACT_VERSION = "0.4.0"
 
 #: The active referral ruleset: id, version and status. "draft" until the project owner
 #: approves it for release (a test keeps this equal to the loaded ruleset).

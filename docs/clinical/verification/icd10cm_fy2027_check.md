@@ -12,6 +12,7 @@ Output of `scripts/verify_icd10cm_value_sets.py`, run by the Claude Code agent u
   - No other value set changed.
 - **FY2026 source check:** the FY2026 April 1 2026 tabular downloaded from ftp.cdc.gov (`icd10cm-April-1-2026-XML.zip`, XML sha256 `fbbb7f6ee319eb0259e43d369ec50bc15af9a2c983d4440b936b3d70a53f7624`) gives output identical to the run recorded in [icd10cm_fy2026_check.md](icd10cm_fy2026_check.md) on the PyPI copy. The two files' hashes differ, but they produce the same result for every value set.
 - **Added 2026-11-27:** `mh.mental_behavioral_chapter` (chapter 5 regex, the problem list's fallback family) matches all 872 F leaf codes and nothing else.
+- **Added 2026-11-27 (Phase 8):** `care.autism_diagnosis` (F84.0, F84.5, F84.8, F84.9; exclusion of the experimental autism stub) matches 4 tabular leaf codes. Same pinned zip and XML (hashes above). The output below is the full current run: besides the new line it shows `sud.blood_alcohol_level` at 9 codes (Y90.0 removed by owner decision, open question 10) and the `privacy.*` value sets added in Phase 6, which the earlier listing predated. F84.2 (Rett's syndrome) and F84.3 (other childhood disintegrative disorder) are left out by owner decision.
 - **Human spot-check:** waived by the project owner on 2026-11-27 for synthetic-only development; it is a release blocker for 1.0.0 ([verification backlog](../verification_backlog.md), F1).
 
 To reproduce, download the same zip, extract the XML and run:
@@ -24,6 +25,7 @@ uv run python scripts/verify_icd10cm_value_sets.py PATH/TO/icd10cm-tabular_-2027
 
 ```
 care.adhd_diagnosis: 5 tabular codes
+care.autism_diagnosis: 4 tabular codes
 care.narcolepsy: 4 tabular codes
 family.mental_behavioral_history: 1 tabular codes
 injury.accidental_external_cause: 516 tabular codes
@@ -40,6 +42,8 @@ mh.generalized_anxiety: 1 tabular codes
 mh.intermittent_explosive_disorder: 1 tabular codes
 mh.mental_behavioral_chapter: 872 tabular codes
 mh.ptsd: 3 tabular codes
+privacy.hiv: 3 tabular codes
+privacy.sickle_cell: 43 tabular codes
 psychosocial.education_occupation: 20 tabular codes
 psychosocial.homelessness: 3 tabular codes
 psychosocial.housing_instability: 3 tabular codes
@@ -58,7 +62,7 @@ safety.undetermined_intent_poisoning: 318 tabular codes
 sleep.insomnia_delayed_phase: 9 tabular codes
 sud.alcohol: 58 tabular codes
 sud.alcohol_in_blood: 1 tabular codes
-sud.blood_alcohol_level: 10 tabular codes
+sud.blood_alcohol_level: 9 tabular codes
 sud.other: 215 tabular codes
 sud.stimulant: 48 tabular codes
 symptom.attention_executive: 2 tabular codes

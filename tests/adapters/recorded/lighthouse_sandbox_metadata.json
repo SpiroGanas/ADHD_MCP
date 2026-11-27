@@ -1,0 +1,977 @@
+{
+  "contact": [
+    {
+      "name": "API Support",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "api@va.gov"
+        }
+      ]
+    }
+  ],
+  "date": "2026-11-27T18:27:24Z",
+  "description": "FHIR R4 Health APIs.",
+  "fhirVersion": "4.0.1",
+  "format": [
+    "application/json",
+    "application/fhir+json"
+  ],
+  "id": "health-api-fhir-r4-capability",
+  "implementation": {
+    "description": "FHIR R4 Health APIs.",
+    "url": "https://sandbox-api.va.gov/services/fhir/v0/r4"
+  },
+  "instantiates": [
+    "http://hl7.org/fhir/us/core/CapabilityStatement/us-core-server"
+  ],
+  "kind": "instance",
+  "name": "api-management-platform-health-fhir-r4",
+  "publisher": "Department of Veterans Affairs",
+  "resourceType": "CapabilityStatement",
+  "rest": [
+    {
+      "mode": "server",
+      "resource": [
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-allergyintolerance"
+          ],
+          "type": "AllergyIntolerance",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/R4/appointment.html",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "location",
+              "type": "reference"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/R4/appointment.html"
+          ],
+          "type": "Appointment",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/R4/binary.html",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/R4/binary.html"
+          ],
+          "type": "Binary",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "abatement-date",
+              "type": "date"
+            },
+            {
+              "name": "category",
+              "type": "token"
+            },
+            {
+              "name": "clinical-status",
+              "type": "token"
+            },
+            {
+              "name": "code",
+              "type": "token"
+            },
+            {
+              "name": "encounter",
+              "type": "reference"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "onset-date",
+              "type": "date"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            },
+            {
+              "name": "recorded-date",
+              "type": "date"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-problems-health-concerns",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-condition-encounter-diagnosis"
+          ],
+          "type": "Condition",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            },
+            {
+              "name": "type",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-implantable-device"
+          ],
+          "type": "Device",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/R4/devicerequest.html",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/R4/devicerequest.html"
+          ],
+          "type": "DeviceRequest",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "category",
+              "type": "token"
+            },
+            {
+              "name": "code",
+              "type": "token"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            },
+            {
+              "name": "status",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab"
+          ],
+          "type": "DiagnosticReport",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "category",
+              "type": "token"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            },
+            {
+              "name": "period",
+              "type": "date"
+            },
+            {
+              "name": "type",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference"
+          ],
+          "type": "DocumentReference",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-encounter"
+          ],
+          "type": "Encounter",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-immunization"
+          ],
+          "type": "Immunization",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "address",
+              "type": "string"
+            },
+            {
+              "name": "address-city",
+              "type": "string"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string"
+            },
+            {
+              "name": "address-state",
+              "type": "string"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "organization",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-location"
+          ],
+          "type": "Location",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication"
+          ],
+          "type": "Medication",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "intent",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            },
+            {
+              "name": "status",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest"
+          ],
+          "type": "MedicationRequest",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "category",
+              "type": "token"
+            },
+            {
+              "name": "code",
+              "type": "token"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-vital-signs",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-smokingstatus",
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-respiratory-rate"
+          ],
+          "type": "Observation",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "address",
+              "type": "string"
+            },
+            {
+              "name": "address-city",
+              "type": "string"
+            },
+            {
+              "name": "address-postalcode",
+              "type": "string"
+            },
+            {
+              "name": "address-state",
+              "type": "string"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-organization"
+          ],
+          "type": "Organization",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient"
+          ],
+          "type": "Patient",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "family",
+              "type": "string"
+            },
+            {
+              "name": "given",
+              "type": "string"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "name",
+              "type": "string"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitioner"
+          ],
+          "type": "Practitioner",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "practitioner.identifier",
+              "type": "token"
+            },
+            {
+              "name": "practitioner.name",
+              "type": "string"
+            },
+            {
+              "name": "specialty",
+              "type": "token"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-practitionerrole"
+          ],
+          "type": "PractitionerRole",
+          "versioning": "no-version"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            },
+            {
+              "code": "search-type",
+              "documentation": "Implemented per specification. See http://hl7.org/fhir/R4/http.html"
+            }
+          ],
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure",
+          "referencePolicy": [
+            "literal",
+            "local"
+          ],
+          "searchParam": [
+            {
+              "name": "_id",
+              "type": "token"
+            },
+            {
+              "name": "_lastUpdated",
+              "type": "date"
+            },
+            {
+              "name": "code",
+              "type": "token"
+            },
+            {
+              "name": "date",
+              "type": "date"
+            },
+            {
+              "name": "identifier",
+              "type": "token"
+            },
+            {
+              "name": "patient",
+              "type": "reference"
+            }
+          ],
+          "supportedProfile": [
+            "http://hl7.org/fhir/us/core/StructureDefinition/us-core-procedure"
+          ],
+          "type": "Procedure",
+          "versioning": "no-version"
+        }
+      ],
+      "security": {
+        "cors": true,
+        "description": "http://docs.smarthealthit.org/",
+        "extension": [
+          {
+            "extension": [
+              {
+                "url": "token",
+                "valueUri": "https://sandbox-api.va.gov/oauth2/token"
+              },
+              {
+                "url": "authorize",
+                "valueUri": "https://sandbox-api.va.gov/oauth2/authorization"
+              },
+              {
+                "url": "revoke",
+                "valueUri": "https://sandbox-api.va.gov/oauth2/revoke"
+              },
+              {
+                "url": "manage",
+                "valueUri": "https://sandbox-api.va.gov/oauth2/manage"
+              }
+            ],
+            "url": "http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris"
+          }
+        ],
+        "service": [
+          {
+            "coding": [
+              {
+                "code": "SMART-on-FHIR",
+                "display": "SMART-on-FHIR",
+                "system": "http://hl7.org/fhir/restful-security-service"
+              }
+            ],
+            "text": "SMART-on-FHIR"
+          }
+        ]
+      }
+    }
+  ],
+  "software": {
+    "name": "health-api-fhir-r4"
+  },
+  "status": "active",
+  "version": "14.0.114"
+}

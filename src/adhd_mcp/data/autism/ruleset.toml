@@ -1,0 +1,23 @@
+# EXPERIMENTAL STUB (Phase 8, item 5): proves the condition plugin interface. Not a clinical
+# rule, not reviewed, not validated, and never released: status "experimental" cannot be
+# pinned in released_rulesets.toml. The condition is registered only when
+# ADHD_MCP_EXPERIMENTAL_CONDITIONS names it.
+id = "autism"
+version = "0.0.1"
+status = "experimental"
+effective_date = "2026-11-27"
+catalog = "autism.signal_catalog"
+catalog_version = "0.0.1"
+validated = false
+
+exclusions = ["existing_autism_code"]
+
+citations = [
+  "Placeholder only (owner decision 2026-11-27): a disabled stub to prove the plugin interface (ADR 0005). Not derived from or calibrated against any evidence.",
+]
+
+[[rules]]
+id = "all_placeholder_modifiers"
+description = "All three placeholder modifiers (plugin proof only)"
+min_high = 0
+min_modifiers = 3

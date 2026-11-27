@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Literal
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category
+from adhd_mcp.evidence.common import completeness, not_after, read_category, usable
 from adhd_mcp.fhir.codes import Coding
 from adhd_mcp.fhir.dates import DateRange
 from adhd_mcp.fhir.reader import PatientRecords
@@ -265,10 +265,11 @@ async def assemble_screening_history(
         if patient.administrative_gender in {"male", "female"}
         else None
     )
-    observations, responses = await asyncio.gather(
+    observation_read, response_read = await asyncio.gather(
         read_category(records.observations(patient_id)),
         read_category(records.questionnaire_responses(patient_id)),
     )
+    observations, responses = usable(observation_read), usable(response_read)
     entries: list[ScreeningEntry] = []
     for o in observations.records if observations else ():
         if o.status not in _NO_RESULT and not_after(o.effective, as_of):
@@ -281,7 +282,7 @@ async def assemble_screening_history(
         entries=entries,
         instruments_checked=[i.id for i in content.instruments],
         data_completeness=[
-            completeness("Observation", observations),
-            completeness("QuestionnaireResponse", responses),
+            completeness("Observation", observation_read),
+            completeness("QuestionnaireResponse", response_read),
         ],
     )

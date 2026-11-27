@@ -10,6 +10,8 @@ Set one. With neither, every patient tool returns a `not_configured` error.
 |---|---|
 | `ADHD_MCP_FIXTURE_DIR` | A directory of FHIR R4 bundles (JSON) to read in memory. Use `tests/personas/bundles` for the 14 synthetic personas |
 | `ADHD_MCP_FHIR_BASE_URL` | A FHIR R4 server. The server only issues GET requests to it. Wins over `ADHD_MCP_FIXTURE_DIR` |
+| `ADHD_MCP_SCORER` | `rules-only` (default) or `dummy`. The dummy scorer is not a model: it always reports a score of 0.0 to prove the scorer slot (Phase 8). A score never changes the recommendation |
+| `ADHD_MCP_EXPERIMENTAL_CONDITIONS` | Comma-separated experimental stub conditions to register; only `autism` exists. Off by default and not for clinical use ([rule card](../clinical/rule_card_autism_stub.md)) |
 | `ADHD_MCP_SITE_CODES` | The local code mapping in `src/adhd_mcp/data/site_codes/` (only `synthetic` exists). Defaults to `synthetic` with fixture data and to no mapping with a FHIR server, in which case checks that need local codes report "not performed" ([ADR 0008](../adr/0008-site-codes-and-search-warnings.md)) |
 
 ### A local FHIR server
@@ -33,6 +35,13 @@ All five or none ([ADR 0012](../adr/0012-authentication.md)). Needs `ADHD_MCP_FH
 | `ADHD_MCP_SMART_KEY_ID` | The `kid` of the signing key |
 | `ADHD_MCP_SMART_SCOPE` | Scopes to request, for example `system/*.rs` |
 | `ADHD_MCP_SMART_PRIVATE_KEY_FILE` | File holding the private key (PEM) used to sign the client assertion |
+| `ADHD_MCP_SMART_AUDIENCE` | Optional: the client assertion's audience (`aud`); default the token URL. Required with the `lighthouse` profile |
+
+### FHIR server profile
+
+| Variable | Meaning |
+|---|---|
+| `ADHD_MCP_FHIR_SERVER_PROFILE` | `generic` (default: a full FHIR R4 server) or `lighthouse` (VA Lighthouse Patient Health API: only the types it offers, no `_include`, patient-scoped client credentials tokens). Needs `ADHD_MCP_FHIR_BASE_URL`. See [Lighthouse](../integration/lighthouse.md) |
 
 ## Transport
 

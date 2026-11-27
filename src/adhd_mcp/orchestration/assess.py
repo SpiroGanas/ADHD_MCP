@@ -39,6 +39,7 @@ from adhd_mcp.models.domain import (
     WeightClass,
 )
 from adhd_mcp.rules.engine import Decision, decide
+from adhd_mcp.rules.scorer import run_scorer
 from adhd_mcp.rules.signals import SignalEvidence, evaluate_signals
 from adhd_mcp.terminology.site_codes import SiteCodes
 
@@ -46,8 +47,9 @@ _SEVERITY = {
     DataStatus.AVAILABLE: 0,
     DataStatus.EMPTY: 0,
     DataStatus.WITHHELD: 1,
-    DataStatus.INCOMPLETE: 2,
-    DataStatus.FAILED: 3,
+    DataStatus.NOT_SUPPORTED: 2,
+    DataStatus.INCOMPLETE: 3,
+    DataStatus.FAILED: 4,
 }
 _READABLE = frozenset({DataStatus.AVAILABLE, DataStatus.EMPTY})
 
@@ -103,14 +105,24 @@ def _choose(
         return RecommendationCode.ALREADY_IN_CARE
     if decision.recommend:
         return RecommendationCode.CONSIDER_REFERRAL
-    empty = all(n.status is DataStatus.EMPTY for n in completeness)
+    # A record with nothing in it: every category empty, or not offered by the server.
+    empty = all(n.status in (DataStatus.EMPTY, DataStatus.NOT_SUPPORTED) for n in completeness)
     if empty or not sources_readable:
         return RecommendationCode.INSUFFICIENT_DATA
     return RecommendationCode.NO_RECOMMENDATION
 
 
-def _status(notes: Sequence[DataCompleteness], *categories: str) -> bool:
-    return all(n.status in _READABLE for n in notes if n.category in categories)
+def _status(
+    notes: Sequence[DataCompleteness], *categories: str, may_be_absent: Sequence[str] = ()
+) -> bool:
+    """Whether every category was read completely. A category in ``may_be_absent`` may
+    instead be one the server does not offer (a failed or partial read still counts)."""
+    return all(
+        n.status in _READABLE
+        or (n.category in may_be_absent and n.status is DataStatus.NOT_SUPPORTED)
+        for n in notes
+        if n.category in categories
+    )
 
 
 async def assess(
@@ -156,9 +168,22 @@ async def assess(
         utilization_events=utilization.events
         if _status(completeness, "Encounter", "Condition")
         else None,
+        # A server that offers no dispenses or statements leaves orders as the whole
+        # medication record (the timeline then uses orders); orders themselves are required.
         distinct_agents=medication.distinct_agents
-        if _status(completeness, "MedicationRequest", "MedicationDispense", "MedicationStatement")
+        if _status(
+            completeness,
+            "MedicationRequest",
+            "MedicationDispense",
+            "MedicationStatement",
+            may_be_absent=("MedicationDispense", "MedicationStatement"),
+        )
         else None,
+        agents_from_orders_only=any(
+            n.category in ("MedicationDispense", "MedicationStatement")
+            and n.status is DataStatus.NOT_SUPPORTED
+            for n in completeness
+        ),
     )
     findings = evaluate_signals(plugin.catalog.signals, evidence, as_of)
     decision = decide(findings, plugin.ruleset)
@@ -174,13 +199,7 @@ async def assess(
         if f.present and f.weight == "note" and f.signal in plugin.note_texts
     ]
     notes += exclusions.notes
-    scorer = (
-        ScorerRef(
-            id=plugin.scorer.id, version=plugin.scorer.version, score=plugin.scorer.score(findings)
-        )
-        if plugin.scorer is not None
-        else None
-    )
+    scorer = run_scorer(plugin.scorer, findings) if plugin.scorer is not None else None
     return Assessment(
         gate=gate,
         exclusions=exclusions,
