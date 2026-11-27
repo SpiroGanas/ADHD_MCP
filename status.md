@@ -3,8 +3,8 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-26
-**Current phase:** Phases 1 and 2 code complete, in one pull request awaiting CI and review. Phase 3 (Evidence tools I) is next.
-**Branch:** `claude/intelligent-sagan-imj1bh`
+**Current phase:** Phases 1 and 2 complete (merged 2026-11-27). Phase 3 (Evidence tools I) not started.
+**Branch:** start Phase 3 on a new branch from `main`
 
 ## Summary
 
@@ -19,13 +19,12 @@ A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR acc
 
 ## In progress
 
-- Phases 1 and 2 pull request [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3): waiting for CI (first run of the CI and integration workflows) and review. The clinical safety review is done; its two blocking findings and most minor ones are fixed (see the PR description).
+Nothing.
 
 ## Next steps
 
-1. Watch the PR through CI and review; fix anything that fails.
-2. Project owner: make the CI checks required for merge on `main` (repository settings; Phase 1 exit criterion the agent cannot set). Answer open questions 1, 2 and 7 to 12 below.
-3. Phase 3, work item 1, `check_safety_gate`. First write the persona expectations (p03 positive; p07 and p08 `clear_limited_data`; others clear) and a rule card draft, then the first failing test: an evidence assembler returns a positive gate citing `p03-cond-1` for R45.851, using `PatientRecords.conditions(..., value_set=load_value_set("safety.suicidal_ideation"))`. LOINC-based checks (PHQ-9 item 9, C-SSRS) cannot be active until follow-up F2 verifies those codes, and no `safety.*` value set may be used in an active check until follow-up F1 (FY2027, hash comparison, human spot-check) is done. Do not use `since` on safety-gate Condition searches: it drops conditions without a recordedDate.
+1. Project owner: make the CI checks required for merge on `main` (repository settings; Phase 1 exit criterion the agent cannot set). Answer open questions 1, 2 and 7 to 13 below.
+2. Phase 3, work item 1, `check_safety_gate`. First write the persona expectations (p03 positive; p07 and p08 `clear_limited_data`; others clear) and a rule card draft, then the first failing test: an evidence assembler returns a positive gate citing `p03-cond-1` for R45.851, using `PatientRecords.conditions(..., value_set=load_value_set("safety.suicidal_ideation"))`. LOINC-based checks (PHQ-9 item 9, C-SSRS) cannot be active until follow-up F2 verifies those codes, and no `safety.*` value set may be used in an active check until follow-up F1 (FY2027, hash comparison, human spot-check) is done. Do not use `since` on safety-gate Condition searches: it drops conditions without a recordedDate.
 
 ## Open questions for the project owner
 
@@ -71,4 +70,4 @@ Owner decisions 2026-11-26 (start of Phase 1):
 |---|---|---|
 | [SpiroGanas/ADHD_MCP#1](https://github.com/SpiroGanas/ADHD_MCP/pull/1) | Research report | Merged |
 | [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2) | Project plan, architecture and working documentation | Merged |
-| [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Open |
+| [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged 2026-11-27 (CI green) |
