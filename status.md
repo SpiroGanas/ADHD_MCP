@@ -20,11 +20,12 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 ## In progress
 
-- Phase 4 (evidence tools II), then Phase 5 (rules engine) and Phase 6 (audit, privacy, security). One PR for all three, a commit per work item.
+- Phase 4 code complete on the branch (pushed, no PR yet): `get_medication_timeline` (ADR 0009, RxNorm classes verified with RxNav 02-Nov-2026), `get_utilization_summary`, `get_psychosocial_context`, the signal catalog (`data/adhd/signal_catalog.toml`, awaiting owner review), a per-request FHIR cache. Tool contract 0.3.0. Verification sprint 3: every code a signal uses is verified; AUDIT-C, PC-PTSD-5, PHQ and ASRS (LOINC, F2) stay unverified and are not used by any signal.
+- Phase 5 (rules engine and recommendation), then Phase 6. One PR for all three phases.
 
 ## Next steps
 
-1. Phase 4, work item 1, `get_medication_timeline`: write ADR 0009 (curated RxNorm ingredient lists, verified against RxNav), the drug-class data files, then the assembler test-first.
+1. Phase 5: personas p11-p14 and golden expectations, then the ruleset format (ADR 0010), the engine, `assess_referral_need`.
 
 ## Open questions for the project owner
 
