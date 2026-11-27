@@ -543,6 +543,19 @@ async def test_a_type_the_server_does_not_offer_leaves_its_check_not_performed()
     assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
 
 
+async def test_a_server_without_conditions_cannot_clear_the_gate() -> None:
+    """The coded self-harm checks rest on Conditions: without them the gate is unavailable,
+    exactly as if the read had failed (safety review 2026-11-27)."""
+    p = person()
+    p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
+    result, notes = await unsupported_gate(p, {"Condition"})
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "suicidal_ideation_code")
+    assert check.outcome is CheckOutcome.FAILED
+    assert check.reason == "Could not read Condition (not offered by the FHIR server)"
+    assert {n.category: n.status for n in notes}["Condition"] is DataStatus.NOT_SUPPORTED
+
+
 async def test_a_check_with_one_source_not_offered_is_not_performed_not_clear() -> None:
     p = person()
     p.condition("F32.9", "Depression", recorded=ago(10))

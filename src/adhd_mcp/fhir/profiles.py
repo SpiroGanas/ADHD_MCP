@@ -34,6 +34,14 @@ class ServerProfile(BaseModel):
             raise ValueError(f"unknown search types: {', '.join(sorted(unknown))}")
         return value
 
+    @field_validator("offered")
+    @classmethod
+    def _essential(cls, value: frozenset[str]) -> frozenset[str]:
+        # The safety gate's coded checks and every condition signal need these.
+        if not {"Condition", "Encounter"} <= value:
+            raise ValueError("a server profile must offer Condition and Encounter")
+        return value
+
     def date_param(self, resource_type: str) -> str | None:
         """The server's date search parameter, or ``None`` when it has none."""
         if resource_type in self.no_date_search:

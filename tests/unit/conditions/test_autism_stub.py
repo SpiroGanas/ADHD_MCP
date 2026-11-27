@@ -1,7 +1,7 @@
 """The autism stub (Phase 8, item 5): a second condition that proves the plugin interface.
 Experimental, disabled by default, with placeholder signals that are not clinical content."""
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import pytest
 from fastmcp import Client
@@ -145,3 +145,46 @@ def test_no_stub_text_implies_a_diagnosis() -> None:
     plugin = autism_plugin()
     assert_no_diagnostic_language(dict(plugin.recommendation_texts))
     assert_no_diagnostic_language({"next_step": plugin.next_step, "title": plugin.title})
+
+
+async def test_the_stub_never_produces_a_referral_draft() -> None:
+    p = person()
+    for code in ("F43.10", "F33.1", "F60.3"):
+        p.condition(code, "x", recorded="2025-01-01")
+    context = ToolContext(
+        port=FixtureFhirAdapter(p.resources),
+        clock=FixedClock(datetime(2026, 6, 15, 12, 0, tzinfo=UTC)),
+        site_codes=SITE,
+        conditions=default_conditions(experimental=("autism",)),
+    )
+    async with Client(create_server(context)) as client:
+        result = await client.call_tool(
+            "draft_referral_proposal", {"patient_id": p.patient_id, "condition": "autism"}
+        )
+    out = result.structured_content
+    assert out is not None
+    assert out["recommendation"] == "consider_referral_for_formal_screening"
+    assert out["draft"] is None
+    assert "experimental" in out["why_no_draft"]
+    assert_no_diagnostic_language(out)
+
+
+async def test_two_of_the_three_placeholder_modifiers_do_not_fire() -> None:
+    p = person()
+    p.condition("F43.10", "x", recorded="2025-01-01")
+    p.condition("F33.1", "x", recorded="2025-02-01")
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    result = await assess(autism_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    assert result.recommendation == "no_recommendation"
+
+
+@pytest.mark.parametrize(("days", "fires"), [(1095, True), (1096, False)])
+async def test_the_placeholder_window_boundary(days: int, fires: bool) -> None:
+    p = person()
+    when = (AS_OF - timedelta(days=days)).isoformat()
+    p.condition("F43.10", "x", recorded="2025-01-01")
+    p.condition("F33.1", "x", recorded="2025-02-01")
+    p.condition("F60.3", "x", recorded=when, onset=when, clinical="resolved")
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    result = await assess(autism_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    assert result.decision.recommend is fires

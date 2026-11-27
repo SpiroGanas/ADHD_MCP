@@ -109,7 +109,7 @@ Check a patient's FHIR record for self-harm signals that must be addressed befor
 
 ## draft_referral_proposal
 
-Draft a referral for formal adult ADHD screening from an assessment, for a clinician to review. Runs assess_referral_need; only when it suggests a referral, returns a FHIR R4 ServiceRequest with status 'draft' and intent 'proposal' that cites the evidence (reasonReference for conditions and observations, supportingInfo for visits and medications). Otherwise the draft is null and the reason is given. The draft is returned only: it has no id, is never stored and is never sent to the health record. Not a diagnosis and not an order.
+Draft a referral for formal adult ADHD screening from an assessment, for a clinician to review. Runs assess_referral_need; only when it suggests a referral, returns a FHIR R4 ServiceRequest with status 'draft' and intent 'proposal' that cites the evidence (reasonReference for conditions and observations, supportingInfo for visits and medications). Otherwise the draft is null and the reason is given. The draft is returned only: it has no id, is never stored and is never sent to the health record. Never drafts for an experimental condition. Not a diagnosis and not an order.
 
 **Inputs**
 

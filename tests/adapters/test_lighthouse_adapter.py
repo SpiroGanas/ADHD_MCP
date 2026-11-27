@@ -283,12 +283,13 @@ def make_auth(server: FakeLighthouseServer, scope: str = SCOPE) -> LighthouseCcg
 
 
 async def test_the_token_request_names_the_patient_in_the_launch_parameter() -> None:
+    # An obviously synthetic id in the ICN format (ten digits, V, six digits).
     server = FakeLighthouseServer([])
     auth = make_auth(server)
-    await auth.access_token("1000720100V271387")
+    await auth.access_token("9000000000V000000")
     (form,) = server.tokens
-    assert launch_patient(form) == "1000720100V271387"
-    assert base64.b64decode(form["launch"]) == b'{"patient":"1000720100V271387"}'
+    assert launch_patient(form) == "9000000000V000000"
+    assert base64.b64decode(form["launch"]) == b'{"patient":"9000000000V000000"}'
     assert form["scope"] == SCOPE
     claims = jwt.decode(
         form["client_assertion"],
@@ -384,6 +385,13 @@ def test_unknown_profiles_and_types_are_refused() -> None:
         load_server_profile("oracle-health")
     with pytest.raises(ValueError, match="unknown search types"):
         ServerProfile(id="x", title="x", source="x", offered=frozenset({"Appointment"}))
+
+
+@pytest.mark.parametrize("missing", ["Condition", "Encounter"])
+def test_every_profile_must_offer_conditions_and_encounters(missing: str) -> None:
+    offered = OFFERED - {missing}
+    with pytest.raises(ValueError, match="must offer Condition and Encounter"):
+        ServerProfile(id="x", title="x", source="x", offered=offered)
 
 
 def test_the_lighthouse_grant_refuses_a_plain_http_token_url() -> None:

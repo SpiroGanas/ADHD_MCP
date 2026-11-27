@@ -179,6 +179,11 @@ async def assess(
             may_be_absent=("MedicationDispense", "MedicationStatement"),
         )
         else None,
+        agents_from_orders_only=any(
+            n.category in ("MedicationDispense", "MedicationStatement")
+            and n.status is DataStatus.NOT_SUPPORTED
+            for n in completeness
+        ),
     )
     findings = evaluate_signals(plugin.catalog.signals, evidence, as_of)
     decision = decide(findings, plugin.ruleset)

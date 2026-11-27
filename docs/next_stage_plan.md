@@ -4,7 +4,7 @@ Phase 8, item 8. A short proposal for what follows this plan, based on [Future w
 
 ## What Phase 8 showed
 
-1. **The abstractions held.** A second back end (Lighthouse), a second condition (the autism stub) and a scorer (the dummy) were added without changing the engine, the ADHD ruleset or any ADHD golden test. The one core change was honest reporting of resource types a server does not offer (`not_supported`), which every real back end will need.
+1. **The abstractions held.** A second back end (Lighthouse), a second condition (the autism stub) and a scorer (the dummy) were added without changing the engine or the ADHD ruleset; ADHD golden outputs changed only in contract fields, never in a recommendation. The one core change was honest reporting of resource types a server does not offer (`not_supported`), which every real back end will need.
 2. **Real VA APIs offer much less than the synthetic server.** Lighthouse's Patient Health API exposes no screening instruments, flags, referrals, care plans, dispenses or statements; its encounters are inpatient and outpatient only. On Lighthouse the safety gate rests on coded conditions and encounters alone, and existing-care checks are mostly "not performed". Oracle Health offers more (9 of the 11 types), with uneven date-search rules ([desk review](integration/oracle_health.md)).
 3. **Screening scores will not come from Lighthouse.** The research report's first integration question is answered "not exposed" for that API, so the LOINC verification (F2) and ASRS coding (open question 12) matter only for back ends that carry instruments, such as Oracle Health.
 4. **Nothing has touched a real sandbox with credentials.** The Lighthouse adapter is built from documentation; its exit criterion is open.

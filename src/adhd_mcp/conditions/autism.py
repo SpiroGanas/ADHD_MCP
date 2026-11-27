@@ -31,7 +31,6 @@ from adhd_mcp.terminology.site_codes import SiteCodes
 
 DATA = "adhd_mcp.data.autism"
 _CHECK = "autism_diagnosis_code"
-_DESCRIPTION = "Autism code (F84.0, F84.5, F84.8, F84.9) on a Condition"
 
 
 class StubWording(BaseModel):
@@ -56,11 +55,13 @@ async def autism_exclusions(
     note = completeness("Condition", raw)
     read = usable(raw)
     value_set = load_value_set("care.autism_diagnosis", strict=True)
+    codes = ", ".join(sorted(e.code for e in value_set.entries))
+    description = f"Autism code ({codes}) on a Condition"
     if read is None:
         failed = note.status is DataStatus.FAILED
         check = ExclusionCheck(
             check=_CHECK,
-            description=_DESCRIPTION,
+            description=description,
             outcome=CheckOutcome.FAILED if failed else CheckOutcome.NOT_PERFORMED,
             reason="Could not read Condition" if failed else not_offered_reason(["Condition"]),
         )
@@ -75,12 +76,12 @@ async def autism_exclusions(
     )
     if found:
         check = ExclusionCheck(
-            check=_CHECK, description=_DESCRIPTION, outcome=CheckOutcome.FOUND, references=found
+            check=_CHECK, description=description, outcome=CheckOutcome.FOUND, references=found
         )
         excluded: bool | None = True
     else:
         check = ExclusionCheck(
-            check=_CHECK, description=_DESCRIPTION, outcome=CheckOutcome.NOT_FOUND
+            check=_CHECK, description=description, outcome=CheckOutcome.NOT_FOUND
         )
         # "Not in care" only on complete data; a partial read leaves it unknown.
         excluded = False if note.status in {DataStatus.AVAILABLE, DataStatus.EMPTY} else None

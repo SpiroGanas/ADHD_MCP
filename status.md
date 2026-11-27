@@ -19,7 +19,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Oracle Health desk review (item 3), deployment guide (item 7) and next-stage proposal (item 8): [docs/integration/oracle_health.md](docs/integration/oracle_health.md), [docs/guide/deployment.md](docs/guide/deployment.md), [docs/next_stage_plan.md](docs/next_stage_plan.md). Remaining: clinical safety review, then the pull request.
+- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Oracle Health desk review (item 3), deployment guide (item 7) and next-stage proposal (item 8): [docs/integration/oracle_health.md](docs/integration/oracle_health.md), [docs/guide/deployment.md](docs/guide/deployment.md), [docs/next_stage_plan.md](docs/next_stage_plan.md). Clinical safety review done 2026-11-27: one blocking finding (orders-only antidepressant count on servers without dispenses or statements) resolved by owner decision to keep it and disclose it; non-blocking findings fixed (gate fails without Condition, profiles must offer Condition and Encounter, no draft for experimental rulesets, rule cards, ADR 0014 proposed). Next: open the pull request.
 
 ## Next steps
 
@@ -42,6 +42,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 | 15 | Approve the invariant-4 exception: the SMART token request is the one POST in the code (to the OAuth token endpoint, never the FHIR server) | PR review |
 | 16 | Sex balance: ruleset 1.0.0 flags 8 of 40 internalizing suggestive presentations against 32 of 32 externalizing ones. Choose an option from the [sex-balance review](docs/evaluation/sex_balance_review.md): A no change (proposed for 1.0.0), B a sex-blind "four or more modifiers" rule as draft ruleset 1.1.0, or another | Before release |
 | 17 | Approve [ADR 0013](docs/adr/0013-versioning-and-release.md): three version lines, the tool contract becoming 1.0.0 with server 1.0.0, release steps and the release check | Before release |
+| 19 | Accept [ADR 0014](docs/adr/0014-server-profiles-and-unoffered-data.md) (server profiles, `not_supported`, patient-scoped tokens) | PR review |
 | 18 | Publish the package or container image anywhere (PyPI, a container registry)? Proposal: not for 1.0; build in CI only | Before release |
 
 ## Decisions
@@ -53,6 +54,7 @@ Owner decisions 2026-11-27 (start of Phase 8):
 - Start Phase 8 before tagging 1.0.0; one PR with a commit per work item; version stays 1.0.0rc1, changes under "Unreleased" in the change log.
 - No Lighthouse sandbox access: build the adapter and its client-credentials auth from the public VA documentation, tested with synthetic Lighthouse-shaped responses; the live end-to-end run stays open.
 - A resource type a back end does not support is reported with a new data-completeness status `not_supported`; checks that need it are "not performed" (tool contract 0.3.0 to 0.4.0).
+- Antidepressant count on a server without dispenses or statements (safety review finding B1): keep counting from orders and disclose it in the signal's reason, not insufficient data.
 - Autism stub: exclusion on recorded autism codes (F84.0, F84.5, F84.8, F84.9) verified against the FY2027 tabular; placeholder signals reuse verified value sets; ruleset status `experimental`; registered only when enabled by an environment variable. Session moved to the ADHD_MCP environment for ftp.cdc.gov; developer.va.gov, api.va.gov, sandbox-api.va.gov, fhir.cerner.com and docs.oracle.com added to it (owner approved).
 - Lighthouse facts so far (public sandbox CapabilityStatement and OpenAPI, fetched 2026-11-27): offers Condition, Observation, Encounter, Procedure, MedicationRequest, Medication, Patient (not QuestionnaireResponse, Flag, ServiceRequest, CarePlan, MedicationDispense, MedicationStatement); no `_include`; MedicationRequest has no date search; absolute references; `_count` max 200; Observation categories laboratory, social-history, vital-signs only; CCG token: `launch` = base64 of {"patient": ICN}, assertion exp at most 300 s after iat, RS256 in the example, token lives 5 minutes. The exact CCG scopes and assertion audience (an Okta URL) were not readable here: configurable and unverified.
 

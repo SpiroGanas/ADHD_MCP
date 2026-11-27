@@ -352,6 +352,9 @@ def _flag_hits(
 # --- assembly ------------------------------------------------------------------------
 
 _CATEGORY_ORDER = ("Condition", "Encounter", "Observation", "QuestionnaireResponse", "Flag")
+#: Not offering these is a failure, not "not performed": the coded checks rest on them, so a
+#: gate without them must never read as limited-clear.
+_ESSENTIAL = frozenset({"Condition"})
 
 
 def _needed_categories(content: GateContent) -> set[str]:
@@ -436,13 +439,18 @@ async def assess_safety_gate(
     }
 
     def failures(*categories: str) -> list[str]:
-        return [f"{c}{unreadable[c]}" for c in categories if c in unreadable]
+        failed = [f"{c}{unreadable[c]}" for c in categories if c in unreadable]
+        return failed + [
+            f"{c} (not offered by the FHIR server)"
+            for c in categories
+            if c in not_offered and c in _ESSENTIAL
+        ]
 
     checks: list[SafetyCheck] = []
     all_hits: list[_Hits] = []
 
     def record(check_id: str, description: str, hits: _Hits | None, *categories: str) -> None:
-        unoffered = [c for c in categories if c in not_offered]
+        unoffered = [c for c in categories if c in not_offered and c not in _ESSENTIAL]
         checks.append(
             _check(
                 check_id,

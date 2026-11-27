@@ -26,5 +26,6 @@ A short record of each decision that would be costly to reverse: what was decide
 | [0011](0011-audit-tracing-and-privacy.md) | Audit records, trace context and the sensitive-data policy | Accepted |
 | [0012](0012-authentication.md) | Authentication toward MCP clients and toward the FHIR server | Accepted |
 | [0013](0013-versioning-and-release.md) | Versioning and release policy | Proposed |
+| [0014](0014-server-profiles-and-unoffered-data.md) | FHIR server profiles, data a server does not offer, and patient-scoped tokens | Proposed |
 
 Expected next: none planned.

@@ -43,7 +43,7 @@ A negative PHQ-9 item 9 never clears the gate: each check is independent, and an
 |---|---|
 | `positive` | Any check found a current signal. Fixed guidance is returned (`safety_gate_guidance` in `data/wording.toml`) |
 | `data_unavailable` | No signal found and a check failed because its data could not be read, or was read only in part (the server warned, or a resource could not be read). Partial data never supports "not found" (owner decision 2026-11-27, server 1.0.0rc1) |
-| `clear_limited_data` | No signal found, nothing failed, and a check was not performed, or the record is empty |
+| `clear_limited_data` | No signal found, nothing failed, and a check was not performed (including because the FHIR server does not offer the data type it needs), or the record is empty |
 | `clear` | Every check ran and found nothing |
 
 Today the two LOINC-based checks are not performed, so no gate is plain `clear`.
@@ -89,6 +89,7 @@ From the research report, safety gate section: prior self-harm is the strongest 
 - C-SSRS screener item answers (without a risk level) are not read; no LOINC code for a screener result was found.
 - Encounter reason codes count whatever the encounter's status, and questionnaire responses count whatever their status (in progress or stopped included). Both are deliberately conservative.
 - A server with no site code mapping gets the discharge and flag checks as not performed (the default for a FHIR server).
+- A check that needs a resource type the FHIR server does not offer (`not_supported`, Phase 8) is not performed, with the reason "the FHIR server does not offer ..."; it is never "not found". A failed read still outranks it (`data_unavailable`). On VA Lighthouse, Flag and QuestionnaireResponse are not offered. Every server profile must offer Condition and Encounter, which the coded checks need.
 
 ## Change log
 

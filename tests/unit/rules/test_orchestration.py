@@ -100,6 +100,32 @@ async def test_orders_count_antidepressants_when_dispenses_are_not_offered() -> 
     result = await assess(adhd_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
     agents = next(f for f in result.findings if f.signal == "multiple_antidepressants")
     assert agents.present is True
+    assert agents.reason.endswith(ORDERS_ONLY)
+
+
+#: Owner decision 2026-11-27: counting from orders is kept on such servers, and disclosed.
+ORDERS_ONLY = (
+    "Counted from medication orders only: the FHIR server does not offer dispenses or statements."
+)
+
+
+async def test_an_absent_medication_signal_says_it_was_counted_from_orders_only() -> None:
+    p = PersonaBuilder("t66", gender="female", birth_date="1990-01-01")
+    p.medication_request("36437", "x", "2025-01-01")
+    records = PatientRecords(UnsupportingAdapter(p, NOT_ON_LIGHTHOUSE))
+    result = await assess(adhd_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    agents = next(f for f in result.findings if f.signal == "multiple_antidepressants")
+    assert agents.present is False
+    assert agents.reason.endswith(ORDERS_ONLY)
+
+
+async def test_a_full_medication_record_carries_no_orders_only_note() -> None:
+    p = PersonaBuilder("t67", gender="female", birth_date="1990-01-01")
+    p.medication_request("36437", "x", "2025-01-01")
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    result = await assess(adhd_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    agents = next(f for f in result.findings if f.signal == "multiple_antidepressants")
+    assert "orders only" not in agents.reason
 
 
 async def test_a_server_without_medication_orders_cannot_clear_the_medication_signal() -> None:
