@@ -44,7 +44,7 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=notes,
-            versions=output_versions(),
+            versions=output_versions(context),
             safety_gate=gate,
             gate_definition_version=content.definition.version,
         )

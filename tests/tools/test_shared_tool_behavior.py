@@ -79,6 +79,7 @@ async def test_output_carries_the_shared_fields(
     assert out["notice"] == load_wording().evidence_notice
     assert out["data_completeness"]
     assert out["versions"]["tool_contract"] == versions.TOOL_CONTRACT_VERSION
+    assert out["versions"]["site_codes"] == "synthetic 0.1.0"
 
 
 @pytest.mark.parametrize("tool", PATIENT_TOOLS)

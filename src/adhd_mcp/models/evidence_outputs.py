@@ -79,12 +79,14 @@ class CutoffResult(_Frozen):
     """The cutoff for one score and whether it was applied."""
 
     id: str
-    operator: str
-    value: float
-    sex: str = Field(description="any, male or female")
-    status: Literal["applied", "not_applied_unverified", "not_applied_sex_unknown"]
+    status: Literal[
+        "applied", "not_applied_unverified", "not_applied_sex_unknown", "not_applied_no_score"
+    ]
     met: bool | None = Field(description="Whether the score meets the cutoff; null if not applied")
-    note: str | None = Field(default=None, description="Where the cutoff comes from")
+    operator: str | None = Field(default=None, description="Only given once verified")
+    value: float | None = Field(default=None, description="Only given once verified")
+    sex: str | None = Field(default=None, description="any, male or female; once verified")
+    source: str | None = Field(default=None, description="Where the verified cutoff comes from")
 
 
 class ScreeningEntry(_Frozen):
@@ -131,7 +133,8 @@ class NarcolepsyFinding(_Frozen):
 
 class ExistingCareOutput(EvidenceOutput):
     excluded: bool | None = Field(
-        description="True if already in ADHD care; null if a check failed and none was found"
+        description="True if already in ADHD care; false only if every check ran on complete "
+        "data and found nothing; null otherwise (unknown)"
     )
     exclusions_checked: list[ExclusionCheck]
     care_items: list[CareItem]

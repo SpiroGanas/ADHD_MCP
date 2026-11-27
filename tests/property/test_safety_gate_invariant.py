@@ -5,7 +5,7 @@ import asyncio
 from datetime import date, timedelta
 
 import pytest
-from hypothesis import given, settings
+from hypothesis import event, given, settings
 from hypothesis import strategies as st
 from pydantic import ValidationError
 
@@ -57,6 +57,7 @@ def test_a_current_self_harm_code_always_makes_the_gate_positive(
     items: list[tuple[str, int | None]],
 ) -> None:
     result = gate_for(items)
+    event(f"gate: {result.status}")
     current = [
         (code, days)
         for code, days in items
@@ -91,6 +92,7 @@ def build_gate(status: SafetyGateStatus, checks: list[CheckOutcome]) -> SafetyGa
     )
 
 
+@settings(max_examples=400)
 @given(status=statuses, checks=outcomes)
 def test_a_gate_result_always_agrees_with_its_checks(
     status: SafetyGateStatus, checks: list[CheckOutcome]
@@ -98,7 +100,9 @@ def test_a_gate_result_always_agrees_with_its_checks(
     try:
         gate = build_gate(status, checks)
     except ValidationError:
+        event("inconsistent gate rejected")
         return
+    event(f"valid gate: {gate.status}")
     found = CheckOutcome.FOUND in checks
     assert (gate.status is SafetyGateStatus.POSITIVE) == found
     if gate.status is SafetyGateStatus.CLEAR:
@@ -107,6 +111,7 @@ def test_a_gate_result_always_agrees_with_its_checks(
         assert gate.status is SafetyGateStatus.DATA_UNAVAILABLE
 
 
+@settings(max_examples=400)
 @given(status=statuses, checks=outcomes, code=codes)
 def test_no_recommendation_hides_a_positive_gate(
     status: SafetyGateStatus, checks: list[CheckOutcome], code: RecommendationCode
@@ -121,7 +126,9 @@ def test_no_recommendation_hides_a_positive_gate(
             versions=Versions(server="0", tool_contract="0"),
         )
     except ValidationError:
+        event("rejected")
         return
+    event(f"accepted: {status} -> {code}")
     assert recommendation.safety_gate is gate
     if gate.status is SafetyGateStatus.POSITIVE:
         assert recommendation.recommendation is RecommendationCode.ADDRESS_SAFETY_GATE_FIRST

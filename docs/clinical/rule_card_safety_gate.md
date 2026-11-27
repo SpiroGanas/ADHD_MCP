@@ -30,7 +30,7 @@ Look-back: coded signals and screening results count if dated within **365 days*
 | Self-harm by asphyxiation (`self_harm_asphyxiation_code`) | `safety.self_harm_asphyxiation` (T71.1x2, T71.2x2); 365 days | Found during verification; **not in the research**. Owner approved 2026-11-27 | As above |
 | Non-suicidal self-harm (`nonsuicidal_self_harm_code`) | `safety.nonsuicidal_self_harm` (R45.88); 365 days | Research report | As above |
 | History of suicidal behavior or self-harm (`self_harm_history_code`) | `safety.history_suicidal_behavior` (Z91.51), `safety.history_nonsuicidal_self_harm` (Z91.52); 365 days by recorded date | Research report | As above |
-| Psychiatric discharge (`psychiatric_discharge`) | Encounter mapped by the site as psychiatric inpatient or residential; discharge (period end) within 90 days (signal `psychiatric_discharge_within_90_days`, presented first) or 365 days; a stay with no discharge date, or discharged after the as-of date, counts as current. Planned or cancelled encounters do not count | Research report (Britton 2017; Luxton 2013) | Site mapping (`data/site_codes/`); only the synthetic site exists |
+| Psychiatric discharge (`psychiatric_discharge`) | Encounter mapped by the site as psychiatric inpatient or residential; discharge (period end) within 90 days (signal `psychiatric_discharge_within_90_days`, presented first) or 365 days; a stay discharged after the as-of date, or with no discharge date and not finished, counts as current; a finished stay with no discharge date is dated by its start. Planned or cancelled encounters do not count | Research report (Britton 2017; Luxton 2013) | Site mapping (`data/site_codes/`); only the synthetic site exists |
 | PHQ-9 item 9 (`phq9_item9`) | LOINC 44260-8, value at or above 1, as an Observation, a panel component, or a mapped QuestionnaireResponse item; 365 days | Research report (Louzon 2016) | **No**: LOINC unverified (F2). Check reported as not performed |
 | C-SSRS risk level (`cssrs_risk_level`) | LOINC 93374-7 answered Moderate (LA6751-7) or High (LA9193-9); 365 days | Research report | **No**: LOINC unverified (F2). Check reported as not performed |
 | High-risk flag (`high_risk_flag`) | Flag mapped by the site as high risk for suicide, status active and not ended before the as-of date | Research report | Site mapping; only the synthetic site exists |
@@ -43,7 +43,7 @@ A negative PHQ-9 item 9 never clears the gate: each check is independent, and an
 |---|---|
 | `positive` | Any check found a current signal. Fixed guidance is returned (`safety_gate_guidance` in `data/wording.toml`) |
 | `data_unavailable` | No signal found and a check failed because its data could not be read |
-| `clear_limited_data` | No signal found, nothing failed, and a check was not performed, or the record is empty, or the server warned that results were incomplete |
+| `clear_limited_data` | No signal found, nothing failed, and a check was not performed, or the record is empty, or a category is incomplete (the server warned, or a resource could not be read) |
 | `clear` | Every check ran and found nothing |
 
 Today the two LOINC-based checks are not performed, so no gate is plain `clear`.
@@ -87,9 +87,11 @@ From the research report, safety gate section: prior self-harm is the strongest 
 - Psychiatric encounters and flags depend on each site's local codes; a site without a mapping gets those checks as not performed.
 - An old suicide attempt (over 365 days) does not make the gate positive; it is listed as history for the clinician.
 - C-SSRS screener item answers (without a risk level) are not read; no LOINC code for a screener result was found.
+- Encounter reason codes count whatever the encounter's status, and questionnaire responses count whatever their status (in progress or stopped included). Both are deliberately conservative.
+- A server with no site code mapping gets the discharge and flag checks as not performed (the default for a FHIR server).
 
 ## Change log
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
-| 0.1.0 | 2026-11-27 | First draft | Phase 3 |
+| 0.1.0 | 2026-11-27 | First draft, revised after the clinical safety review (unreadable resources limit the gate; finished stays without a discharge date dated by their start) | Phase 3 |

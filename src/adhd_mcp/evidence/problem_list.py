@@ -85,11 +85,23 @@ def _recency(c: ConditionRecord) -> date:
     return _first_date(c) or date.min
 
 
-def _entry(coding: Coding, conditions: list[ConditionRecord]) -> ProblemEntry:
+def _display(coding: Coding, value_sets: tuple[ValueSet, ...]) -> str | None:
+    """The value set's own display for an exactly listed code. The record's display is
+    free text from the record and is never returned."""
+    for vs in value_sets:
+        entry = vs.matches(coding)
+        if entry is not None and entry.match == "exact" and entry.code == coding.code:
+            return entry.display
+    return None
+
+
+def _entry(
+    coding: Coding, conditions: list[ConditionRecord], value_sets: tuple[ValueSet, ...]
+) -> ProblemEntry:
     recorded = [c.recorded.start if c.recorded else None for c in conditions]
     status = max(conditions, key=_recency).clinical_status
     return ProblemEntry(
-        code=CodeRef(system=coding.system, code=coding.code, display=coding.display),
+        code=CodeRef(system=coding.system, code=coding.code, display=_display(coding, value_sets)),
         onset=_min([c.onset.start if c.onset else None for c in conditions]),
         first_recorded=_min(recorded),
         last_recorded=_max(recorded),
@@ -145,7 +157,9 @@ async def assemble_problem_list(
         keys = family_codes.get(vs.id)
         if not keys:
             continue
-        entries = _with_order([_entry(*by_code[k]) for k in keys], firsts)
+        entries = _with_order(
+            [_entry(*by_code[k], (*content.families, content.fallback)) for k in keys], firsts
+        )
         entries.sort(key=lambda e: (e.onset_order is None, e.onset_order or 0, e.code.code))
         families.append(ProblemFamily(family=vs.id, title=vs.title, entries=entries))
     return ProblemListResult(

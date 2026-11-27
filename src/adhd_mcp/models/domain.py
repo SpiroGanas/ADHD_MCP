@@ -193,6 +193,9 @@ class Versions(_Frozen):
     tool_contract: str
     ruleset: str | None = None
     scorer: str | None = None
+    site_codes: str | None = Field(
+        default=None, description="Local code mapping in use: id and version"
+    )
 
 
 class Recommendation(_Frozen):

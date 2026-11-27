@@ -13,7 +13,8 @@ referral_reason_value_sets = ["care.adhd_diagnosis", "symptom.attention_executiv
 
 # Owner decision 2026-11-27: an open referral, evaluation or care plan excludes; a completed
 # one excludes for this many days after its date; revoked or older ones are reported only.
-open_statuses = ["draft", "active", "on-hold"]
+# "in-progress" is the open status of a Procedure.
+open_statuses = ["draft", "active", "on-hold", "in-progress"]
 completed_window_days = 365
 
 # Reported separately, never as an exclusion.

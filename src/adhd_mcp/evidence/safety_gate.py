@@ -110,7 +110,10 @@ def load_gate_definition() -> SafetyGateDefinition:
 
 # --- content: definition plus loaded terminology -------------------------------------
 
-_UNVERIFIED = "Not performed: its codes or cutoffs are not verified yet."
+_UNVERIFIED = (
+    "Not performed: its codes or cutoffs are not verified yet. Any recorded results are "
+    "listed by get_screening_history for clinician review."
+)
 _UNMAPPED = "Not performed: no local codes are mapped for it at this site."
 
 
@@ -236,17 +239,29 @@ def _discharge_hits(
         if started is not None and started > as_of:
             continue
         discharged = e.period.end if e.period is not None else None
+        older = f"psychiatric_discharge_over_{definition.lookback_days}_days"
         if discharged is None or discharged > as_of:
-            hits.current.append(("psychiatric_stay_without_discharge_date", e.ref, None))
+            # No discharge as of this date. A finished stay with no end date is dated by
+            # its start, so an old record does not count as current forever.
+            if e.status == "finished" and started is not None and discharged is None:
+                when = DateRange(start=started, end=started, precision=DatePrecision.DAY)
+                current = (as_of - started).days <= definition.lookback_days
+                target = hits.current if current else hits.history
+                name = "psychiatric_stay_without_discharge_date" if current else older
+                target.append((name, e.ref, when))
+            else:
+                hits.current.append(("psychiatric_stay_without_discharge_date", e.ref, None))
             continue
         when = DateRange(start=discharged, end=discharged, precision=DatePrecision.DAY)
         days_ago = (as_of - discharged).days
         if days_ago <= definition.recent_days:
-            hits.current.append(("psychiatric_discharge_within_90_days", e.ref, when))
+            name = f"psychiatric_discharge_within_{definition.recent_days}_days"
+            hits.current.append((name, e.ref, when))
         elif days_ago <= definition.lookback_days:
-            hits.current.append(("psychiatric_discharge_within_365_days", e.ref, when))
+            name = f"psychiatric_discharge_within_{definition.lookback_days}_days"
+            hits.current.append((name, e.ref, when))
         else:
-            hits.history.append(("psychiatric_discharge_over_365_days", e.ref, when))
+            hits.history.append((older, e.ref, when))
     return hits
 
 

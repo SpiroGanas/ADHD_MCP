@@ -12,13 +12,23 @@ def test_no_data_source_means_no_port() -> None:
     assert context.site_codes.id == "synthetic"
 
 
-def test_a_base_url_selects_the_http_adapter() -> None:
+def test_a_base_url_selects_the_http_adapter_with_no_local_codes_by_default() -> None:
     context = context_from_environment(
         {"ADHD_MCP_FHIR_BASE_URL": "http://fhir.test/r4", "ADHD_MCP_FIXTURE_DIR": "ignored"}
     )
     assert isinstance(context.port, HttpFhirAdapter)
+    assert context.site_codes.id == "none"
+    assert not context.site_codes.maps("high_risk_flag")
+
+
+def test_a_site_mapping_can_be_named_for_a_server() -> None:
+    context = context_from_environment(
+        {"ADHD_MCP_FHIR_BASE_URL": "http://fhir.test/r4", "ADHD_MCP_SITE_CODES": "synthetic"}
+    )
+    assert context.site_codes.id == "synthetic"
 
 
 def test_a_fixture_directory_selects_the_fixture_adapter() -> None:
     context = context_from_environment({"ADHD_MCP_FIXTURE_DIR": str(BUNDLE_DIR)})
     assert isinstance(context.port, FixtureFhirAdapter)
+    assert context.site_codes.id == "synthetic"

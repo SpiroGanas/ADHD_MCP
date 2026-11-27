@@ -86,9 +86,10 @@ async def start_request(
     return PatientRequest(patient_id=patient_id, as_of=as_of, patient=patient, records=records)
 
 
-def output_versions() -> Versions:
+def output_versions(context: ToolContext) -> Versions:
     return Versions(
         server=versions.server_version(),
         tool_contract=versions.TOOL_CONTRACT_VERSION,
         ruleset=versions.ACTIVE_RULESET_VERSION,
+        site_codes=f"{context.site_codes.id} {context.site_codes.version}",
     )

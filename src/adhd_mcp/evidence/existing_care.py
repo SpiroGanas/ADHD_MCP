@@ -7,6 +7,7 @@ never an exclusion.
 """
 
 import asyncio
+import re
 import tomllib
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -33,7 +34,8 @@ from adhd_mcp.terminology import ValueSet, load_value_set
 from adhd_mcp.terminology.site_codes import SiteCodes
 
 _UNMAPPED = "Not performed: no local codes are mapped for it at this site."
-_IN_PROGRESS = "in-progress"
+#: FHIR status codes are short lowercase tokens; anything else is not passed through.
+_STATUS_CODE = re.compile(r"[a-z][a-z-]{0,31}")
 
 
 class ExistingCareDefinition(BaseModel):
@@ -88,15 +90,27 @@ def _records[R: BaseModel](result: ReadResult[R] | None) -> tuple[R, ...]:
     return result.records if result is not None else ()
 
 
-def _day(when: DateRange | None) -> date | None:
-    return when.start if when is not None else None
+def _day(when: DateRange | None, status: str | None) -> date | None:
+    """A completed item is dated by its end (when it was completed), else its start. A
+    ServiceRequest has no completion date, so its authored date is used."""
+    if when is None:
+        return None
+    if status == "completed" and when.end is not None:
+        return when.end
+    return when.start if when.start is not None else when.end
+
+
+def _status(raw: str | None) -> str | None:
+    if raw is None or _STATUS_CODE.fullmatch(raw):
+        return raw
+    return "unrecognized"
 
 
 def _assess(
     status: str | None, when: date | None, d: ExistingCareDefinition, as_of: date
 ) -> tuple[bool, str]:
     """Whether an item excludes, and why."""
-    if status in d.open_statuses or status == _IN_PROGRESS:
+    if status in d.open_statuses:
         return True, "open"
     if status == "completed":
         if when is None:
@@ -116,9 +130,11 @@ def _item(
     content: ExistingCareContent,
     as_of: date,
 ) -> CareItem:
-    excludes, why = _assess(status, _day(when), content.definition, as_of)
+    status = _status(status)
+    day = _day(when, status)
+    excludes, why = _assess(status, day, content.definition, as_of)
     return CareItem(
-        kind=kind, status=status, date=_day(when), excludes=excludes, why=why, references=[ref]
+        kind=kind, status=status, date=day, excludes=excludes, why=why, references=[ref]
     )
 
 
@@ -228,6 +244,7 @@ async def assemble_existing_care(
     def failures(*categories: str) -> list[str]:
         return [c for c in categories if c in failed]
 
+    days = content.definition.completed_window_days
     checks = [
         _check(
             "adhd_diagnosis_code",
@@ -237,28 +254,32 @@ async def assemble_existing_care(
         ),
         _check(
             "adhd_referral",
-            "ADHD referral or evaluation request, open or completed within 365 days",
+            f"ADHD referral or evaluation request, open or completed within {days} days",
             excluding("service_request"),
             failed=failures("ServiceRequest"),
         ),
         _check(
             "adhd_evaluation_procedure",
-            "ADHD evaluation in progress or completed within 365 days",
+            f"ADHD evaluation in progress or completed within {days} days",
             excluding("procedure"),
             failed=failures("Procedure"),
             not_performed=not site.maps("adhd_evaluation_procedure"),
         ),
         _check(
             "adhd_care_plan",
-            "ADHD care plan, open or completed within 365 days",
+            f"ADHD care plan, open or completed within {days} days",
             excluding("care_plan"),
             failed=failures("CarePlan"),
             not_performed=not site.maps("adhd_care_plan"),
         ),
     ]
     outcomes = {c.outcome for c in checks}
-    excluded: bool | None = CheckOutcome.FOUND in outcomes or None
-    if excluded is None and CheckOutcome.FAILED not in outcomes:
+    # "Not in care" only when every check ran on complete data; otherwise unknown.
+    complete = all(n.status in {"available", "empty"} for n in notes)
+    excluded: bool | None = None
+    if CheckOutcome.FOUND in outcomes:
+        excluded = True
+    elif complete and outcomes == {CheckOutcome.NOT_FOUND}:
         excluded = False
 
     narcolepsy_refs = [c.ref for c in conditions if content.narcolepsy.matching_codings(c.codes)]

@@ -110,9 +110,10 @@ docs/
    patient_id, as_of, is_diagnosis=false, notice, data_completeness[], versions, + tool fields
 ```
 
-- **Context** (`tools/context.py`): the FHIR port, the clock and the site code mapping are injected into `create_server`. As a process the server reads `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_FIXTURE_DIR`, and `ADHD_MCP_SITE_CODES` (default `synthetic`).
+- **Context** (`tools/context.py`): the FHIR port, the clock and the site code mapping are injected into `create_server`. As a process the server reads `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_FIXTURE_DIR`, and `ADHD_MCP_SITE_CODES` (default `synthetic` for fixtures, no mapping for a FHIR server). Outputs report the mapping in `versions.site_codes` ([ADR 0008](adr/0008-site-codes-and-search-warnings.md)).
 - **As-of date**: every tool reads the record as of a date (default today, never the future); items dated later are ignored. Look-back windows are inclusive at both ends.
-- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one.
+- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings, or resources that could not be read) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one.
+- **Record text**: no output carries display text from the record. Labels come from value sets or instrument data, or are omitted.
 - **Site codes** (`data/site_codes/`): local codes with no standard (psychiatric inpatient and residential encounters, high-risk flags, ADHD referrals, evaluations and care plans, screening questionnaires). A concept a site does not map leaves the dependent check "not performed". Only the synthetic site exists.
 - **Clinical definitions are data**: `data/safety_gate.toml`, `data/problem_list.toml`, `data/existing_care.toml`, each versioned and reported in outputs.
 
@@ -120,8 +121,8 @@ docs/
 |---|---|
 | `check_safety_gate` | Eleven checks, each found, not found, not performed (with reason) or failed. Status: positive if any check found a current signal; else data_unavailable if one failed; else clear_limited_data if one was not performed, the record is empty or the server warned; else clear. 365-day look-back; undated items count; older items are listed as history. Rule card: [rule_card_safety_gate.md](clinical/rule_card_safety_gate.md) |
 | `get_mh_problem_list` | ICD-10-CM codes grouped into families (value sets), one entry per code citing every Condition; first onset and recorded dates; status of the latest record; onset order with shared ranks for equal dates; other chapter 5 codes in a fallback family |
-| `get_screening_history` | One timeline from observation panels, components and mapped questionnaire responses. Instruments are recognised by code even while unverified (`code_verified`); a cutoff is applied only when code and cutoff are verified. Unknown survey instruments are listed, not scored. No item text is returned |
-| `check_existing_care` | Excluded if an ADHD code is recorded, or an ADHD referral, evaluation or care plan is open or was completed within 365 days; `excluded` is null if a check failed and none was found. Medication for narcolepsy is a separate finding |
+| `get_screening_history` | One timeline from observation panels, components and mapped questionnaire responses. Instruments are recognised by code even while unverified (`code_verified`); a cutoff is applied, and its threshold shown, only when code and cutoff are verified. Phase 5 rules must not use entries with `code_verified = false`. Unknown survey instruments are listed, not scored. No item text is returned |
+| `check_existing_care` | Excluded if an ADHD code is recorded, or an ADHD referral, evaluation or care plan is open or was completed within 365 days (dated by completion where known, by authored date for requests). `excluded` is false only if every check ran on complete data; otherwise null. Medication for narcolepsy is a separate finding |
 
 ## Request flow for `assess_referral_need`
 

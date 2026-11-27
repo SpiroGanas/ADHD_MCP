@@ -221,6 +221,28 @@ async def test_a_stay_without_a_discharge_date_counts_as_current() -> None:
     assert result.evidence[0].date is None
 
 
+@pytest.mark.parametrize(("start_days", "current"), [(365, True), (366, False)])
+async def test_a_finished_stay_without_a_discharge_date_is_dated_by_its_start(
+    start_days: int, current: bool
+) -> None:
+    p = person()
+    p.encounter("IMP", f"{ago(start_days)}T09:00:00Z", service="psychiatric-inpatient")
+    result = await gate(p)
+    if current:
+        assert signals(result) == ["psychiatric_stay_without_discharge_date"]
+        assert result.evidence[0].date == AS_OF - timedelta(days=start_days)
+    else:
+        assert result.status is SafetyGateStatus.CLEAR
+        assert [h.signal for h in result.history] == ["psychiatric_discharge_over_365_days"]
+
+
+async def test_the_not_performed_reason_points_to_the_screening_history() -> None:
+    result = await gate(person(), strict=True)
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.reason is not None
+    assert "get_screening_history" in check.reason
+
+
 async def test_a_discharge_after_the_as_of_date_means_the_stay_was_current() -> None:
     p = person()
     p.encounter(
@@ -521,6 +543,18 @@ async def test_server_warnings_make_a_clean_result_limited() -> None:
     )
     result, notes = await assess_safety_gate(
         PatientRecords(adapter), p.patient_id, AS_OF, content()
+    )
+    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+    assert {n.category: n.status for n in notes}["Condition"] is DataStatus.INCOMPLETE
+
+
+async def test_a_malformed_resource_never_lets_the_gate_say_clear() -> None:
+    p = person()
+    p.condition("F41.1", "Generalized anxiety disorder", recorded=ago(10))
+    cid = p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
+    next(r for r in p.resources if r["id"] == cid)["recordedDate"] = "not-a-date"
+    result, notes = await assess_safety_gate(
+        PatientRecords(FixtureFhirAdapter(p.resources)), p.patient_id, AS_OF, content()
     )
     assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
     assert {n.category: n.status for n in notes}["Condition"] is DataStatus.INCOMPLETE

@@ -259,3 +259,16 @@ async def test_stops_a_paging_loop(server: FakeFhirServer, sleeps: Sleeps) -> No
         with pytest.raises(FhirRequestError, match="pages"):
             await adapter.search("Condition", "p01-patient")
     assert len(server.requests) == 5
+
+
+async def test_an_issue_code_that_is_not_a_fhir_token_is_not_passed_through(
+    adapter: HttpFhirAdapter, server: FakeFhirServer
+) -> None:
+    outcome = {
+        "resourceType": "OperationOutcome",
+        "issue": [{"severity": "warning", "code": "Synthetic free text from a server"}],
+    }
+    bundle = {"resourceType": "Bundle", "type": "searchset", "entry": [{"resource": outcome}]}
+    server.fail_next = [httpx2.Response(200, json=bundle)]
+    found = await adapter.search("Condition", "p01-patient")
+    assert found.warnings == (SearchWarning(severity="warning", code="unknown"),)

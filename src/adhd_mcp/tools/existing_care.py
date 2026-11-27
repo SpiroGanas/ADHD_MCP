@@ -13,10 +13,10 @@ DESCRIPTION = (
     "ADHD code (F90) on a Condition or as a medication reason; an ADHD referral, "
     "evaluation or care plan that is open or was completed within 365 days. Older, revoked "
     "or cancelled items are listed but do not count. Medication ordered for narcolepsy is "
-    "reported separately and is never an exclusion. Returns excluded (true, false, or null "
-    "when a check failed), each check with its outcome and resources, and the care items "
-    "found. Read-only. An ADHD code in the record is a prior entry, not a diagnosis by "
-    "this tool."
+    "reported separately and is never an exclusion. Returns excluded (true; false only when "
+    "every check ran on complete data; otherwise null, meaning unknown), each check with "
+    "its outcome and resources, and the care items found. Read-only. An ADHD code in the "
+    "record is a prior entry, not a diagnosis by this tool."
 )
 
 
@@ -36,7 +36,7 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=result.data_completeness,
-            versions=output_versions(),
+            versions=output_versions(context),
             excluded=result.excluded,
             exclusions_checked=result.exclusions_checked,
             care_items=result.care_items,

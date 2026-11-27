@@ -34,7 +34,7 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=result.data_completeness,
-            versions=output_versions(),
+            versions=output_versions(context),
             families=result.families,
             families_checked=result.families_checked,
             definition_version=result.definition_version,

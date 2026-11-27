@@ -49,14 +49,13 @@ _MEASURES: dict[str, Measure] = {
 class ScreeningContent:
     instruments: tuple[Instrument, ...]
     site: SiteCodes
-    trust_unverified: bool = False
 
 
-def load_screening_content(site: SiteCodes, *, trust_unverified: bool = False) -> ScreeningContent:
-    """Instruments are loaded for recognition only. ``trust_unverified`` exists for tests of
-    the cutoff logic; the server never sets it."""
+def load_screening_content(site: SiteCodes) -> ScreeningContent:
+    """Instruments are loaded for recognition only: each entry reports whether its code is
+    verified, and only verified cutoffs are ever applied."""
     instruments = tuple(load_instrument(i, strict=False) for i in packaged_instrument_ids())
-    return ScreeningContent(instruments, site, trust_unverified)
+    return ScreeningContent(instruments, site)
 
 
 @dataclass(frozen=True)
@@ -72,39 +71,38 @@ def _code_ref(coding: Coding | InstrumentCode) -> CodeRef:
 
 
 def _cutoff(
-    instrument: Instrument,
-    code: InstrumentCode,
-    score: float | None,
-    sex: str | None,
-    trust: bool,
+    instrument: Instrument, code: InstrumentCode, score: float | None, sex: str | None
 ) -> CutoffResult | None:
+    """The cutoff for this measure. Unless code and cutoff are verified, only its id and
+    status are returned: an unverified threshold is not shown, so no reader applies it."""
     cutoffs = [c for c in instrument.cutoffs if c.code == code.code]
     if not cutoffs:
         return None
     chosen = next((c for c in cutoffs if c.sex == "any"), None)
     chosen = chosen or next((c for c in cutoffs if c.sex == sex), None)
+    if not (code.verified and all(c.verified for c in cutoffs)):
+        return CutoffResult(id=cutoffs[0].id, status="not_applied_unverified", met=None)
     if chosen is None:
-        c = cutoffs[0]
-        return CutoffResult(
-            id=c.id,
-            operator=c.operator,
-            value=c.value,
-            sex=c.sex,
-            status="not_applied_sex_unknown",
-            met=None,
-            note=c.note,
-        )
-    verified = trust or (chosen.verified and code.verified)
-    applied = verified and score is not None
+        return CutoffResult(id=cutoffs[0].id, status="not_applied_sex_unknown", met=None)
     return CutoffResult(
         id=chosen.id,
         operator=chosen.operator,
         value=chosen.value,
         sex=chosen.sex,
-        status="applied" if applied else "not_applied_unverified",
-        met=chosen.is_met(score) if applied and score is not None else None,
-        note=chosen.note,
+        status="applied" if score is not None else "not_applied_no_score",
+        met=chosen.is_met(score) if score is not None else None,
+        source=chosen.source,
     )
+
+
+def _answer(instrument: Instrument, coding: Coding) -> CodeRef:
+    """A coded answer, labelled from the instrument's answer list (e.g. a C-SSRS risk
+    level), never from the record."""
+    known = next(
+        (a for a in instrument.answers if (a.system, a.code) == (coding.system, coding.code)),
+        None,
+    )
+    return CodeRef(system=coding.system, code=coding.code, display=known.display if known else None)
 
 
 def _entry(
@@ -118,13 +116,12 @@ def _entry(
     form: Form,
     reference: ResourceRef,
     sex: str | None,
-    trust: bool,
     questionnaire: str | None = None,
 ) -> ScreeningEntry:
     """One score. ``code`` is null for an instrument with no code for this measure (ASRS-5
     has none): the entry is listed, unscored."""
     score = value.number if value is not None else None
-    answer = _code_ref(value.codings[0]) if value is not None and value.codings else None
+    answer = _answer(instrument, value.codings[0]) if value is not None and value.codings else None
     return ScreeningEntry(
         instrument=instrument.id,
         instrument_title=instrument.title,
@@ -134,10 +131,10 @@ def _entry(
         score=score,
         answer=answer,
         code=_code_ref(code) if code is not None else None,
-        code_verified=code is not None and (code.verified or trust),
+        code_verified=code is not None and code.verified,
         form=form,
         questionnaire=questionnaire,
-        cutoff=_cutoff(instrument, code, score, sex, trust) if code is not None else None,
+        cutoff=_cutoff(instrument, code, score, sex) if code is not None else None,
         references=[reference],
     )
 
@@ -175,7 +172,6 @@ def _from_observation(
                         form="observation",
                         reference=o.ref,
                         sex=sex,
-                        trust=content.trust_unverified,
                     )
                 )
                 break
@@ -242,7 +238,6 @@ def _from_response(
                 form="questionnaire_response",
                 reference=r.ref,
                 sex=sex,
-                trust=content.trust_unverified,
                 questionnaire=r.questionnaire,
             )
         )

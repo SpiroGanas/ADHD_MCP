@@ -1,8 +1,8 @@
 """Screening history: one timeline from observation panels and questionnaire responses, with
 the cutoff applied only when its code and value are verified.
 
-``trusted`` content treats unverified codes and cutoffs as verified so the cutoff logic can
-be tested; the server never builds it.
+``trusted`` content is built in the test from copies of the instruments marked verified,
+so the cutoff logic can be tested; packaged content stays unverified.
 """
 
 from datetime import date
@@ -21,6 +21,7 @@ from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.models.domain import DataStatus
 from adhd_mcp.models.evidence_outputs import ScreeningEntry
+from adhd_mcp.terminology.instruments import Instrument
 from adhd_mcp.terminology.site_codes import load_site_codes, load_site_codes_file
 from tests.helpers.failing_adapter import FailingAdapter
 from tests.personas import all_resources
@@ -32,8 +33,29 @@ pytestmark = pytest.mark.anyio
 AS_OF = date(2026, 6, 15)
 
 
+def marked_verified(instrument: Instrument) -> Instrument:
+    """A test-only copy with every code, cutoff and answer marked verified."""
+
+    def mark(items: tuple[Any, ...]) -> tuple[Any, ...]:
+        return tuple(
+            i.model_copy(update={"verified": True, "source": "test", "source_version": "test"})
+            for i in items
+        )
+
+    return instrument.model_copy(
+        update={
+            "codes": mark(instrument.codes),
+            "cutoffs": mark(instrument.cutoffs),
+            "answers": mark(instrument.answers),
+        }
+    )
+
+
 def content(*, trusted: bool = False) -> ScreeningContent:
-    return load_screening_content(load_site_codes("synthetic"), trust_unverified=trusted)
+    packaged = load_screening_content(load_site_codes("synthetic"))
+    if not trusted:
+        return packaged
+    return ScreeningContent(tuple(marked_verified(i) for i in packaged.instruments), packaged.site)
 
 
 async def history(
@@ -103,7 +125,7 @@ async def test_cssrs_risk_level_is_an_answer_not_a_score() -> None:
     risk = next(e for e in result.entries if e.instrument == "cssrs_screener")
     assert (risk.measure, risk.score) == ("risk_level", None)
     assert risk.answer is not None
-    assert risk.answer.code == "LA9193-9"
+    assert (risk.answer.code, risk.answer.display) == ("LA9193-9", "High")
 
 
 async def test_no_cutoff_is_applied_while_codes_and_cutoffs_are_unverified() -> None:
@@ -116,6 +138,8 @@ async def test_no_cutoff_is_applied_while_codes_and_cutoffs_are_unverified() -> 
         assert entry.code_verified is False
         assert entry.cutoff is not None
         assert (entry.cutoff.status, entry.cutoff.met) == ("not_applied_unverified", None)
+        # An unverified threshold is not shown at all.
+        assert (entry.cutoff.operator, entry.cutoff.value, entry.cutoff.sex) == (None, None, None)
 
 
 def auditc(gender: str, score: int) -> PersonaBuilder:
@@ -265,3 +289,14 @@ async def test_a_questionnaire_for_an_instrument_without_codes_is_listed_unscore
     assert (entry.instrument, entry.measure, entry.score) == ("asrs5", "total_score", 16)
     assert (entry.code, entry.code_verified, entry.cutoff) == (None, False, None)
     assert entry.references[0].id == qid
+
+
+async def test_a_verified_cutoff_without_a_score_is_not_applied() -> None:
+    p = PersonaBuilder("t14", gender="female", birth_date="1990-01-01")
+    oid = p.observation("55758-7", "PHQ-2 total score", "2026-04-10T09:00:00Z", value=1)
+    resource = next(r for r in p.resources if r["id"] == oid)
+    del resource["valueQuantity"]
+    resource["valueString"] = "synthetic text"
+    [entry] = (await history(p.patient_id, p.resources, trusted=True)).entries
+    assert entry.cutoff is not None
+    assert (entry.cutoff.status, entry.cutoff.met) == ("not_applied_no_score", None)

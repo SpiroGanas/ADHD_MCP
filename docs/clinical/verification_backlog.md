@@ -72,9 +72,9 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 | Education and occupation problems | Z55.x, Z56.x | ICD-10-CM | Verified (`psychosocial.education_occupation`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
 | Housing instability | Z59.0x | ICD-10-CM | Corrected: Z59.0x is homelessness; housing instability is Z59.81x (`psychosocial.homelessness`, `psychosocial.housing_instability`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
 | Family history | Z81.8, Z82.x (mapping is an inference) | ICD-10-CM | Corrected: Z82.x covers physical disease and is dropped; family history of ADHD codes to Z81.8 (`family.mental_behavioral_history`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
-| Stimulant and non-stimulant ADHD medications | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0008) | |
-| Antidepressants | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0008) | |
-| Sedative-hypnotics | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0008) | |
+| Stimulant and non-stimulant ADHD medications | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0009) | |
+| Antidepressants | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0009) | |
+| Sedative-hypnotics | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0009) | |
 
 ## Follow-up verification
 

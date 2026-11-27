@@ -15,6 +15,7 @@ Unauthenticated at this stage; SMART backend-services credentials arrive in Phas
 """
 
 import asyncio
+import re
 from collections.abc import Awaitable, Callable
 from datetime import date, datetime
 from types import TracebackType
@@ -36,6 +37,7 @@ from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
 _NOT_FOUND_STATUSES = frozenset({404, 410})
 _FHIR_JSON = "application/fhir+json"
+_ISSUE_CODE = re.compile(r"[a-z][a-z-]{0,31}")
 
 Sleep = Callable[[float], Awaitable[None]]
 
@@ -205,9 +207,14 @@ class HttpFhirAdapter:
         return None
 
 
+def _issue_code(raw: Any) -> str:
+    """A FHIR issue-type token, or "unknown": server text is never passed on."""
+    return raw if isinstance(raw, str) and _ISSUE_CODE.fullmatch(raw) else "unknown"
+
+
 def _warnings(outcome: dict[str, Any]) -> list[SearchWarning]:
     return [
-        SearchWarning(severity=issue["severity"], code=str(issue.get("code") or "unknown"))
+        SearchWarning(severity=issue["severity"], code=_issue_code(issue.get("code")))
         for issue in outcome.get("issue") or []
         if isinstance(issue, dict) and issue.get("severity") in WARNING_SEVERITIES
     ]

@@ -9,7 +9,11 @@ from pydantic import BaseModel
 from adhd_mcp.fhir.dates import DateRange
 from adhd_mcp.fhir.errors import FhirRequestError
 from adhd_mcp.fhir.reader import ReadResult
+from adhd_mcp.fhir.records import SkipReason
 from adhd_mcp.models.domain import DataCompleteness, DataStatus
+
+#: Completeness warning code for resources that could not be read.
+UNREADABLE = "unreadable_resources"
 
 
 def in_window(when: DateRange | None, as_of: date, days: int) -> bool | None:
@@ -37,10 +41,15 @@ def latest(*ranges: DateRange | None) -> DateRange | None:
 
 
 def completeness[R: BaseModel](category: str, result: ReadResult[R] | None) -> DataCompleteness:
-    """The completeness note for one category; ``None`` means the read failed."""
+    """The completeness note for one category; ``None`` means the read failed. Server
+    warnings and unreadable resources make it ``incomplete``."""
     if result is None:
         return DataCompleteness(category=category, status=DataStatus.FAILED)
     warnings = [w.code for w in result.warnings]
+    # A resource that could not be read (malformed, or no id) may hold a signal: the
+    # category is incomplete. Entered-in-error and refuted resources are not data.
+    if any(s.reason is not SkipReason.EXCLUDED_STATUS for s in result.skipped):
+        warnings.append(UNREADABLE)
     if warnings:
         status = DataStatus.INCOMPLETE
     elif result.records:

@@ -201,7 +201,7 @@
                       ],
                       "description": "Whether the score meets the cutoff; null if not applied"
                     },
-                    "note": {
+                    "operator": {
                       "anyOf": [
                         {
                           "type": "string"
@@ -211,32 +211,56 @@
                         }
                       ],
                       "default": null,
-                      "description": "Where the cutoff comes from"
-                    },
-                    "operator": {
-                      "type": "string"
+                      "description": "Only given once verified"
                     },
                     "sex": {
-                      "description": "any, male or female",
-                      "type": "string"
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "any, male or female; once verified"
+                    },
+                    "source": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Where the verified cutoff comes from"
                     },
                     "status": {
                       "enum": [
                         "applied",
                         "not_applied_unverified",
-                        "not_applied_sex_unknown"
+                        "not_applied_sex_unknown",
+                        "not_applied_no_score"
                       ],
                       "type": "string"
                     },
                     "value": {
-                      "type": "number"
+                      "anyOf": [
+                        {
+                          "type": "number"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "Only given once verified"
                     }
                   },
                   "required": [
                     "id",
-                    "operator",
-                    "value",
-                    "sex",
                     "status",
                     "met"
                   ],
@@ -442,6 +466,18 @@
           },
           "server": {
             "type": "string"
+          },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
           },
           "tool_contract": {
             "type": "string"

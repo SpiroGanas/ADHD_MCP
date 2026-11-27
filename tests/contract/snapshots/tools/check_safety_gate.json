@@ -404,6 +404,18 @@
           "server": {
             "type": "string"
           },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
+          },
           "tool_contract": {
             "type": "string"
           }

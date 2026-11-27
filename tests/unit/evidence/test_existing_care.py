@@ -80,7 +80,8 @@ def procedure(p: PersonaBuilder, status: str, performed: str) -> str:
     )
 
 
-def care_plan(p: PersonaBuilder, status: str, start: str) -> str:
+def care_plan(p: PersonaBuilder, status: str, start: str, end: str | None = None) -> str:
+    period = {"start": start} | ({"end": end} if end else {})
     return add(
         p,
         {
@@ -89,7 +90,7 @@ def care_plan(p: PersonaBuilder, status: str, start: str) -> str:
             "status": status,
             "intent": "plan",
             "category": [{"coding": [{"system": LOCAL, "code": "adhd-care-plan"}]}],
-            "period": {"start": start},
+            "period": period,
         },
     )
 
@@ -239,7 +240,7 @@ async def test_unmapped_concepts_leave_checks_not_performed(tmp_path: Path) -> N
     assert outcomes(result)["adhd_evaluation_procedure"] is CheckOutcome.NOT_PERFORMED
     assert outcomes(result)["adhd_care_plan"] is CheckOutcome.NOT_PERFORMED
     assert outcomes(result)["adhd_referral"] is CheckOutcome.NOT_FOUND
-    assert result.excluded is False
+    assert result.excluded is None  # a check could not run: not a clean "not in care"
 
 
 async def test_a_failed_read_leaves_the_answer_unknown() -> None:
@@ -278,3 +279,36 @@ async def test_every_category_read_is_in_the_completeness_note() -> None:
         "MedicationRequest",
         "MedicationStatement",
     ]
+
+
+@pytest.mark.parametrize(("end_days", "excludes"), [(365, True), (366, False)])
+async def test_a_completed_care_plan_is_dated_by_its_end(end_days: int, excludes: bool) -> None:
+    p = person()
+    care_plan(p, "completed", ago(900), ago(end_days))
+    result = await care(p.patient_id, p.resources)
+    assert result.excluded is excludes
+    assert result.care_items[0].date == AS_OF - timedelta(days=end_days)
+
+
+async def test_a_completed_evaluation_is_dated_by_the_end_of_its_period() -> None:
+    p = person()
+    pid = procedure(p, "completed", ago(900))
+    resource = next(r for r in p.resources if r["id"] == pid)
+    del resource["performedDateTime"]
+    resource["performedPeriod"] = {"start": ago(900), "end": ago(30)}
+    assert (await care(p.patient_id, p.resources)).excluded is True
+
+
+async def test_incomplete_data_leaves_the_answer_unknown() -> None:
+    p = person()
+    sid = request(p, "active", ago(10))
+    next(r for r in p.resources if r["id"] == sid)["authoredOn"] = "not-a-date"
+    result = await care(p.patient_id, p.resources)
+    assert result.excluded is None
+
+
+async def test_an_unexpected_status_string_is_not_passed_through() -> None:
+    p = person()
+    request(p, "Patient has ADHD", ago(10))
+    [item] = (await care(p.patient_id, p.resources)).care_items
+    assert (item.status, item.why) == ("unrecognized", "status unrecognized")

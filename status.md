@@ -26,7 +26,7 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 1. Watch the Phase 3 PR through CI and review; fix anything that fails. If the live integration test fails, compare the failing tool's output from HAPI and fixtures (likely causes: date formats, result order, versions).
 2. Project owner: review the new clinician-facing wording in `src/adhd_mcp/data/wording.toml` (`evidence_notice`, `safety_gate_guidance`) and the rule card draft; make the CI checks required for merge on `main`.
-3. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0008; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
+3. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0009; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
 
 ## Open questions for the project owner
 
@@ -72,7 +72,7 @@ Owner decisions 2026-11-27 (start of Phase 3):
 
 - LOINC codes and all cutoffs are unverified, so strict loading refuses every instrument. ICD-10-CM is verified against FY2027 (2026-11-27); the human spot-check is still owed before release.
 - ICD-10-CM codes sent without a dot (for example `F1510`) do not match value sets; recorded in ADR 0007 for Phase 8.
-- Persona RxNorm codes are illustrative test data; the drug-class source is decided in Phase 4 (ADR 0008).
+- Persona RxNorm codes are illustrative test data; the drug-class source is decided in Phase 4 (ADR 0009).
 - `fhir.resources` validates personas against R4B models (no R4 package exists for version 8); the live HAPI R4 load covers R4 validity.
 
 ## Pull requests

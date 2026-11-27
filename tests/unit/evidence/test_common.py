@@ -76,7 +76,7 @@ def condition(cid: str) -> ConditionRecord:
 
 
 def test_completeness_reports_each_state() -> None:
-    skipped = (Skipped(ref=None, resource_type="Condition", reason=SkipReason.NO_ID),)
+    skipped = (Skipped(ref=None, resource_type="Condition", reason=SkipReason.EXCLUDED_STATUS),)
     empty = ReadResult[ConditionRecord](records=(), skipped=())
     full = ReadResult[ConditionRecord](records=(condition("c1"),), skipped=skipped)
     warned = ReadResult[ConditionRecord](
@@ -101,3 +101,27 @@ async def test_read_category_turns_a_request_failure_into_none() -> None:
 
     assert await read_category(fails()) is None
     assert await read_category(works()) == ReadResult[ConditionRecord](records=(), skipped=())
+
+
+@pytest.mark.parametrize(
+    ("reason", "status"),
+    [
+        (SkipReason.MALFORMED, DataStatus.INCOMPLETE),
+        (SkipReason.NO_ID, DataStatus.INCOMPLETE),
+        (SkipReason.EXCLUDED_STATUS, DataStatus.AVAILABLE),
+    ],
+)
+def test_unreadable_resources_make_a_category_incomplete(
+    reason: SkipReason, status: DataStatus
+) -> None:
+    skipped = (Skipped(ref=None, resource_type="Condition", reason=reason),)
+    result = ReadResult[ConditionRecord](records=(condition("c1"),), skipped=skipped)
+    note = completeness("Condition", result)
+    assert note.status is status
+    assert ("unreadable_resources" in note.warnings) is (status is DataStatus.INCOMPLETE)
+
+
+def test_an_unreadable_resource_alone_is_not_an_empty_category() -> None:
+    skipped = (Skipped(ref=None, resource_type="Condition", reason=SkipReason.MALFORMED),)
+    note = completeness("Condition", ReadResult[ConditionRecord](records=(), skipped=skipped))
+    assert note.status is DataStatus.INCOMPLETE
