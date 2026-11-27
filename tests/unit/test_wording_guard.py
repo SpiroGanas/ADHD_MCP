@@ -91,3 +91,9 @@ def test_helper_passes_clean_output() -> None:
     assert_no_diagnostic_language(
         {"is_diagnosis": False, "items": ["Consider referral for formal ADHD screening.", 3, None]}
     )
+
+
+def test_helper_accepts_a_schema_fixing_is_diagnosis_to_false_only() -> None:
+    assert_no_diagnostic_language({"properties": {"is_diagnosis": {"const": False}}})
+    with pytest.raises(AssertionError, match="is_diagnosis"):
+        assert_no_diagnostic_language({"properties": {"is_diagnosis": {"type": "boolean"}}})

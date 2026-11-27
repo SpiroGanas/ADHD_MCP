@@ -83,3 +83,10 @@ def test_a_concept_a_site_does_not_map_matches_nothing(tmp_path: Path) -> None:
 def test_unknown_site_is_a_lookup_error() -> None:
     with pytest.raises(LookupError):
         load_site_codes("nowhere")
+
+
+def test_file_name_must_match_the_site_id(tmp_path: Path) -> None:
+    path = tmp_path / "x.toml"
+    path.write_text('id = "y"\nversion = "1"\ntitle = "t"\n')
+    with pytest.raises(ValueError, match="does not match"):
+        load_site_codes_file(path, strict=True)

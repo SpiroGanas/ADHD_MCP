@@ -9,6 +9,13 @@ standard_notice = "This is a suggestion to consider referral for formal screenin
 # The approved phrasing for a positive referral suggestion.
 approved_recommendation = "Consider referral for formal ADHD screening."
 
+# Attached to every evidence tool output.
+evidence_notice = "These are findings from the health record for a clinician to review. They are not a diagnosis and not a risk assessment."
+
+# Returned with a positive safety gate (Phase 3). Directs the clinician to suicide risk
+# evaluation and lethal-means counseling; it never states a level of risk.
+safety_gate_guidance = "Self-harm signals were found in the record. Before any other screening referral, follow your local suicide risk evaluation process (in VA, the Risk ID pathway: C-SSRS screener and Comprehensive Suicide Risk Evaluation) and offer lethal-means safety counseling. This tool does not assess suicide risk; review the listed evidence."
+
 # Phrasings that state or imply a diagnosis (standing invariant 1) or assess suicide risk
 # (the tool surfaces self-harm signals; it never assesses risk). Every tool output is scanned
 # for these in tests. Patterns are Python regular expressions, matched case-insensitively;

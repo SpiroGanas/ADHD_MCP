@@ -29,6 +29,8 @@ class Wording(_Frozen):
     version: str
     standard_notice: str
     approved_recommendation: str
+    evidence_notice: str
+    safety_gate_guidance: str
     diagnostic_language: DiagnosticLanguage
 
 
