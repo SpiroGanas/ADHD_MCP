@@ -3,8 +3,8 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phases 4, 5 and 6 code complete on one branch, going into one pull request (owner request 2026-11-27: "program phases 4, 5 and 6"). Phase 7 (evaluation, hardening, release) is next.
-**Branch:** `claude/bold-tesla-bf2rn1`
+**Current phase:** Phase 7 (evaluation, hardening, release preparation) in progress (owner request 2026-11-27: "program phase 7").
+**Branch:** `ccr-5c748898-yqc67t`
 
 ## Summary
 
@@ -12,6 +12,7 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 
 ## Done
 
+- PR #5 (Phases 4 to 6) merged into `main`.
 - **Phase 6** (all nine work items; [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5)): audit record and JSON Lines sink, one record per call including failures ([ADR 0011](docs/adr/0011-audit-tracing-and-privacy.md)); trace id from `_meta.traceparent`, sent to FHIR as `traceparent`; sensitive-data policy (`data/privacy.toml`, default cite, HL7 labels verified); OAuth resource server with per-tool scopes and RFC 9728 metadata; SMART backend services ([ADR 0012](docs/adr/0012-authentication.md)); streamable HTTP transport and validated configuration (`src/adhd_mcp/config.py`); [threat model](docs/security/threat_model.md) and risk register review; injection twin test. Standing invariant 5 (canary test) added. PyJWT and cryptography pinned (ADR 0006).
 - **Phase 5** (all ten work items; [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5)): ruleset format and engine ([ADR 0010](docs/adr/0010-rulesets-engine-and-plugins.md)); ADHD ruleset 1.0.0 (draft); scorer slot (rules-only); condition plugins; `assess_referral_need`; `draft_referral_proposal`; resources; prompts; [rule card](docs/clinical/rule_card_adhd_1.0.md); [walkthrough](docs/demo/assessment_walkthrough.md). Golden tests and snapshots for 14 personas; rules, orchestration and conditions at 100% branch coverage.
 - **Phase 4** (all six work items; [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5)): `get_medication_timeline` with RxNorm classes curated and verified against RxNav 02-Nov-2026 ([ADR 0009](docs/adr/0009-rxnorm-drug-classes.md)); `get_utilization_summary`; `get_psychosocial_context`; [signal catalog](src/adhd_mcp/data/adhd/signal_catalog.toml); per-request FHIR cache; verification sprint 3.
@@ -19,13 +20,12 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 
 ## In progress
 
-- Pull request [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) for Phases 4 to 6: open; CI green on all three jobs (including the first live run of `tests/integration/test_http_auth_live.py`); waiting for owner review. The clinical safety review ran before opening; its two blocking findings (HIV/sickle-cell disclosure; withhold hiding a self-harm signal from the gate) and the should-fix findings are fixed (commit d29b24d).
+- Phase 7, all work items, on branch `ccr-5c748898-yqc67t`: fault injection (item 6) first, then the cohort, evaluation harness and sex-balance review (items 1 to 3), the model-in-the-loop harness (item 4), performance (item 7), documentation and release preparation (items 8, 9).
 
 ## Next steps
 
-1. Watch the Phases 4-6 PR through owner review; answer review comments.
+1. Continue Phase 7 on the branch (see In progress).
 2. Project owner reviews, then approves or changes: the signal catalog (`reviewed_by_owner = false`), the rule card, the drafted clinician wording in `src/adhd_mcp/data/wording.toml` (`[recommendations]`, `[notes]`, next steps), the drug-class curation choices (ADR 0009), and the medication parameters (30-day supply, gap and fill window). Releasing ruleset 1.0.0 then means status `released` plus a pinned hash in `data/released_rulesets.toml`.
-3. Phase 7, work item 1: read the Phase 7 section of project_plan.md; the evaluation must measure the known under-flagging of women (persona p02, rule card).
 
 ## Open questions for the project owner
 
@@ -44,6 +44,13 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 ## Decisions
 
 Scope decisions made 2026-11-26 are recorded in [project_plan.md](project_plan.md#scope). Architecture decisions are in [docs/adr/](docs/adr/README.md).
+
+Owner decisions 2026-11-27 (start of Phase 7):
+
+- Model-in-the-loop evaluation (item 4): build the tasks, harness and grader now, tested with a scripted stand-in model; the live run waits for an API key (open question 4).
+- Release (item 9): prepare everything (versioning policy, change log, packaging, release check) as a release candidate; tag 1.0.0 only after the owner reviews the clinical content and the ruleset is released.
+- Sex-balance review (item 3): measure and propose options; no ruleset change until the owner chooses.
+- Container: a Dockerfile and a CI build check; nothing published to a registry.
 
 Owner decisions 2026-11-27 (start of Phases 4 to 6):
 
@@ -73,4 +80,4 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2) | Project plan, architecture and working documentation | Merged |
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
 | [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |
-| [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Open |
+| [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
