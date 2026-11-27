@@ -3,31 +3,30 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phase 3 (Evidence tools I), in progress.
+**Current phase:** Phase 3 (Evidence tools I) code complete, in a pull request awaiting CI and review. Phase 4 (Evidence tools II) is next.
 **Branch:** `ccr-29d767ce-uqk8rh`
 
 ## Summary
 
-A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR access layer is complete: a read-only port with fixture and HTTP adapters (both pass one shared suite, the HTTP adapter also against a live HAPI FHIR server), normalization to typed records, a typed record reader, and a terminology store with 33 verified ICD-10-CM value sets and six screening instruments (LOINC codes and cutoffs still unverified). Ten synthetic personas specify expected outcomes. No clinical tool or rule exists yet.
+A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Phase 3 evidence tools `check_safety_gate`, `get_mh_problem_list`, `get_screening_history` and `check_existing_care` (tool contract 0.2.0). Underneath: a read-only FHIR port (fixture and HTTP adapters; searches return server warnings), normalization, a typed reader, a terminology store (34 ICD-10-CM value sets verified against FY2027; six instruments with unverified LOINC codes and cutoffs), a per-site local code mapping (synthetic site only), and one evidence assembler per tool with clinical definitions in data files. Ten synthetic personas specify expected outcomes. No referral rule exists yet (Phase 5).
 
 ## Done
 
-- Phases 1 and 2 merged ([SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3)).
+- **Phase 3** (all six work items; PR link below): `check_safety_gate` with rule card draft ([rule_card_safety_gate.md](docs/clinical/rule_card_safety_gate.md)); `get_mh_problem_list`; `get_screening_history`; `check_existing_care`; shared tool behavior (context injection, validation, error codes, completeness notes); tool descriptions. Standing invariant 2 as property tests. Safety gate module at 100% branch coverage. Port returns OperationOutcome warnings (open question 13). F1 automated part done (FY2027, CDC download).
 - Research report; planning and documentation set ([SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2)).
 - **Phase 1** (all eight work items; [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3)): tooling pinned in [ADR 0006](docs/adr/0006-tooling-versions.md); package layout; CI with lint, types, tests, coverage floor 90%, gitleaks and a synthetic-data guard; `get_server_info` walking skeleton; test harness (in-memory MCP client, fixed clock, contract snapshots in `tests/contract/snapshots/`); domain models (`src/adhd_mcp/models/domain.py`); diagnostic-wording guard (`src/adhd_mcp/data/wording.toml`, `tests/helpers/wording.py`); verification sprint part 1. Standing invariants 1, 3, 4 and 6 exist as tests.
 - **Phase 2** (all nine work items; [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3)): FHIR port and fixture adapter; HTTP adapter (httpx2, GET only, paging, retries, origin-pinned paging); normalization ([ADR 0007](docs/adr/0007-fhir-modeling.md)); terminology store; persona catalog ([tests/personas/](tests/personas/README.md)); bulk generator ([docs/dev/synthetic_population.md](docs/dev/synthetic_population.md)); local HAPI FHIR server and CI integration job ([docs/dev/local_fhir_server.md](docs/dev/local_fhir_server.md)); verification sprint part 2. Also a typed reader (`src/adhd_mcp/fhir/reader.py`) for later phases.
-- Verification: every ICD-10-CM item in the backlog is Verified or Corrected against the official FY2026 tabular; seven research values corrected. See [verification_backlog.md](docs/clinical/verification_backlog.md).
+- Verification: every ICD-10-CM item in the backlog is Verified or Corrected against the official FY2027 tabular from CDC (and FY2026); seven research values corrected. See [verification_backlog.md](docs/clinical/verification_backlog.md).
 
 ## In progress
 
-- Phase 3, all six work items, on branch `ccr-29d767ce-uqk8rh` (one PR, a commit per work item).
-  - Done on the branch: F1 automated part (FY2027 re-check, CDC download comparison).
-  - Next: port returns OperationOutcome warnings (Q13), shared tool behavior and site code mapping, then the four tools in plan order.
+- Phase 3 pull request (link in the table below): waiting for CI and review. CI will make the first run of `tests/integration/test_tools_live.py`, which compares every tool's answers from the local HAPI server with the fixtures; it could not run in the build environment (no Docker). The clinical safety review was run before opening the PR (findings and fixes in the PR description).
 
 ## Next steps
 
-1. Continue Phase 3 in this order: port warnings; shared tool behavior (`src/adhd_mcp/evidence/common.py`, `data/site_codes/`); `check_safety_gate`; `get_mh_problem_list`; `get_screening_history`; `check_existing_care`; invariant 2 property test; integration tests; rule card; PR.
-2. Project owner: make the CI checks required for merge on `main` (repository settings). Answer open questions 1, 9, 12 below when convenient; none blocks Phase 3 code.
+1. Watch the Phase 3 PR through CI and review; fix anything that fails. If the live integration test fails, compare the failing tool's output from HAPI and fixtures (likely causes: date formats, result order, versions).
+2. Project owner: review the new clinician-facing wording in `src/adhd_mcp/data/wording.toml` (`evidence_notice`, `safety_gate_guidance`) and the rule card draft; make the CI checks required for merge on `main`.
+3. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0008; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
 
 ## Open questions for the project owner
 
@@ -38,10 +37,10 @@ A FastMCP 4.2 server exposes one read-only tool, `get_server_info`. The FHIR acc
 | 4 | Is model API access and budget available for the model-in-the-loop evaluation? | Phase 7 |
 | 5 | Will VA Lighthouse sandbox access be requested, and by whom? (Apply during Phase 6.) | Phase 8 |
 | 6 | Should a priority tier be part of the 1.0 output? (Proposal: no.) | Phase 5 |
-| 9 | PC-PTSD-5 cutoff: 4 (current National Center for PTSD default) or 3 (research value; more sensitive, e.g. for women)? | Phase 3 |
+| 9 | PC-PTSD-5 cutoff: 4 (current National Center for PTSD default) or 3 (research value; more sensitive, e.g. for women)? | Before LOINC verification (F2) |
 | 10 | Substance codes: include F13 (sedatives), F16 (hallucinogens), F18 (inhalants)? Count caffeine (F15 includes it)? Exclude Y90.0 (blood alcohol under 20 mg/100 ml)? | Phase 4 |
 | 11 | Other signal boundaries: count electric-bicycle drivers in V20-V29? Keep F32.81 (premenstrual dysphoric disorder) inside the depression family? Add G47.09 (other insomnia)? Use an explicit subset of Z55/Z56 rather than whole categories? Which housing codes count: homelessness Z59.0, housing instability Z59.81, inadequate housing Z59.1? | Phase 4 |
-| 12 | How should ASRS results be recognised in FHIR data, given no LOINC score code was found (follow-up F3)? | Phase 3 |
+| 12 | How should ASRS results be recognised in FHIR data, given no LOINC score code was found (follow-up F3)? Phase 3 lets a site map its ASRS questionnaire | Phase 5 |
 | 14 | Verify LOINC through a LOINC account (fhir.loinc.org) or NLM's redistribution? Until then PHQ-9 item 9 and C-SSRS checks are "not performed" and no screening cutoff is applied | Before release |
 
 ## Decisions

@@ -102,7 +102,7 @@ Defined in Phase 1 ([ADR 0006](docs/adr/0006-tooling-versions.md)). Requires [uv
 | Rebuild persona bundles after editing definitions | `uv run python scripts/build_personas.py` |
 | Lint / format / type check | `uv run ruff check .` / `uv run ruff format .` / `uv run mypy` |
 | Update contract snapshots (deliberate act) | `UPDATE_SNAPSHOTS=1 uv run pytest tests/contract` |
-| Run the server over stdio | `uv run adhd-mcp` |
+| Run the server over stdio | `ADHD_MCP_FIXTURE_DIR=tests/personas/bundles uv run adhd-mcp` (or `ADHD_MCP_FHIR_BASE_URL=http://localhost:8080/fhir`; see `src/adhd_mcp/tools/context.py`) |
 | Inspect the server | `uv run fastmcp inspect src/adhd_mcp/server.py:create_server` |
 
 ## Slash commands and subagents
