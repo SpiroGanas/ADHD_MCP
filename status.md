@@ -20,7 +20,7 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 
 ## In progress
 
-- Phase 7, all work items, on branch `ccr-5c748898-yqc67t`: fault injection (item 6) first, then the cohort, evaluation harness and sex-balance review (items 1 to 3), the model-in-the-loop harness (item 4), performance (item 7), documentation and release preparation (items 8, 9).
+- Phase 7 on branch `ccr-5c748898-yqc67t`. Done on the branch: item 6 (fault injection; the HTTP adapter now fails a search on a malformed Bundle instead of crashing), items 1 to 3 (labelled cohort of 184 patients in `tests/evals/cohort.py`, harness, generated report [docs/evaluation/adhd_ruleset_1.0.0.md](docs/evaluation/adhd_ruleset_1.0.0.md), [sex-balance review](docs/evaluation/sex_balance_review.md)). Next: item 4 (model-in-the-loop harness, scripted stand-in model), item 7 (performance), items 8 and 9 (documentation, release preparation).
 
 ## Next steps
 
@@ -39,7 +39,7 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 | 12 | How should ASRS results be recognised in FHIR data (follow-up F3)? | Phase 7 |
 | 14 | Verify LOINC through a LOINC account (fhir.loinc.org) or NLM's redistribution? Until then PHQ-9 item 9 and C-SSRS checks are "not performed", no screening cutoff is applied, and no ruleset signal uses a screening score | Before release |
 | 15 | Approve the invariant-4 exception: the SMART token request is the one POST in the code (to the OAuth token endpoint, never the FHIR server) | PR review |
-| 16 | Sex-specific thresholds for the ADHD ruleset (research recommends them; no values exist). Persona p02 shows the gap | Phase 7 |
+| 16 | Sex balance: ruleset 1.0.0 flags 8 of 40 internalizing suggestive presentations against 32 of 32 externalizing ones. Choose an option from the [sex-balance review](docs/evaluation/sex_balance_review.md): A no change (proposed for 1.0.0), B a sex-blind "four or more modifiers" rule as draft ruleset 1.1.0, or another | Before release |
 
 ## Decisions
 

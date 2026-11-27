@@ -1,0 +1,1068 @@
+{
+  "title": "ADHD ruleset evaluation on the labelled synthetic cohort",
+  "identity": {
+    "harness_version": "1.0.0",
+    "ruleset": "adhd 1.0.0 (draft)",
+    "catalog": "adhd.signal_catalog 1.0.0",
+    "content_sha256": "a27a7abc1643a470e3f751da98e04aedd97b2f3d852b1cab91275fc5052b1bce",
+    "cohort_version": "1.0.0",
+    "cohort_sha256": "2b0047fe6c29dd42305ad74b4ba8fb789f438be75ed17dc2e29ee78f4fe68820",
+    "as_of": "2026-06-15"
+  },
+  "cohort": {
+    "patients": 184,
+    "archetypes": 23,
+    "by_sex": {
+      "female": 92,
+      "male": 92
+    },
+    "by_age_band": {
+      "18-29": 46,
+      "30-44": 46,
+      "45-64": 46,
+      "65+": 46
+    }
+  },
+  "agreement": {
+    "patients": 184,
+    "agree": 184,
+    "by_field": {
+      "recommendation": 184,
+      "signals": 184,
+      "rules_fired": 184,
+      "safety_gate": 184
+    },
+    "mismatches": []
+  },
+  "recommendations": {
+    "address_safety_gate_first": 8,
+    "already_in_care": 8,
+    "consider_referral_for_formal_screening": 48,
+    "insufficient_data": 8,
+    "no_recommendation": 112
+  },
+  "by_sex": {
+    "female": {
+      "flagged": 24,
+      "total": 92,
+      "rate": 0.261,
+      "recommendations": {
+        "address_safety_gate_first": 4,
+        "already_in_care": 4,
+        "consider_referral_for_formal_screening": 24,
+        "insufficient_data": 4,
+        "no_recommendation": 56
+      }
+    },
+    "male": {
+      "flagged": 24,
+      "total": 92,
+      "rate": 0.261,
+      "recommendations": {
+        "address_safety_gate_first": 4,
+        "already_in_care": 4,
+        "consider_referral_for_formal_screening": 24,
+        "insufficient_data": 4,
+        "no_recommendation": 56
+      }
+    }
+  },
+  "by_age_band": {
+    "18-29": {
+      "flagged": 12,
+      "total": 46,
+      "rate": 0.261,
+      "recommendations": {
+        "address_safety_gate_first": 2,
+        "already_in_care": 2,
+        "consider_referral_for_formal_screening": 12,
+        "insufficient_data": 2,
+        "no_recommendation": 28
+      }
+    },
+    "30-44": {
+      "flagged": 12,
+      "total": 46,
+      "rate": 0.261,
+      "recommendations": {
+        "address_safety_gate_first": 2,
+        "already_in_care": 2,
+        "consider_referral_for_formal_screening": 12,
+        "insufficient_data": 2,
+        "no_recommendation": 28
+      }
+    },
+    "45-64": {
+      "flagged": 12,
+      "total": 46,
+      "rate": 0.261,
+      "recommendations": {
+        "address_safety_gate_first": 2,
+        "already_in_care": 2,
+        "consider_referral_for_formal_screening": 12,
+        "insufficient_data": 2,
+        "no_recommendation": 28
+      }
+    },
+    "65+": {
+      "flagged": 12,
+      "total": 46,
+      "rate": 0.261,
+      "recommendations": {
+        "address_safety_gate_first": 2,
+        "already_in_care": 2,
+        "consider_referral_for_formal_screening": 12,
+        "insufficient_data": 2,
+        "no_recommendation": 28
+      }
+    }
+  },
+  "drivers": {
+    "flagged": 48,
+    "signals": {
+      "alcohol_involvement": 32,
+      "crash_as_driver": 24,
+      "insomnia": 16,
+      "stimulant_related_disorder": 16,
+      "depression_or_anxiety": 8,
+      "education_occupation_problems": 8,
+      "intermittent_explosive_disorder": 8,
+      "legal_problems": 8,
+      "other_substance_use": 8,
+      "ptsd": 8,
+      "repeated_accidental_injury": 8
+    },
+    "rules": {
+      "high_with_modifiers": 24,
+      "two_high_classes": 24
+    }
+  },
+  "by_profile": {
+    "boundary": {
+      "flagged": 8,
+      "total": 24,
+      "rate": 0.333,
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8,
+        "no_recommendation": 16
+      }
+    },
+    "not_applicable": {
+      "flagged": 0,
+      "total": 24,
+      "rate": 0.0,
+      "recommendations": {
+        "address_safety_gate_first": 8,
+        "already_in_care": 8,
+        "insufficient_data": 8
+      }
+    },
+    "not_suggestive": {
+      "flagged": 0,
+      "total": 64,
+      "rate": 0.0,
+      "recommendations": {
+        "no_recommendation": 64
+      }
+    },
+    "suggestive": {
+      "flagged": 40,
+      "total": 72,
+      "rate": 0.556,
+      "recommendations": {
+        "consider_referral_for_formal_screening": 40,
+        "no_recommendation": 32
+      }
+    }
+  },
+  "suggestive_by_style": {
+    "externalizing": {
+      "flagged": 32,
+      "total": 32,
+      "rate": 1.0,
+      "recommendations": {
+        "consider_referral_for_formal_screening": 32
+      }
+    },
+    "internalizing": {
+      "flagged": 8,
+      "total": 40,
+      "rate": 0.2,
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8,
+        "no_recommendation": 32
+      }
+    }
+  },
+  "suggestive_by_sex": {
+    "female": {
+      "flagged": 20,
+      "total": 36,
+      "rate": 0.556,
+      "recommendations": {
+        "consider_referral_for_formal_screening": 20,
+        "no_recommendation": 16
+      }
+    },
+    "male": {
+      "flagged": 20,
+      "total": 36,
+      "rate": 0.556,
+      "recommendations": {
+        "consider_referral_for_formal_screening": 20,
+        "no_recommendation": 16
+      }
+    }
+  },
+  "mix_assumption": {
+    "female": {
+      "internalizing": 0.7,
+      "externalizing": 0.3
+    },
+    "male": {
+      "internalizing": 0.3,
+      "externalizing": 0.7
+    }
+  },
+  "mixed_recall": {
+    "female": 0.44,
+    "male": 0.76
+  },
+  "archetypes": {
+    "B1": {
+      "title": "Narrow miss: alcohol involvement and PTSD only",
+      "profile": "boundary",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "B2": {
+      "title": "Window miss: the crash is one day outside 1095 days",
+      "profile": "boundary",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "B3": {
+      "title": "Window edge: the crash is exactly 1095 days ago",
+      "profile": "boundary",
+      "style": null,
+      "intended": "consider_referral_for_formal_screening",
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8
+      }
+    },
+    "C1": {
+      "title": "Healthy control: routine visits, hypertension, a negative screen",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "C2": {
+      "title": "Narcolepsy treated with a stimulant",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "E1": {
+      "title": "Stimulant and alcohol disorders, a crash as driver, insomnia",
+      "profile": "suggestive",
+      "style": "externalizing",
+      "intended": "consider_referral_for_formal_screening",
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8
+      }
+    },
+    "E2": {
+      "title": "Alcohol involvement with PTSD and legal problems",
+      "profile": "suggestive",
+      "style": "externalizing",
+      "intended": "consider_referral_for_formal_screening",
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8
+      }
+    },
+    "E3": {
+      "title": "Two accidental injury visits and a stimulant disorder",
+      "profile": "suggestive",
+      "style": "externalizing",
+      "intended": "consider_referral_for_formal_screening",
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8
+      }
+    },
+    "E4": {
+      "title": "A crash as driver, other substance use, unemployment, intermittent explosive disorder",
+      "profile": "suggestive",
+      "style": "externalizing",
+      "intended": "consider_referral_for_formal_screening",
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8
+      }
+    },
+    "G1": {
+      "title": "Safety gate: recent suicidal ideation code, stimulant and alcohol disorders",
+      "profile": "not_applicable",
+      "style": null,
+      "intended": "address_safety_gate_first",
+      "recommendations": {
+        "address_safety_gate_first": 8
+      }
+    },
+    "I1": {
+      "title": "Recurrent depression, anxiety, insomnia, attention symptoms, three antidepressants",
+      "profile": "suggestive",
+      "style": "internalizing",
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "I2": {
+      "title": "Depression, anxiety, borderline personality, insomnia",
+      "profile": "suggestive",
+      "style": "internalizing",
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "I3": {
+      "title": "Depression and insomnia with alcohol involvement",
+      "profile": "suggestive",
+      "style": "internalizing",
+      "intended": "consider_referral_for_formal_screening",
+      "recommendations": {
+        "consider_referral_for_formal_screening": 8
+      }
+    },
+    "I4": {
+      "title": "Anxiety, attention symptoms, work or study problems, family history",
+      "profile": "suggestive",
+      "style": "internalizing",
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "I5": {
+      "title": "Depression, three antidepressants, other substance use, housing problems",
+      "profile": "suggestive",
+      "style": "internalizing",
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "L1": {
+      "title": "TBI look-alike: concussion, attention symptoms, insomnia",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "L2": {
+      "title": "PTSD look-alike: PTSD, depression, insomnia",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "L3": {
+      "title": "Bipolar look-alike: bipolar disorder and insomnia",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "L4": {
+      "title": "Substance use without ADHD signals: opioid and nicotine dependence",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "L5": {
+      "title": "Alcohol involvement alone",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "S1": {
+      "title": "Sparse record: one routine visit",
+      "profile": "not_suggestive",
+      "style": null,
+      "intended": "no_recommendation",
+      "recommendations": {
+        "no_recommendation": 8
+      }
+    },
+    "S2": {
+      "title": "Empty record",
+      "profile": "not_applicable",
+      "style": null,
+      "intended": "insufficient_data",
+      "recommendations": {
+        "insufficient_data": 8
+      }
+    },
+    "X1": {
+      "title": "Already in care: an ADHD code, alcohol involvement, a crash",
+      "profile": "not_applicable",
+      "style": null,
+      "intended": "already_in_care",
+      "recommendations": {
+        "already_in_care": 8
+      }
+    }
+  },
+  "sensitivity": {
+    "hwm_min_high_0": {
+      "description": "high_with_modifiers: 0 high-weight signals (2 modifiers alone)",
+      "flagged": 96,
+      "suggestive": {
+        "flagged": 72,
+        "total": 72,
+        "rate": 1.0,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 72
+        }
+      },
+      "not_suggestive": {
+        "flagged": 16,
+        "total": 64,
+        "rate": 0.25,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 16,
+          "no_recommendation": 48
+        }
+      },
+      "mixed_recall": {
+        "female": 1.0,
+        "male": 1.0
+      },
+      "changed": 48,
+      "newly_flagged": {
+        "I1": 8,
+        "I2": 8,
+        "I4": 8,
+        "I5": 8,
+        "L1": 8,
+        "L2": 8
+      },
+      "no_longer_flagged": {}
+    },
+    "hwm_min_high_2": {
+      "description": "high_with_modifiers: 2 high-weight signals",
+      "flagged": 24,
+      "suggestive": {
+        "flagged": 16,
+        "total": 72,
+        "rate": 0.222,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 16,
+          "no_recommendation": 56
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.15,
+        "male": 0.35
+      },
+      "changed": 24,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "E2": 8,
+        "E4": 8,
+        "I3": 8
+      }
+    },
+    "hwm_min_modifiers_1": {
+      "description": "high_with_modifiers: 1 modifier",
+      "flagged": 64,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 16,
+      "newly_flagged": {
+        "B1": 8,
+        "B2": 8
+      },
+      "no_longer_flagged": {}
+    },
+    "hwm_min_modifiers_3": {
+      "description": "high_with_modifiers: 3 modifiers",
+      "flagged": 32,
+      "suggestive": {
+        "flagged": 24,
+        "total": 72,
+        "rate": 0.333,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 24,
+          "no_recommendation": 48
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.225,
+        "male": 0.525
+      },
+      "changed": 16,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "E2": 8,
+        "I3": 8
+      }
+    },
+    "thc_min_high_1": {
+      "description": "two_high_classes: 1 high-weight signal",
+      "flagged": 72,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 8,
+        "total": 64,
+        "rate": 0.125,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 8,
+          "no_recommendation": 56
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 24,
+      "newly_flagged": {
+        "B1": 8,
+        "B2": 8,
+        "L5": 8
+      },
+      "no_longer_flagged": {}
+    },
+    "thc_min_high_3": {
+      "description": "two_high_classes: 3 high-weight signals",
+      "flagged": 32,
+      "suggestive": {
+        "flagged": 32,
+        "total": 72,
+        "rate": 0.444,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 32,
+          "no_recommendation": 40
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.365,
+        "male": 0.585
+      },
+      "changed": 16,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "B3": 8,
+        "E3": 8
+      }
+    },
+    "thc_min_modifiers_1": {
+      "description": "two_high_classes: also 1 modifier",
+      "flagged": 32,
+      "suggestive": {
+        "flagged": 32,
+        "total": 72,
+        "rate": 0.444,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 32,
+          "no_recommendation": 40
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.365,
+        "male": 0.585
+      },
+      "changed": 16,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "B3": 8,
+        "E3": 8
+      }
+    },
+    "injuries_1": {
+      "description": "repeated_accidental_injury: 1 visit",
+      "flagged": 56,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 8,
+        "total": 64,
+        "rate": 0.125,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 8,
+          "no_recommendation": 56
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 8,
+      "newly_flagged": {
+        "L1": 8
+      },
+      "no_longer_flagged": {}
+    },
+    "injuries_3": {
+      "description": "repeated_accidental_injury: 3 visits",
+      "flagged": 40,
+      "suggestive": {
+        "flagged": 32,
+        "total": 72,
+        "rate": 0.444,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 32,
+          "no_recommendation": 40
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.365,
+        "male": 0.585
+      },
+      "changed": 8,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "E3": 8
+      }
+    },
+    "injury_window_365": {
+      "description": "repeated_accidental_injury: 365-day window",
+      "flagged": 40,
+      "suggestive": {
+        "flagged": 32,
+        "total": 72,
+        "rate": 0.444,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 32,
+          "no_recommendation": 40
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.365,
+        "male": 0.585
+      },
+      "changed": 8,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "E3": 8
+      }
+    },
+    "injury_window_1095": {
+      "description": "repeated_accidental_injury: 1095-day window",
+      "flagged": 48,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 0,
+      "newly_flagged": {},
+      "no_longer_flagged": {}
+    },
+    "crashes_2": {
+      "description": "crash_as_driver: 2 crashes",
+      "flagged": 32,
+      "suggestive": {
+        "flagged": 32,
+        "total": 72,
+        "rate": 0.444,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 32,
+          "no_recommendation": 40
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.365,
+        "male": 0.585
+      },
+      "changed": 16,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "B3": 8,
+        "E4": 8
+      }
+    },
+    "antidepressants_2": {
+      "description": "multiple_antidepressants: 2 agents",
+      "flagged": 48,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 0,
+      "newly_flagged": {},
+      "no_longer_flagged": {}
+    },
+    "antidepressants_4": {
+      "description": "multiple_antidepressants: 4 agents",
+      "flagged": 48,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 0,
+      "newly_flagged": {},
+      "no_longer_flagged": {}
+    },
+    "windows_730": {
+      "description": "every 1095-day window shortened to 730 days",
+      "flagged": 40,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 8,
+      "newly_flagged": {},
+      "no_longer_flagged": {
+        "B3": 8
+      }
+    },
+    "windows_1460": {
+      "description": "every 1095-day window lengthened to 1460 days",
+      "flagged": 56,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 8,
+      "newly_flagged": {
+        "B2": 8
+      },
+      "no_longer_flagged": {}
+    }
+  },
+  "options": {
+    "add_four_modifiers": {
+      "description": "Add a rule: four or more distinct modifiers, no high-weight signal needed",
+      "flagged": 72,
+      "suggestive": {
+        "flagged": 64,
+        "total": 72,
+        "rate": 0.889,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 64,
+          "no_recommendation": 8
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.86,
+        "male": 0.94
+      },
+      "changed": 24,
+      "newly_flagged": {
+        "I1": 8,
+        "I4": 8,
+        "I5": 8
+      },
+      "no_longer_flagged": {}
+    },
+    "add_three_modifiers": {
+      "description": "Add a rule: three or more distinct modifiers, no high-weight signal needed",
+      "flagged": 88,
+      "suggestive": {
+        "flagged": 72,
+        "total": 72,
+        "rate": 1.0,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 72
+        }
+      },
+      "not_suggestive": {
+        "flagged": 8,
+        "total": 64,
+        "rate": 0.125,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 8,
+          "no_recommendation": 56
+        }
+      },
+      "mixed_recall": {
+        "female": 1.0,
+        "male": 1.0
+      },
+      "changed": 40,
+      "newly_flagged": {
+        "I1": 8,
+        "I2": 8,
+        "I4": 8,
+        "I5": 8,
+        "L2": 8
+      },
+      "no_longer_flagged": {}
+    },
+    "antidepressants_2": {
+      "description": "Count two distinct antidepressants as the modifier (instead of three)",
+      "flagged": 48,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 0,
+      "newly_flagged": {},
+      "no_longer_flagged": {}
+    },
+    "hwm_min_modifiers_1": {
+      "description": "One high-weight signal with one modifier",
+      "flagged": 64,
+      "suggestive": {
+        "flagged": 40,
+        "total": 72,
+        "rate": 0.556,
+        "recommendations": {
+          "consider_referral_for_formal_screening": 40,
+          "no_recommendation": 32
+        }
+      },
+      "not_suggestive": {
+        "flagged": 0,
+        "total": 64,
+        "rate": 0.0,
+        "recommendations": {
+          "no_recommendation": 64
+        }
+      },
+      "mixed_recall": {
+        "female": 0.44,
+        "male": 0.76
+      },
+      "changed": 16,
+      "newly_flagged": {
+        "B1": 8,
+        "B2": 8
+      },
+      "no_longer_flagged": {}
+    }
+  },
+  "limitations": [
+    "The cohort is designed, not sampled: rates in it say nothing about real-world prevalence, sensitivity or specificity.",
+    "The research profile of each archetype is the cohort designer's reading of the research report, not a diagnosis and not ground truth.",
+    "Agreement with intended outcomes shows that the code applies ruleset 1.0.0 as written. It is not evidence of clinical accuracy.",
+    "The ruleset is sex-blind and age-blind, so differences by sex or age band come only from the presentations the cohort assigns to them; the cohort assigns every archetype to every sex and age band equally.",
+    "The sex-balance reweighting uses an illustrative presentation mix, not an estimate.",
+    "Coded data only: free-text notes are not read, and a missing code is weak evidence of absence. Real records are messier than these.",
+    "The ruleset is not clinically validated."
+  ]
+}
