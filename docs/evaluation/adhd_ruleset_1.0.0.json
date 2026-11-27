@@ -4,7 +4,7 @@
     "harness_version": "1.0.0",
     "ruleset": "adhd 1.0.0 (draft)",
     "catalog": "adhd.signal_catalog 1.0.0",
-    "content_sha256": "19f29b9e06e357aa1200c9bbd6d3d83eeacc926ec1f9d1eb99d750299825c1a4",
+    "content_sha256": "9ba3e758e626a82cfdc248e3f975a0fad0fcb8450d016d913b7baa75bb4fe5c0",
     "cohort_version": "1.0.0",
     "cohort_sha256": "2b0047fe6c29dd42305ad74b4ba8fb789f438be75ed17dc2e29ee78f4fe68820",
     "as_of": "2026-06-15"

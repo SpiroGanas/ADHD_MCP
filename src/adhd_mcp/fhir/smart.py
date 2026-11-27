@@ -7,7 +7,8 @@ the access token it receives.
 
 import asyncio
 import uuid
-from datetime import timedelta
+from datetime import datetime, timedelta
+from typing import Protocol
 
 import httpx2
 import jwt
@@ -20,7 +21,21 @@ ASSERTION_TYPE = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
 _EARLY = timedelta(seconds=60)
 
 
+class FhirAuth(Protocol):
+    """Gives the server's own bearer token for requests about a patient."""
+
+    async def access_token(self, patient_id: str | None = None) -> str: ...
+
+    def invalidate(self, patient_id: str | None = None) -> None: ...
+
+    async def aclose(self) -> None: ...
+
+
 class SmartBackendAuth:
+    """SMART backend services: one system-level token for every request."""
+
+    ALGORITHMS: frozenset[str] = frozenset({"RS384", "ES384"})
+
     def __init__(
         self,
         *,
@@ -31,15 +46,19 @@ class SmartBackendAuth:
         scope: str,
         clock: Clock,
         algorithm: str = "RS384",
+        audience: str | None = None,
         transport: httpx2.AsyncBaseTransport | None = None,
         timeout: float = 10.0,
     ) -> None:
         url = httpx2.URL(token_url)
         if url.scheme != "https" and url.host not in {"localhost", "127.0.0.1"}:
             raise ValueError("the SMART token URL must use https")
-        if algorithm not in {"RS384", "ES384"}:
-            raise ValueError("SMART backend services require RS384 or ES384")
+        if algorithm not in self.ALGORITHMS:
+            raise ValueError(
+                f"{type(self).__name__} requires one of {', '.join(sorted(self.ALGORITHMS))}"
+            )
         self._token_url = token_url
+        self._audience = audience or token_url
         self._client_id = client_id
         self._key = private_key_pem
         self._kid = key_id
@@ -56,50 +75,52 @@ class SmartBackendAuth:
         claims = {
             "iss": self._client_id,
             "sub": self._client_id,
-            "aud": self._token_url,
+            "aud": self._audience,
             "jti": str(uuid.uuid4()),
             "iat": int(now.timestamp()),
             "exp": int((now + timedelta(minutes=5)).timestamp()),
         }
         return jwt.encode(claims, self._key, algorithm=self._alg, headers={"kid": self._kid})
 
-    async def access_token(self) -> str:
+    async def _request_token(self, extra: dict[str, str]) -> tuple[str, datetime]:
+        """POST the client credentials grant; the token and when it expires."""
+        form = {
+            "grant_type": "client_credentials",
+            "scope": self._scope,
+            "client_assertion_type": ASSERTION_TYPE,
+            "client_assertion": self.assertion(),
+        } | extra
+        try:
+            response = await self._client.post(self._token_url, data=form)
+        except httpx2.HTTPError as exc:
+            raise FhirRequestError("SMART token request failed", transient=True) from exc
+        if response.status_code != 200:
+            raise FhirRequestError(
+                f"SMART token request: HTTP {response.status_code}",
+                status=response.status_code,
+                transient=response.status_code >= 500,
+            )
+        body = response.json()
+        token = body.get("access_token")
+        if not isinstance(token, str) or body.get("token_type", "").lower() != "bearer":
+            raise FhirRequestError("SMART token response is not a bearer token", transient=False)
+        try:
+            lifetime = int(body.get("expires_in", 300))
+        except (TypeError, ValueError) as exc:
+            raise FhirRequestError(
+                "SMART token response has a bad expiry", transient=False
+            ) from exc
+        return token, self._clock.now() + timedelta(seconds=lifetime)
+
+    async def access_token(self, patient_id: str | None = None) -> str:
+        """The system-level token (the same for every patient)."""
         async with self._lock:
             if self._token is not None and self._clock.now() < self._expires - _EARLY:
                 return self._token
-            form = {
-                "grant_type": "client_credentials",
-                "scope": self._scope,
-                "client_assertion_type": ASSERTION_TYPE,
-                "client_assertion": self.assertion(),
-            }
-            try:
-                response = await self._client.post(self._token_url, data=form)
-            except httpx2.HTTPError as exc:
-                raise FhirRequestError("SMART token request failed", transient=True) from exc
-            if response.status_code != 200:
-                raise FhirRequestError(
-                    f"SMART token request: HTTP {response.status_code}",
-                    status=response.status_code,
-                    transient=response.status_code >= 500,
-                )
-            body = response.json()
-            token = body.get("access_token")
-            if not isinstance(token, str) or body.get("token_type", "").lower() != "bearer":
-                raise FhirRequestError(
-                    "SMART token response is not a bearer token", transient=False
-                )
-            try:
-                lifetime = int(body.get("expires_in", 300))
-            except (TypeError, ValueError) as exc:
-                raise FhirRequestError(
-                    "SMART token response has a bad expiry", transient=False
-                ) from exc
-            self._token = token
-            self._expires = self._clock.now() + timedelta(seconds=lifetime)
-            return token
+            self._token, self._expires = await self._request_token({})
+            return self._token
 
-    def invalidate(self) -> None:
+    def invalidate(self, patient_id: str | None = None) -> None:
         """Forget the token (after a 401 from the FHIR server)."""
         self._token = None
 

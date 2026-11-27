@@ -23,12 +23,15 @@ BASE = "http://fhir.test/r4"
 
 
 class FakeFhirServer:
-    def __init__(self, resources: Iterable[RawResource], *, page_size: int = 3) -> None:
+    def __init__(
+        self, resources: Iterable[RawResource], *, page_size: int = 3, base: str = BASE
+    ) -> None:
+        self.base = base
         self.store = FixtureFhirAdapter(resources)
         self.page_size = page_size
         self.requests: list[httpx2.Request] = []
         self.fail_next: list[int | Exception | httpx2.Response] = []
-        self.next_link_base = BASE
+        self.next_link_base = base
 
     def transport(self) -> httpx2.MockTransport:
         return httpx2.MockTransport(self.handle)
@@ -42,8 +45,12 @@ class FakeFhirServer:
             "entry": [{"resource": r, "search": {"mode": "match"}} for r in entries],
         }
 
-    async def handle(self, request: httpx2.Request) -> httpx2.Response:  # noqa: PLR0911
+    async def handle(self, request: httpx2.Request) -> httpx2.Response:
         self.requests.append(request)
+        return await self.respond(request)
+
+    async def respond(self, request: httpx2.Request) -> httpx2.Response:  # noqa: PLR0911
+        """Answer a request without recording it."""
         if self.fail_next:
             failure = self.fail_next.pop(0)
             if isinstance(failure, Exception):
@@ -53,7 +60,7 @@ class FakeFhirServer:
             return httpx2.Response(failure, text="server detail that must not leak")
         if request.method != "GET":
             return httpx2.Response(405)
-        path = request.url.path.removeprefix(httpx2.URL(BASE).path).strip("/").split("/")
+        path = request.url.path.removeprefix(httpx2.URL(self.base).path).strip("/").split("/")
         if len(path) == 2 and path[0] == "Patient":
             try:
                 return httpx2.Response(200, json=await self.store.read_patient(path[1]))

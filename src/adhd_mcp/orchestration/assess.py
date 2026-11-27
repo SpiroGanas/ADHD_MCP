@@ -105,7 +105,8 @@ def _choose(
         return RecommendationCode.ALREADY_IN_CARE
     if decision.recommend:
         return RecommendationCode.CONSIDER_REFERRAL
-    empty = all(n.status is DataStatus.EMPTY for n in completeness)
+    # A record with nothing in it: every category empty, or not offered by the server.
+    empty = all(n.status in (DataStatus.EMPTY, DataStatus.NOT_SUPPORTED) for n in completeness)
     if empty or not sources_readable:
         return RecommendationCode.INSUFFICIENT_DATA
     return RecommendationCode.NO_RECOMMENDATION

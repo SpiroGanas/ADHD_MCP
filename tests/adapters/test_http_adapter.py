@@ -8,6 +8,7 @@ from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError, Search
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.normalize import normalize_many
 from adhd_mcp.fhir.port import SEARCHABLE_TYPES, SearchWarning
+from adhd_mcp.fhir.profiles import GENERIC
 from adhd_mcp.fhir.records import SkipReason
 from tests.adapters.shared_suite import SharedAdapterSuite, bundle_ids
 from tests.helpers.fake_fhir_server import BASE, FakeFhirServer
@@ -57,7 +58,10 @@ async def test_a_type_the_server_does_not_offer_is_refused_before_any_request(
     server: FakeFhirServer, sleeps: Sleeps
 ) -> None:
     async with HttpFhirAdapter(
-        BASE, transport=server.transport(), sleep=sleeps, supported_types={"Condition"}
+        BASE,
+        transport=server.transport(),
+        sleep=sleeps,
+        profile=GENERIC.model_copy(update={"offered": frozenset({"Condition"})}),
     ) as adapter:
         with pytest.raises(SearchNotSupportedError) as raised:
             await adapter.search("Flag", "p01-patient")

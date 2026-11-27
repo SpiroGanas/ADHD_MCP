@@ -16,6 +16,13 @@ Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
 
 - Experimental autism stub (`ADHD_MCP_EXPERIMENTAL_CONDITIONS=autism`; off by default; not for clinical use) proving the condition plugin interface: exclusion on recorded autism codes F84.0, F84.5, F84.8, F84.9 (verified against ICD-10-CM FY2027), three placeholder modifiers, ruleset `autism 0.0.1 (experimental)`. Ruleset status `experimental` added. [Rule card](docs/clinical/rule_card_autism_stub.md).
 
+- VA Lighthouse Patient Health API support (`ADHD_MCP_FHIR_SERVER_PROFILE=lighthouse`), built from the public sandbox CapabilityStatement and OpenAPI: FHIR server profiles (`fhir/profiles.py`, `data/fhir_servers/`); the HTTP adapter searches only offered types, filters `since` itself where the server has no date search, and reads referenced Medication resources by id when `_include` is not offered; `LighthouseCcgAuth` with patient-scoped tokens (`launch`) and a configurable assertion audience (`ADHD_MCP_SMART_AUDIENCE`). Not yet run against the sandbox (no credentials). [Integration notes](docs/integration/lighthouse.md).
+
+### Fixed
+
+- Absolute FHIR references (`https://.../Medication/123`) are now understood; before, their medication codes and encounter links were silently lost.
+- An empty record on a server that does not offer some types is `insufficient_data`, not `no_recommendation`.
+
 ### Changed
 
 - Tool contract 0.3.0 to 0.4.0: the `status` enum of every `data_completeness` entry gains `not_supported`; the assessment's `scorer` gains `failed`; the `condition` argument's description names experimental stubs.

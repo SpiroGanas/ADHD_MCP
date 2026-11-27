@@ -35,6 +35,13 @@ All five or none ([ADR 0012](../adr/0012-authentication.md)). Needs `ADHD_MCP_FH
 | `ADHD_MCP_SMART_KEY_ID` | The `kid` of the signing key |
 | `ADHD_MCP_SMART_SCOPE` | Scopes to request, for example `system/*.rs` |
 | `ADHD_MCP_SMART_PRIVATE_KEY_FILE` | File holding the private key (PEM) used to sign the client assertion |
+| `ADHD_MCP_SMART_AUDIENCE` | Optional: the client assertion's audience (`aud`); default the token URL. Required with the `lighthouse` profile |
+
+### FHIR server profile
+
+| Variable | Meaning |
+|---|---|
+| `ADHD_MCP_FHIR_SERVER_PROFILE` | `generic` (default: a full FHIR R4 server) or `lighthouse` (VA Lighthouse Patient Health API: only the types it offers, no `_include`, patient-scoped client credentials tokens). Needs `ADHD_MCP_FHIR_BASE_URL`. See [Lighthouse](../integration/lighthouse.md) |
 
 ## Transport
 

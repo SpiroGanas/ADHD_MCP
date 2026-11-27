@@ -1,0 +1,20 @@
+# VA Lighthouse Patient Health API (FHIR R4): what the server offers, from its public sandbox
+# CapabilityStatement (https://sandbox-api.va.gov/services/fhir/v0/r4/metadata) and OpenAPI
+# description, both fetched 2026-11-27. The CapabilityStatement is kept in
+# tests/adapters/recorded/ and a test checks this profile against it.
+id = "lighthouse"
+title = "VA Lighthouse Patient Health API (FHIR R4)"
+source = "sandbox-api.va.gov CapabilityStatement and OpenAPI, software health-api-fhir-r4, fetched 2026-11-27"
+
+# Searchable types this server offers. Not offered: QuestionnaireResponse, Flag,
+# ServiceRequest, CarePlan, MedicationDispense, MedicationStatement.
+offered = ["Condition", "Observation", "Encounter", "Procedure", "MedicationRequest"]
+
+# Types with no date search parameter: a windowed search reads everything and filters here.
+no_date_search = ["MedicationRequest"]
+
+# No _include: referenced Medication resources are read one by one (GET Medication/{id}).
+include_medications = false
+
+# "_count ... The maximum count size is 200."
+max_page_size = 200

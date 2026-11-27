@@ -85,6 +85,13 @@ async def test_types_a_server_does_not_offer_do_not_make_every_assessment_insuff
     assert not_offered == NOT_ON_LIGHTHOUSE - {"QuestionnaireResponse"}
 
 
+async def test_an_empty_record_on_a_server_lacking_types_is_still_insufficient_data() -> None:
+    p = PersonaBuilder("t65", gender="female", birth_date="1990-01-01")
+    records = PatientRecords(UnsupportingAdapter(p, NOT_ON_LIGHTHOUSE))
+    result = await assess(adhd_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    assert result.recommendation is RecommendationCode.INSUFFICIENT_DATA
+
+
 async def test_orders_count_antidepressants_when_dispenses_are_not_offered() -> None:
     p = PersonaBuilder("t62", gender="female", birth_date="1990-01-01")
     for rxcui, when in (("36437", "2025-01-01"), ("4493", "2025-03-01"), ("2556", "2025-05-01")):

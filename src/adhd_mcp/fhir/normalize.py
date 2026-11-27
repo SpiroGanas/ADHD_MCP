@@ -62,10 +62,17 @@ def _ref(raw: Raw) -> ResourceRef:
 
 
 def parse_reference(reference: str | None) -> ResourceRef | None:
-    """Parse a relative ``Type/id`` reference; ``None`` for anything else."""
+    """Parse a relative ``Type/id`` reference, or an absolute http(s) one ending in
+    ``Type/id`` or ``Type/id/_history/version`` (VA Lighthouse writes every reference
+    absolute); ``None`` for anything else (contained, ``urn:``, unknown types). Only the id
+    is kept: references are resolved within one patient's search results."""
     if not reference:
         return None
     parts = reference.split("/")
+    if reference.startswith(("https://", "http://")):
+        if len(parts) >= 6 and parts[-2] == "_history":
+            parts = parts[:-2]
+        parts = parts[-2:]
     if len(parts) != 2 or parts[0] not in _RESOURCE_TYPES or not parts[1]:
         return None
     return ResourceRef(resource_type=parts[0], id=parts[1])

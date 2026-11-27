@@ -1,14 +1,15 @@
 """Behaviour every FHIR adapter must share, so adapters are interchangeable (ADR 0004).
 
 Subclass ``SharedAdapterSuite`` and provide an ``adapter`` fixture whose data source holds
-every persona in ``tests/personas``.
+every persona in ``tests/personas``. Set ``OFFERED`` for a server that offers only some
+resource types: searching any other type must raise ``SearchNotSupportedError``.
 """
 
 from datetime import UTC, date, datetime
 
 import pytest
 
-from adhd_mcp.fhir.errors import ResourceNotFoundError
+from adhd_mcp.fhir.errors import ResourceNotFoundError, SearchNotSupportedError
 from adhd_mcp.fhir.port import SEARCHABLE_TYPES, FhirReadPort, SearchResult, SearchType
 from tests.personas import load_bundle, persona_ids
 
@@ -31,6 +32,11 @@ def ids(result: SearchResult, resource_type: str | None = None) -> set[str]:
 
 @pytest.mark.anyio
 class SharedAdapterSuite:
+    OFFERED: frozenset[str] = frozenset(SEARCHABLE_TYPES)
+
+    def offered(self) -> list[SearchType]:
+        return [t for t in SEARCHABLE_TYPES if t in self.OFFERED]
+
     async def test_reads_a_patient(self, adapter: FhirReadPort) -> None:
         patient = await adapter.read_patient("p01-patient")
         assert patient["resourceType"] == "Patient"
@@ -54,12 +60,20 @@ class SharedAdapterSuite:
     async def test_search_returns_exactly_the_patients_resources(
         self, adapter: FhirReadPort, persona_id: str, resource_type: SearchType
     ) -> None:
+        if resource_type not in self.OFFERED:
+            with pytest.raises(SearchNotSupportedError):
+                await adapter.search(resource_type, f"{persona_id}-patient")
+            return
         found = await adapter.search(resource_type, f"{persona_id}-patient")
         assert ids(found, resource_type) == bundle_ids(persona_id, resource_type)
 
     async def test_medication_searches_include_referenced_medications(
         self, adapter: FhirReadPort
     ) -> None:
+        if "MedicationDispense" not in self.OFFERED:
+            with pytest.raises(SearchNotSupportedError):
+                await adapter.search("MedicationDispense", "p02-patient")
+            return
         found = await adapter.search("MedicationDispense", "p02-patient")
         assert ids(found, "MedicationDispense") == bundle_ids("p02", "MedicationDispense")
         assert ids(found, "Medication") == bundle_ids("p02", "Medication")
@@ -93,9 +107,19 @@ class SharedAdapterSuite:
             await adapter.search("Observation", "p10-patient", since=date(2026, 5, 1))
         ).resources == []
 
+    async def test_since_on_medication_requests_is_inclusive(self, adapter: FhirReadPort) -> None:
+        found = await adapter.search("MedicationRequest", "p02-patient", since=date(2023, 4, 20))
+        assert ids(found, "MedicationRequest") == {"p02-medreq-4", "p02-medreq-5"}
+        later = await adapter.search("MedicationRequest", "p02-patient", since=date(2023, 4, 21))
+        assert ids(later, "MedicationRequest") == {"p02-medreq-5"}
+
     async def test_since_on_medication_dispenses_keeps_medications(
         self, adapter: FhirReadPort
     ) -> None:
+        if "MedicationDispense" not in self.OFFERED:
+            with pytest.raises(SearchNotSupportedError):
+                await adapter.search("MedicationDispense", "p02-patient", since=date(2024, 1, 1))
+            return
         found = await adapter.search("MedicationDispense", "p02-patient", since=date(2024, 1, 1))
         assert ids(found, "MedicationDispense") == {"p02-meddisp-5"}
         assert ids(found, "Medication") == {"p02-med-5"}
@@ -111,9 +135,9 @@ class SharedAdapterSuite:
         ).resources == []
 
     async def test_empty_record_returns_nothing(self, adapter: FhirReadPort) -> None:
-        for resource_type in SEARCHABLE_TYPES:
+        for resource_type in self.offered():
             assert await adapter.search(resource_type, "p07-patient") == SearchResult(resources=[])
 
     async def test_persona_searches_carry_no_warnings(self, adapter: FhirReadPort) -> None:
-        for resource_type in SEARCHABLE_TYPES:
+        for resource_type in self.offered():
             assert (await adapter.search(resource_type, "p01-patient")).warnings == ()

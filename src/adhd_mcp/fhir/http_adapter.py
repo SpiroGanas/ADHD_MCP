@@ -14,18 +14,23 @@
 * A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
   raises ``FhirRequestError``. Error messages never include response bodies.
 
-* With ``supported_types``, a search of any other type raises ``SearchNotSupportedError``
-  before a request is made (a server that does not offer the type at all).
+* A ``ServerProfile`` (``fhir/profiles.py``) says what the server offers. A search of a type
+  it does not offer raises ``SearchNotSupportedError`` before any request. A type without a
+  date search parameter is read whole and filtered here, with the same semantics. Without
+  ``_include``, the Medication resources a medication search references are read by id
+  (same origin only); one that is missing or elsewhere adds a ``not-found`` warning, so the
+  category is reported incomplete rather than silently unclassified.
 
-* With ``auth`` (SMART backend services) every request carries the server's own bearer
-  token; after a 401 the token is renewed once. A caller's MCP token is never forwarded.
+* With ``auth`` (SMART backend services, or Lighthouse's patient-scoped grant) every
+  request carries the server's own bearer token for the patient concerned; after a 401 the
+  token is renewed once. A caller's MCP token is never forwarded.
 * Inside a traced tool call every request carries a W3C ``traceparent`` with the call's
   trace id (ADR 0011).
 """
 
 import asyncio
 import re
-from collections.abc import Awaitable, Callable, Collection
+from collections.abc import Awaitable, Callable
 from datetime import date, datetime
 from types import TracebackType
 from typing import Any, Self
@@ -34,16 +39,19 @@ import httpx2
 
 from adhd_mcp.audit.trace import outgoing_traceparent
 from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError, SearchNotSupportedError
+from adhd_mcp.fhir.normalize import parse_reference
 from adhd_mcp.fhir.port import (
     WARNING_SEVERITIES,
     RawResource,
     SearchResult,
     SearchType,
     SearchWarning,
+    is_fhir_id,
     validate_patient_id,
 )
-from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES
-from adhd_mcp.fhir.smart import SmartBackendAuth
+from adhd_mcp.fhir.profiles import GENERIC, ServerProfile
+from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES, matches_since
+from adhd_mcp.fhir.smart import FhirAuth
 
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
 _NOT_FOUND_STATUSES = frozenset({404, 410})
@@ -68,8 +76,8 @@ class HttpFhirAdapter:
         page_size: int = 100,
         max_pages: int = 1000,
         sleep: Sleep = asyncio.sleep,
-        auth: SmartBackendAuth | None = None,
-        supported_types: Collection[str] | None = None,
+        auth: FhirAuth | None = None,
+        profile: ServerProfile = GENERIC,
     ) -> None:
         url = httpx2.URL(base_url.rstrip("/"))
         if url.scheme not in {"http", "https"} or not url.host:
@@ -94,7 +102,9 @@ class HttpFhirAdapter:
         self._max_pages = max_pages
         self._sleep = sleep
         self._auth = auth
-        self._supported = frozenset(supported_types) if supported_types is not None else None
+        self._profile = profile
+        if page_size > profile.max_page_size:
+            raise ValueError(f"page size {page_size} exceeds the server's {profile.max_page_size}")
 
     async def __aenter__(self) -> Self:
         return self
@@ -127,20 +137,30 @@ class HttpFhirAdapter:
             return min(float(retry_after), self._max_backoff)
         return min(self._backoff_base * 2.0 ** (attempt - 1), self._max_backoff)
 
-    async def _get(self, url: httpx2.URL, label: str, params: dict[str, str] | None = None) -> Any:
-        """GET with retries; returns parsed JSON. ``label`` names the request in errors."""
+    async def _get(
+        self,
+        url: httpx2.URL,
+        label: str,
+        params: dict[str, str] | None = None,
+        *,
+        patient_id: str | None = None,
+    ) -> Any:
+        """GET with retries; returns parsed JSON. ``label`` names the request in errors;
+        ``patient_id`` is the patient the request concerns (for patient-scoped tokens)."""
         status: int | None = None
         renewed = False
         for attempt in range(1, self._max_attempts + 1):
             response: httpx2.Response | None = None
             try:
-                response = await self._client.get(url, params=params, headers=await self._headers())
+                response = await self._client.get(
+                    url, params=params, headers=await self._headers(patient_id)
+                )
             except httpx2.TransportError:
                 status = None
             else:
                 status = response.status_code
                 if status == 401 and self._auth is not None and not renewed:
-                    self._auth.invalidate()
+                    self._auth.invalidate(patient_id)
                     renewed = True
                     continue
                 if status in _NOT_FOUND_STATUSES:
@@ -165,17 +185,19 @@ class HttpFhirAdapter:
             transient=True,
         )
 
-    async def _headers(self) -> dict[str, str]:
+    async def _headers(self, patient_id: str | None) -> dict[str, str]:
         headers = {}
         if self._auth is not None:
-            headers["Authorization"] = f"Bearer {await self._auth.access_token()}"
+            headers["Authorization"] = f"Bearer {await self._auth.access_token(patient_id)}"
         if (traceparent := outgoing_traceparent()) is not None:
             headers["traceparent"] = traceparent
         return headers
 
     async def read_patient(self, patient_id: str) -> RawResource:
         validate_patient_id(patient_id)
-        resource = await self._get(self._url(f"Patient/{patient_id}"), "read Patient")
+        resource = await self._get(
+            self._url(f"Patient/{patient_id}"), "read Patient", patient_id=patient_id
+        )
         if not isinstance(resource, dict) or resource.get("resourceType") != "Patient":
             raise FhirRequestError("read Patient: response is not a Patient", transient=False)
         return resource
@@ -191,15 +213,11 @@ class HttpFhirAdapter:
         validate_patient_id(patient_id)
         if resource_type not in DATE_SEARCH:
             raise ValueError(f"unsupported search type {resource_type!r}")
-        if self._supported is not None and resource_type not in self._supported:
+        if resource_type not in self._profile.offered:
             raise SearchNotSupportedError(resource_type)
-        params: dict[str, str] = {"patient": patient_id, "_count": str(self._page_size)}
-        if since is not None:
-            params[DATE_SEARCH[resource_type][0]] = f"ge{since.isoformat()}"
-        if updated_since is not None:
-            params["_lastUpdated"] = f"ge{updated_since.isoformat()}"
-        if resource_type in MEDICATION_TYPES:
-            params["_include"] = f"{resource_type}:medication"
+        params = self._search_params(resource_type, patient_id, since, updated_since)
+        date_param = self._profile.date_param(resource_type)
+        medications = resource_type in MEDICATION_TYPES
 
         label = f"search {resource_type}"
         results: dict[tuple[str, str], RawResource] = {}
@@ -214,7 +232,7 @@ class HttpFhirAdapter:
                 raise FhirRequestError(
                     f"{label}: stopped after {self._max_pages} pages", transient=False
                 )
-            bundle = await self._get(url, label, page_params)
+            bundle = await self._get(url, label, page_params, patient_id=patient_id)
             if not isinstance(bundle, dict) or bundle.get("resourceType") != "Bundle":
                 raise FhirRequestError(f"{label}: response is not a Bundle", transient=False)
             for resource in _entries(bundle, label):
@@ -227,7 +245,70 @@ class HttpFhirAdapter:
                     results[(kind, resource["id"])] = resource
             url = self._next_link(bundle, label)
             page_params = None
+        if since is not None and date_param is None:
+            results = _filter_since(results, since)
+        if medications and not self._profile.include_medications:
+            warnings += await self._read_medications(results, patient_id)
         return SearchResult(resources=list(results.values()) + without_id, warnings=tuple(warnings))
+
+    def _search_params(
+        self,
+        resource_type: SearchType,
+        patient_id: str,
+        since: date | None,
+        updated_since: datetime | None,
+    ) -> dict[str, str]:
+        """The first page's query: only parameters the server's profile offers."""
+        params = {"patient": patient_id, "_count": str(self._page_size)}
+        date_param = self._profile.date_param(resource_type)
+        if since is not None and date_param is not None:
+            params[date_param] = f"ge{since.isoformat()}"
+        if updated_since is not None:
+            params["_lastUpdated"] = f"ge{updated_since.isoformat()}"
+        if resource_type in MEDICATION_TYPES and self._profile.include_medications:
+            params["_include"] = f"{resource_type}:medication"
+        return params
+
+    async def _read_medications(
+        self, results: dict[tuple[str, str], RawResource], patient_id: str
+    ) -> list[SearchWarning]:
+        """Read the Medication resources the found resources reference, into ``results``.
+        One that is missing, or on another origin, is a ``not-found`` warning."""
+        wanted: set[str] = set()
+        elsewhere = False
+        for resource in list(results.values()):
+            reference = (resource.get("medicationReference") or {}).get("reference")
+            if not isinstance(reference, str) or reference.startswith("#"):
+                continue
+            ref = parse_reference(reference)
+            absolute = reference.startswith(("https://", "http://"))
+            if (
+                ref is None
+                or ref.resource_type != "Medication"
+                or not is_fhir_id(ref.id)
+                or (absolute and not self._same_origin(httpx2.URL(reference)))
+            ):
+                elsewhere = True
+                continue
+            if ("Medication", ref.id) not in results:
+                wanted.add(ref.id)
+        missing = elsewhere
+        for medication_id in sorted(wanted):
+            try:
+                medication = await self._get(
+                    self._url(f"Medication/{medication_id}"),
+                    "read Medication",
+                    patient_id=patient_id,
+                )
+            except ResourceNotFoundError:
+                missing = True
+                continue
+            if not isinstance(medication, dict) or medication.get("resourceType") != "Medication":
+                raise FhirRequestError(
+                    "read Medication: response is not a Medication", transient=False
+                )
+            results[("Medication", medication_id)] = medication
+        return [SearchWarning(severity="warning", code="not-found")] if missing else []
 
     def _next_link(self, bundle: dict[str, Any], label: str) -> httpx2.URL | None:
         links = bundle.get("link") or []
@@ -245,6 +326,13 @@ class HttpFhirAdapter:
                     )
                 return url
         return None
+
+
+def _filter_since(
+    results: dict[tuple[str, str], RawResource], since: date
+) -> dict[tuple[str, str], RawResource]:
+    """``since`` applied here, for a type the server cannot search by date."""
+    return {k: r for k, r in results.items() if k[0] == "Medication" or matches_since(r, since)}
 
 
 def _malformed(label: str) -> FhirRequestError:

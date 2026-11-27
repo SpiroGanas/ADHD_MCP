@@ -24,7 +24,7 @@ It does not diagnose, does not write to the health record, does not contact pati
   |  Condition plugins  ADHD (first)                                       |
   |  Evidence layer     one assembler per evidence tool                    |
   |  Privacy filter     sensitive-data policy                              |
-  |  FHIR access        port + adapters (fixtures, HTTP, later Lighthouse) |
+  |  FHIR access        port + adapters (fixtures, HTTP, Lighthouse)       |
   |  Terminology store  versioned value sets and cutoffs                   |
   |  Audit and tracing  one record per call                                |
   +------------------------------------------------------------------------+
@@ -92,7 +92,9 @@ docs/
  FhirReadPort (read_patient, search -> SearchResult(resources, warnings))
                                            no write method (standing invariant 4)
    |-- FixtureFhirAdapter                   in-memory resources or bundle files
-   |-- HttpFhirAdapter                      GET only; paging, retries, origin-pinned next links
+   |-- HttpFhirAdapter                      GET only; paging, retries, origin-pinned next links;
+                                            a ServerProfile says what the server offers
+                                            (generic, or lighthouse: see integration/lighthouse.md)
           |
           v  raw FHIR JSON
  normalize_many  ->  typed records + skipped list (entered-in-error, refuted, no id, malformed)
@@ -102,6 +104,7 @@ docs/
 ```
 
 - **Search warnings**: a server's OperationOutcome issues of severity warning or worse come back as `SearchWarning` (severity and issue code only; diagnostic text is dropped). Tools report the category as `incomplete`.
+- **Server profiles** (`fhir/profiles.py`, `data/fhir_servers/`): the types a server offers (others raise `SearchNotSupportedError`, reported `not_supported`), types without date search (filtered in the adapter), whether `_include` of medications works (otherwise referenced Medications are read by id) and the page size limit. `generic` is a full FHIR R4 server; `lighthouse` is VA Lighthouse, with `LighthouseCcgAuth` (patient-scoped client credentials tokens) ([Lighthouse](integration/lighthouse.md)).
 - **Search semantics** (`fhir/search.py`) are shared by every adapter: `since` is FHIR `ge` on each type's clinical date; `updated_since` is `_lastUpdated`; medication searches include referenced `Medication` resources. Both adapters pass one shared behavioural suite (`tests/adapters/shared_suite.py`), and the HTTP adapter also passes it against a live HAPI FHIR server in CI.
 - **Normalization** rules are in [ADR 0007](adr/0007-fhir-modeling.md). Records keep the resource id and version for evidence; they keep no names, identifiers or free text.
 - **Terminology**: value sets (`data/value_sets/`) and instruments (`data/instruments/`) are TOML with per-entry verification provenance. ICD-10-CM `prefix` entries match at the category boundary (`F15` matches `F15.10`, not `F150`); `regex` entries cover families defined by character position, such as the intent character of poisoning codes. Strict loading refuses anything unverified (standing invariant 6).
@@ -256,6 +259,16 @@ Phase 7. Evaluation code lives under `tests/evals/` because it is test tooling: 
 - **Robustness**: fault injection through the HTTP adapter and the whole assessment (`tests/tools/test_fault_injection.py`).
 - **Performance**: `scripts/benchmark.py`; a FHIR request budget (unit test) and a latency target against local HAPI (integration test). See [evaluation/performance.md](evaluation/performance.md).
 - **Release**: wheel and sdist via `uv build`; a `Dockerfile` built and smoke-tested in CI; `scripts/release_check.py` (change log, rule card, evaluation report, contract snapshots, tool reference, README); the tool reference `docs/reference/tools.md` generated from the contract snapshots.
+
+## Data-shape findings (Phase 8)
+
+From VA Lighthouse's public documentation ([Lighthouse](integration/lighthouse.md)); not yet confirmed on sandbox data.
+
+- **Screening instruments are not exposed.** Lighthouse's Observations are laboratory results, vital signs and social history only, and it offers no QuestionnaireResponse. PHQ-9, PHQ-2, AUDIT-C, PC-PTSD-5, C-SSRS and ASRS results therefore cannot come from it, coded or local; no mapping was added. The research report's first integration question is answered "neither" for this API.
+- **Several categories are absent**: Flag, ServiceRequest, CarePlan, MedicationDispense and MedicationStatement (reported `not_supported`). Encounters are inpatient and outpatient only; Procedures are inpatient surgery only.
+- **Conditions carry ICD-10-CM with the dot** (and SNOMED CT), so the value sets match as designed.
+- **References are absolute URLs**; normalization now accepts them.
+- **No security labels** are documented ([review](security/lighthouse_security_labels.md)).
 
 ## Open design questions
 
