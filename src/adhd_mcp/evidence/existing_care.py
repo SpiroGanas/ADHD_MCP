@@ -122,6 +122,11 @@ def _item(
     )
 
 
+def _sorted(refs: Sequence[ResourceRef]) -> list[ResourceRef]:
+    """Unique references in a stable order, whatever order the server returned them in."""
+    return sorted(set(refs), key=lambda r: (r.resource_type, r.id))
+
+
 def _check(
     check: str,
     description: str,
@@ -142,7 +147,7 @@ def _check(
             check=check,
             description=description,
             outcome=CheckOutcome.FOUND,
-            references=list(dict.fromkeys(refs)),
+            references=_sorted(refs),
         )
     if failed:
         return ExclusionCheck(
@@ -263,10 +268,11 @@ async def assemble_existing_care(
             m.ref for m in medications if content.narcolepsy.matching_codings(m.reason_codes)
         ]
         narcolepsy = NarcolepsyFinding(
-            condition_references=narcolepsy_refs,
+            condition_references=_sorted(narcolepsy_refs),
             medication_for_narcolepsy=bool(medication_refs),
-            medication_references=medication_refs,
+            medication_references=_sorted(medication_refs),
         )
+    items.sort(key=lambda i: (i.kind, i.date or date.min, i.references[0].id))
     return ExistingCareResult(
         excluded=excluded,
         exclusions_checked=checks,

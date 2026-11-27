@@ -242,8 +242,15 @@ def _from_response(
     return found
 
 
-def _sort_key(e: ScreeningEntry) -> tuple[bool, date, str, str, str]:
-    return (e.date is None, e.date or date.min, e.instrument or "~", e.measure, e.item or "")
+def _sort_key(e: ScreeningEntry) -> tuple[bool, date, str, str, str, str]:
+    return (
+        e.date is None,
+        e.date or date.min,
+        e.instrument or "~",
+        e.measure,
+        e.item or "",
+        e.references[0].id,
+    )
 
 
 async def assemble_screening_history(
