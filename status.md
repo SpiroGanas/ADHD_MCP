@@ -19,11 +19,11 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 
 ## In progress
 
-- Pull request [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) for Phases 4 to 6: open, waiting for CI and owner review. The clinical safety review ran before opening; its two blocking findings (HIV/sickle-cell disclosure; withhold hiding a self-harm signal from the gate) and the should-fix findings are fixed (commit d29b24d).
+- Pull request [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) for Phases 4 to 6: open; CI green on all three jobs (including the first live run of `tests/integration/test_http_auth_live.py`); waiting for owner review. The clinical safety review ran before opening; its two blocking findings (HIV/sickle-cell disclosure; withhold hiding a self-harm signal from the gate) and the should-fix findings are fixed (commit d29b24d).
 
 ## Next steps
 
-1. Watch the Phases 4-6 PR through CI (including the integration job: `tests/integration/test_http_auth_live.py` is new) and review.
+1. Watch the Phases 4-6 PR through owner review; answer review comments.
 2. Project owner reviews, then approves or changes: the signal catalog (`reviewed_by_owner = false`), the rule card, the drafted clinician wording in `src/adhd_mcp/data/wording.toml` (`[recommendations]`, `[notes]`, next steps), the drug-class curation choices (ADR 0009), and the medication parameters (30-day supply, gap and fill window). Releasing ruleset 1.0.0 then means status `released` plus a pinned hash in `data/released_rulesets.toml`.
 3. Phase 7, work item 1: read the Phase 7 section of project_plan.md; the evaluation must measure the known under-flagging of women (persona p02, rule card).
 
