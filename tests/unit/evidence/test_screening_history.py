@@ -6,6 +6,7 @@ be tested; the server never builds it.
 """
 
 from datetime import date
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -20,7 +21,7 @@ from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.models.domain import DataStatus
 from adhd_mcp.models.evidence_outputs import ScreeningEntry
-from adhd_mcp.terminology.site_codes import load_site_codes
+from adhd_mcp.terminology.site_codes import load_site_codes, load_site_codes_file
 from tests.helpers.failing_adapter import FailingAdapter
 from tests.personas import all_resources
 from tests.personas.builder import PersonaBuilder
@@ -240,3 +241,27 @@ async def test_a_questionnaire_without_a_total_lists_only_its_items() -> None:
     p.questionnaire_response(PHQ9_QUESTIONNAIRE, "2026-03-01", {"9": 2})
     result = await history(p.patient_id, p.resources)
     assert summary(result.entries) == [(date(2026, 3, 1), "phq9", "item", "9", 2)]
+
+
+async def test_a_questionnaire_for_an_instrument_without_codes_is_listed_unscored(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "asrs_site.toml"
+    path.write_text(
+        'id = "asrs_site"\nversion = "1"\ntitle = "t"\n'
+        "[[questionnaires]]\n"
+        'url = "urn:adhd-mcp:synthetic-questionnaire:asrs-5"\n'
+        'instrument = "asrs5"\ntotal = "total"\nverified = true\n'
+    )
+    p = PersonaBuilder("t13", gender="female", birth_date="1990-01-01")
+    qid = p.questionnaire_response(
+        "urn:adhd-mcp:synthetic-questionnaire:asrs-5", "2026-03-01", {"total": 16}
+    )
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    patient = await records.patient(p.patient_id)
+    site_content = load_screening_content(load_site_codes_file(path, strict=True))
+    result = await assemble_screening_history(records, patient, AS_OF, site_content)
+    [entry] = result.entries
+    assert (entry.instrument, entry.measure, entry.score) == ("asrs5", "total_score", 16)
+    assert (entry.code, entry.code_verified, entry.cutoff) == (None, False, None)
+    assert entry.references[0].id == qid

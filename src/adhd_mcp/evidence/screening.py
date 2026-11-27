@@ -109,31 +109,35 @@ def _cutoff(
 
 def _entry(
     instrument: Instrument,
-    code: InstrumentCode,
+    code: InstrumentCode | None,
     value: Value | None,
     when: DateRange | None,
     *,
+    measure: Measure,
+    item: str | None,
     form: Form,
     reference: ResourceRef,
     sex: str | None,
     trust: bool,
     questionnaire: str | None = None,
 ) -> ScreeningEntry:
+    """One score. ``code`` is null for an instrument with no code for this measure (ASRS-5
+    has none): the entry is listed, unscored."""
     score = value.number if value is not None else None
     answer = _code_ref(value.codings[0]) if value is not None and value.codings else None
     return ScreeningEntry(
         instrument=instrument.id,
         instrument_title=instrument.title,
-        measure=_MEASURES[code.role],
-        item=code.item,
+        measure=measure,
+        item=item,
         date=when.start if when is not None else None,
         score=score,
         answer=answer,
-        code=_code_ref(code),
-        code_verified=code.verified or trust,
+        code=_code_ref(code) if code is not None else None,
+        code_verified=code is not None and (code.verified or trust),
         form=form,
         questionnaire=questionnaire,
-        cutoff=_cutoff(instrument, code, score, sex, trust),
+        cutoff=_cutoff(instrument, code, score, sex, trust) if code is not None else None,
         references=[reference],
     )
 
@@ -166,6 +170,8 @@ def _from_observation(
                         code,
                         value,
                         o.effective,
+                        measure=_MEASURES[code.role],
+                        item=code.item,
                         form="observation",
                         reference=o.ref,
                         sex=sex,
@@ -217,21 +223,22 @@ def _from_response(
             )
         ]
     answers = {i.link_id: i.answers for i in r.items}
-    wanted = [("total_score", None, mapping.total)] + [
-        ("item", item, link) for item, link in mapping.items.items()
-    ]
+    wanted: list[tuple[Measure, str | None, str | None]] = [("total_score", None, mapping.total)]
+    wanted += [("item", item, link) for item, link in mapping.items.items()]
     found = []
     for role, item, link_id in wanted:
         values = answers.get(link_id or "")
         if not values:
             continue
-        code = next(c for c in instrument.codes if c.role == role and c.item == item)
+        code = next((c for c in instrument.codes if c.role == role and c.item == item), None)
         found.append(
             _entry(
                 instrument,
                 code,
                 values[0],
                 r.authored,
+                measure=role,
+                item=item,
                 form="questionnaire_response",
                 reference=r.ref,
                 sex=sex,

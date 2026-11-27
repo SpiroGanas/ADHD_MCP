@@ -46,6 +46,8 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 | Narcolepsy | G47.4x | ICD-10-CM | Verified: G47.411, G47.419, G47.421, G47.429 (`care.narcolepsy`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
 | AUDIT-C panel and total | LOINC 72109-2, 75626-2; positive at 4 or more for men, 3 or more for women | loinc.org; VA/DoD guideline | Unverified. Codes consistent in search summaries; 4/3 from the VA/DoD 2021 pocket card, but one summary says 5. Check the guideline PDF | Search-index summary of loinc.org only, 2026-11-26 |
 | PC-PTSD-5 panel and total | LOINC 102010-6, 102017-1; positive at 3 or more | loinc.org; instrument source | Unverified. Codes consistent. **Cutoff finding:** current National Center for PTSD guidance recommends 4 by default and 3 for higher sensitivity (Bovin 2016). Owner decision needed | Search-index summary of loinc.org only, 2026-11-26 |
+| Mental and behavioral chapter (problem list fallback) | Not in the research | ICD-10-CM | Verified: regex matches all 872 F leaf codes and nothing else (`mh.mental_behavioral_chapter`). Not used by any rule | CDC/NCHS ICD-10-CM tabular FY2027; agent check 2026-11-27 |
+| C-SSRS risk level answers | Moderate or high counts (research) | loinc.org | Unverified. LA6751-7 Moderate and LA9193-9 High count; LA9194-7 Low does not (`cssrs_screener` answers) | Search-index summary of loinc.org only, 2026-11-26 |
 | ASRS symptom checklist | LOINC 62750-5 | loinc.org | Corrected (pending loinc.org): 62750-5 is a PhenX protocol term, not a score | Search-index summary of loinc.org only, 2026-11-26 |
 | ASRS-5 screener | No LOINC code found; cutoff 14 | loinc.org; instrument publication | Unverified. No LOINC code found; cutoff 14 (range 0-24) from the abstract | Search-index summary of loinc.org only, 2026-11-26 |
 | PHQ-2 | No LOINC code confirmed; cutoff 3 | loinc.org; instrument source | Unverified. Search summaries show panel 55757-9 and total 55758-7; cutoff 3 from Kroenke 2003 abstract | Search-index summary of loinc.org only, 2026-11-26 |
@@ -80,7 +82,7 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 |---|---|---|
 | F1 | ~~Compare the tabular file with a CDC/NCHS download; re-run against FY2027~~ Done 2026-11-27. Remaining: a human spot-check of the `safety.*` value sets (waived by the owner for development on 2026-11-27) | Release 1.0 (Phase 7 release blocker) |
 | F2 | Verify every LOINC code on loinc.org directly (record the LOINC version), and the AUDIT-C, PC-PTSD-5, PHQ-2, PHQ-9 item 9 and ASRS-5 cutoffs against the primary publications. loinc.org blocks automated access and fhir.loinc.org needs a LOINC account; the owner chose on 2026-11-27 to leave LOINC unverified for now, so the PHQ-9 item 9 and C-SSRS checks are reported as not performed and no cutoff is applied | Before any LOINC-based check is active |
-| F3 | Find how ASRS results are coded in FHIR data, since no LOINC score code was found | Phase 3 |
+| F3 | Find how ASRS results are coded in FHIR data, since no LOINC score code was found. Phase 3 provides the means (a site maps its ASRS questionnaire in `data/site_codes/`); which codes real sites use is still open (open question 12) | Phase 5 |
 
 ## Rule logic that is inference, not evidence
 
