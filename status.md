@@ -12,7 +12,7 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 ## Done
 
-- **Phase 3** (all six work items; PR link below): `check_safety_gate` with rule card draft ([rule_card_safety_gate.md](docs/clinical/rule_card_safety_gate.md)); `get_mh_problem_list`; `get_screening_history`; `check_existing_care`; shared tool behavior (context injection, validation, error codes, completeness notes); tool descriptions. Standing invariant 2 as property tests. Safety gate module at 100% branch coverage. Port returns OperationOutcome warnings (open question 13). F1 automated part done (FY2027, CDC download).
+- **Phase 3** (all six work items; [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4)): `check_safety_gate` with rule card draft ([rule_card_safety_gate.md](docs/clinical/rule_card_safety_gate.md)); `get_mh_problem_list`; `get_screening_history`; `check_existing_care`; shared tool behavior (context injection, validation, error codes, completeness notes); tool descriptions. Standing invariant 2 as property tests. Safety gate module at 100% branch coverage. Port returns OperationOutcome warnings (open question 13). F1 automated part done (FY2027, CDC download).
 - Research report; planning and documentation set ([SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2)).
 - **Phase 1** (all eight work items; [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3)): tooling pinned in [ADR 0006](docs/adr/0006-tooling-versions.md); package layout; CI with lint, types, tests, coverage floor 90%, gitleaks and a synthetic-data guard; `get_server_info` walking skeleton; test harness (in-memory MCP client, fixed clock, contract snapshots in `tests/contract/snapshots/`); domain models (`src/adhd_mcp/models/domain.py`); diagnostic-wording guard (`src/adhd_mcp/data/wording.toml`, `tests/helpers/wording.py`); verification sprint part 1. Standing invariants 1, 3, 4 and 6 exist as tests.
 - **Phase 2** (all nine work items; [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3)): FHIR port and fixture adapter; HTTP adapter (httpx2, GET only, paging, retries, origin-pinned paging); normalization ([ADR 0007](docs/adr/0007-fhir-modeling.md)); terminology store; persona catalog ([tests/personas/](tests/personas/README.md)); bulk generator ([docs/dev/synthetic_population.md](docs/dev/synthetic_population.md)); local HAPI FHIR server and CI integration job ([docs/dev/local_fhir_server.md](docs/dev/local_fhir_server.md)); verification sprint part 2. Also a typed reader (`src/adhd_mcp/fhir/reader.py`) for later phases.
@@ -20,7 +20,7 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 ## In progress
 
-- Phase 3 pull request (link in the table below): waiting for CI and review. CI will make the first run of `tests/integration/test_tools_live.py`, which compares every tool's answers from the local HAPI server with the fixtures; it could not run in the build environment (no Docker). The clinical safety review was run before opening the PR (findings and fixes in the PR description).
+- Phase 3 pull request [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4): waiting for CI and review. CI will make the first run of `tests/integration/test_tools_live.py`, which compares every tool's answers from the local HAPI server with the fixtures; it could not run in the build environment (no Docker). The clinical safety review was run before opening the PR; its blocking finding and all should-fix findings are fixed (see the PR description).
 
 ## Next steps
 
@@ -82,3 +82,4 @@ Owner decisions 2026-11-27 (start of Phase 3):
 | [SpiroGanas/ADHD_MCP#1](https://github.com/SpiroGanas/ADHD_MCP/pull/1) | Research report | Merged |
 | [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2) | Project plan, architecture and working documentation | Merged |
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
+| [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Open |
