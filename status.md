@@ -19,7 +19,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- **Phase 8**, one PR with a commit per work item. Order: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter from public docs with synthetic Lighthouse-shaped responses (item 1); data-shape, Oracle Health and security-label desk reviews (items 2 to 4); deployment guide (item 7); next-stage plan (item 8).
+- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0). Remaining, in order: dummy scorer (item 6); autism stub (item 5); Lighthouse adapter from public docs with synthetic Lighthouse-shaped responses (item 1); data-shape, Oracle Health and security-label desk reviews (items 2 to 4); deployment guide (item 7); next-stage plan (item 8).
 
 ## Next steps
 
@@ -53,7 +53,8 @@ Owner decisions 2026-11-27 (start of Phase 8):
 - Start Phase 8 before tagging 1.0.0; one PR with a commit per work item; version stays 1.0.0rc1, changes under "Unreleased" in the change log.
 - No Lighthouse sandbox access: build the adapter and its client-credentials auth from the public VA documentation, tested with synthetic Lighthouse-shaped responses; the live end-to-end run stays open.
 - A resource type a back end does not support is reported with a new data-completeness status `not_supported`; checks that need it are "not performed" (tool contract 0.3.0 to 0.4.0).
-- Autism stub: exclusion on recorded autism codes (F84.0, F84.5, F84.8, F84.9) verified against the FY2027 tabular; placeholder signals reuse verified value sets; ruleset status `experimental`; registered only when enabled by an environment variable. Session moved to the ADHD_MCP environment for ftp.cdc.gov.
+- Autism stub: exclusion on recorded autism codes (F84.0, F84.5, F84.8, F84.9) verified against the FY2027 tabular; placeholder signals reuse verified value sets; ruleset status `experimental`; registered only when enabled by an environment variable. Session moved to the ADHD_MCP environment for ftp.cdc.gov; developer.va.gov, api.va.gov, sandbox-api.va.gov, fhir.cerner.com and docs.oracle.com added to it (owner approved).
+- Lighthouse facts so far (public sandbox CapabilityStatement and OpenAPI, fetched 2026-11-27): offers Condition, Observation, Encounter, Procedure, MedicationRequest, Medication, Patient (not QuestionnaireResponse, Flag, ServiceRequest, CarePlan, MedicationDispense, MedicationStatement); no `_include`; MedicationRequest has no date search; absolute references; `_count` max 200; Observation categories laboratory, social-history, vital-signs only; CCG token: `launch` = base64 of {"patient": ICN}, assertion exp at most 300 s after iat, RS256 in the example, token lives 5 minutes. The exact CCG scopes and assertion audience (an Okta URL) were not readable here: configurable and unverified.
 
 Owner decisions 2026-11-27 (start of Phase 7):
 
