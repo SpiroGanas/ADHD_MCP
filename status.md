@@ -20,7 +20,7 @@ A FastMCP 4.2 server with ten read-only tools (tool contract 0.3.0): `get_server
 
 ## In progress
 
-- Phase 7 on branch `ccr-5c748898-yqc67t`. Done on the branch: item 6 (fault injection; the HTTP adapter now fails a search on a malformed Bundle instead of crashing), items 1 to 3 (labelled cohort of 184 patients in `tests/evals/cohort.py`, harness, generated report [docs/evaluation/adhd_ruleset_1.0.0.md](docs/evaluation/adhd_ruleset_1.0.0.md), [sex-balance review](docs/evaluation/sex_balance_review.md)). Item 4: model-in-the-loop tasks, runner and grader with scripted stand-in models ([docs/evaluation/model_in_the_loop.md](docs/evaluation/model_in_the_loop.md)); no live model run; item 5 (tool description tuning) waits for one. Next: item 7 (performance), items 8 and 9 (documentation, release preparation).
+- Phase 7 on branch `ccr-5c748898-yqc67t`. Done on the branch: item 6 (fault injection; the HTTP adapter now fails a search on a malformed Bundle instead of crashing), items 1 to 3 (labelled cohort of 184 patients in `tests/evals/cohort.py`, harness, generated report [docs/evaluation/adhd_ruleset_1.0.0.md](docs/evaluation/adhd_ruleset_1.0.0.md), [sex-balance review](docs/evaluation/sex_balance_review.md)). Item 4: model-in-the-loop tasks, runner and grader with scripted stand-in models ([docs/evaluation/model_in_the_loop.md](docs/evaluation/model_in_the_loop.md)); no live model run; item 5 (tool description tuning) waits for one. Item 7: latency target (p95 at most 2 s against local HAPI, checked in the CI integration job) and a FHIR request budget of 12 per assessment ([docs/evaluation/performance.md](docs/evaluation/performance.md), `scripts/benchmark.py`). Next: items 8 and 9 (documentation, release preparation).
 
 ## Next steps
 

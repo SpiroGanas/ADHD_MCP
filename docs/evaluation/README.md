@@ -7,6 +7,7 @@ How the ADHD ruleset and the server are evaluated (Phase 7). Every result here c
 | [adhd_ruleset_1.0.0.md](adhd_ruleset_1.0.0.md) (and `.json`) | Generated report for ruleset 1.0.0 on the labelled cohort: agreement with intended outcomes, outcomes by archetype, rates by sex and age band, signal drivers, threshold sensitivity, sex-balance options |
 | [sex_balance_review.md](sex_balance_review.md) | Findings on under-flagging of internalizing presentations and the options for the project owner |
 | [model_in_the_loop.md](model_in_the_loop.md) | Scripted tasks for a language model using the server, the grader and the proposed pass bar |
+| [performance.md](performance.md) | Latency targets, the FHIR request budget, and how to measure them |
 
 ## Ruleset evaluation
 
