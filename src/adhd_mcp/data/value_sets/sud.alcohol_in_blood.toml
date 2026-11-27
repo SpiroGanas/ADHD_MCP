@@ -1,7 +1,7 @@
 id = "sud.alcohol_in_blood"
 version = "0.1.0"
 title = "Finding of alcohol in blood"
-description = " FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+description = ""
 
 [[entries]]
 system = "http://hl7.org/fhir/sid/icd-10-cm"
@@ -9,7 +9,7 @@ match = "exact"
 code = "R78.0"
 display = "Finding of alcohol in blood"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

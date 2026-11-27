@@ -1,7 +1,7 @@
 id = "safety.intentional_self_harm_external_cause"
 version = "0.1.0"
 title = "Intentional self-harm, external cause"
-description = "Safety gate signal. Block X71-X83; there is no X84 in ICD-10-CM. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+description = "Safety gate signal. Block X71-X83; there is no X84 in ICD-10-CM."
 
 [[entries]]
 system = "http://hl7.org/fhir/sid/icd-10-cm"
@@ -9,9 +9,9 @@ match = "prefix"
 code = "X71"
 display = "Intentional self-harm by drowning and submersion"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -20,9 +20,9 @@ match = "prefix"
 code = "X72"
 display = "Intentional self-harm by handgun discharge"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -31,9 +31,9 @@ match = "prefix"
 code = "X73"
 display = "Intentional self-harm by rifle, shotgun and larger firearm discharge"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -42,9 +42,9 @@ match = "prefix"
 code = "X74"
 display = "Intentional self-harm by other and unspecified firearm and gun discharge"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -53,9 +53,9 @@ match = "prefix"
 code = "X75"
 display = "Intentional self-harm by explosive material"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -64,9 +64,9 @@ match = "prefix"
 code = "X76"
 display = "Intentional self-harm by smoke, fire and flames"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -75,9 +75,9 @@ match = "prefix"
 code = "X77"
 display = "Intentional self-harm by steam, hot vapors and hot objects"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -86,9 +86,9 @@ match = "prefix"
 code = "X78"
 display = "Intentional self-harm by sharp object"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -97,9 +97,9 @@ match = "prefix"
 code = "X79"
 display = "Intentional self-harm by blunt object"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -108,9 +108,9 @@ match = "prefix"
 code = "X80"
 display = "Intentional self-harm by jumping from a high place"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -119,9 +119,9 @@ match = "prefix"
 code = "X81"
 display = "Intentional self-harm by jumping or lying in front of moving object"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -130,9 +130,9 @@ match = "prefix"
 code = "X82"
 display = "Intentional self-harm by crashing of motor vehicle"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -141,7 +141,7 @@ match = "prefix"
 code = "X83"
 display = "Intentional self-harm by other specified means"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

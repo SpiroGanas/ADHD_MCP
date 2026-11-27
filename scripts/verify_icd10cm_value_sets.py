@@ -12,9 +12,9 @@ many tabular codes it matches, and runs these checks (exit code 1 if any fails):
 * the motor-vehicle driver set matches only driver codes, never "(driver) (passenger)";
 * injury and accidental external-cause sets match no self-harm or assault code.
 
-Run on 2026-11-26 against the FY2026 April 1 2026 tabular as redistributed in the PyPI
-package simple-icd-10-cm 1.5.0; the output is recorded in
-docs/clinical/verification/icd10cm_fy2026_check.md.
+Run on 2026-11-27 against the FY2027 tabular downloaded from ftp.cdc.gov (the pinned hash
+below); the output is recorded in docs/clinical/verification/icd10cm_fy2027_check.md. The
+earlier FY2026 run is in docs/clinical/verification/icd10cm_fy2026_check.md.
 """
 
 import argparse
@@ -34,7 +34,7 @@ POISONING_SETS = {
     "safety.intentional_self_poisoning": "intentional self-harm",
     "safety.undetermined_intent_poisoning": "undetermined",
 }
-EXPECTED_SHA256 = "f161f8182aff3ce3a2a78e202f8259c08eaee2c670a9e45b0072445c52302935"
+EXPECTED_SHA256 = "d778c97a5bb9da7d71645610e277f8db3bd302befa3b08d71dd5043715a74b2a"
 
 
 def parse_tabular(path: Path) -> dict[str, dict[str, Any]]:
