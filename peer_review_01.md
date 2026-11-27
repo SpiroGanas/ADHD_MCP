@@ -42,9 +42,9 @@ None of this reaches a patient today: the software has only read synthetic data.
 - Ran `./scripts/check`: ruff, format, mypy, the synthetic-data guard and pytest all pass (2,300 passed, 287 integration tests deselected, coverage 98.65%).
 - Wrote 17 small read-only experiments against the public tool interface with synthetic resources (Appendix A). They are not committed.
 - Read the pull request history through the GitHub API.
-- Two further read-only passes covered the test suite and CI, and the consistency of documents with data files. I checked their main claims before including them.
+- Two further read-only passes covered the test suite and CI (including a 30-mutant probe on a scratch copy), and the consistency of documents with data files. I checked their main claims before including them.
 
-Not done: the integration tests (no Docker daemon here), any run against a real FHIR server, a check of the research report against primary literature, and any legal or regulatory assessment.
+Not done: the integration tests locally (no Docker daemon here; they passed in CI on this pull request), any run against a real FHIR server, a check of the research report against primary literature, and any legal or regulatory assessment.
 
 ## Strengths
 
@@ -88,7 +88,12 @@ These are worth keeping as the project changes.
 | T2 | Medium | Property tests generate only inputs the code already understands | Confirmed |
 | T3 | Medium | Missing cases: 404 on search, audit of refusals, `withhold` through the assessment, start-up errors | Confirmed |
 | T4 | Medium | Never exercised: a real model, a real server, a realistic record | Acknowledged in part |
-| T5 | Low | CI and packaging hardening | Confirmed |
+| T5 | Low | CI and packaging hardening; the plan's 100% branch rule for rules and gate is not enforced | Confirmed |
+| T6 | Medium | Scope enforcement is tested for one tool of ten | Confirmed |
+| T7 | Medium | The synthetic-data guard is easy to pass with real-looking data | Confirmed |
+| T8 | Medium | Untested lines that matter (privacy reason codes and redaction, audit on failure) | Confirmed |
+| T9 | Low | The history does not show tests written before code | Confirmed |
+| T10 | Low | Tests read the shell environment; the report staleness check ignores engine changes | Confirmed |
 | X1 | Medium | The evidence trail is weaker than the rule card's "Inference?" column says | Confirmed in part |
 | X2 | Medium | Hash pinning covers `ruleset.toml` only; the catalog and value sets can change under a "released" ruleset | Confirmed |
 | X3 | Medium | Statements stronger than the evidence (threat model, README, risk register) | Confirmed |
@@ -271,7 +276,7 @@ The suite is large, fast enough, and clean: no skipped or expected-failure tests
 Every defect in the clinical-logic section passes the suite, and several are pinned by it as correct behavior:
 
 - `test_an_active_condition_recorded_long_ago_is_current` (`tests/unit/rules/test_signals.py:68`) pins C1.
-- The labelled cohort (`tests/evals/cohort.py`) states each archetype's expected outcome "under ADHD ruleset 1.0.0 ... what the code must do". Agreement of 184 of 184 is therefore a regression check. The file says so honestly, but status.md, the README and risk register entries C5 and C7 quote the numbers as if they measured something about the rules (X3).
+- The labelled cohort (`tests/evals/cohort.py`) states each archetype's expected outcome "under ADHD ruleset 1.0.0 ... what the code must do". The labels are typed by hand, not computed, so the check is not circular; but agreement of 184 of 184 is a regression check, and the effective number is 23: each archetype is copied across two sexes and four age bands that the ruleset ignores. The file says so honestly, but status.md, the README and risk register entries C5 and C7 quote the numbers as if they measured something about the rules (X3).
 - The cohort's age bands start at 24. No test anywhere builds a patient under 18 (C3), a SNOMED-only condition (S1), a single visit carrying two high-weight signals (C2), a follow-up injury visit (C2), an unfilled-orders-only agent count (C5) or a current ADHD medication without a code (C4).
 
 **Recommendation.** Have someone other than the author write adversarial personas from clinical experience, with the outcome they expect, before looking at what the code returns. Appendix A is a starting list.
@@ -298,10 +303,47 @@ Every defect in the clinical-logic section passes the suite, and several are pin
 
 ### T5. CI and packaging hardening (Low, confirmed)
 
-- Third-party actions are pinned by tag, not commit; base images by tag, not digest.
-- No dependency vulnerability audit runs. Dependencies are pinned exactly, which is good for reproducibility and means updates arrive only when someone looks.
-- The coverage threshold is a single total. The modules that carry clinical logic (`evidence/safety_gate.py`, `rules/`, `orchestration/`, `privacy/`) deserve a 100% branch requirement of their own, since the project rule is "a test for each branch".
+- Third-party actions are pinned by tag, not commit; base images by tag, not digest. `hatchling` is the one unpinned build dependency.
+- No dependency vulnerability audit or image scan runs, and jobs have no time limit. Dependencies are pinned exactly, which is good for reproducibility and means updates arrive only when someone looks.
+- The plan requires "100% of branches in the rules and safety gate modules" (`project_plan.md:59`). Only the 90% total is enforced. Those modules are at 100% today; nothing keeps them there. Add a per-module gate, and include `orchestration/` and `privacy/`.
+- Coverage measures `adhd_mcp` only. `scripts/verify_icd10cm_value_sets.py`, whose `check` function stands behind every `verified = true` ICD-10-CM entry, has no test of that function and does not run in CI.
+- The container smoke test overrides the entry point with `python`, so the real `adhd-mcp` command and HTTP mode are never started in CI.
 - CI and `./scripts/check` run the same steps, as the script claims.
+
+### T6. Scope enforcement is tested for one tool of ten (Medium, confirmed)
+
+The only insufficient-scope test calls `assess_referral_need` (`tests/tools/test_http_auth.py:150`). A mutation probe on a scratch copy replaced `auth=scope_check(...)` with `auth=None` in `draft_referral.py`, `problem_list.py` and `safety_gate.py`; the tool, contract and configuration tests stayed green. A dropped scope check on an evidence tool, or on the tool that drafts a referral, would ship unnoticed.
+
+**Recommendation.** One parametrized test over every tool with three tokens (no scope, evidence only, assess only), asserting the whole allow and deny table, and the audit record for each denial (P4).
+
+### T7. The synthetic-data guard is easy to pass with real-looking data (Medium, confirmed)
+
+`scripts/check_synthetic_data.py` is the only automated control behind the "synthetic data only" hard rule. It inspects Patient resources at the top level or directly inside a Bundle, in `.json` and `.ndjson` files only; it ignores files it cannot decode or parse; and its SSN pattern needs the dashes. Thirteen probe files came back clean, among them a JSON array of Patients, a `.jsonl` file, a contained Patient, a Parameters wrapper, FHIR XML, a Practitioner with a realistic name and record number, and an undashed nine-digit number. It also runs in CI, which is after the push.
+
+**Recommendation.** Detect JSON by content, walk every object, fail closed on a `.json` file that does not parse, check every resource type that carries a name or identifier, and offer a pre-commit hook.
+
+### T8. Untested lines that matter (Medium, confirmed)
+
+The same mutation probe (30 hand-made mutants, 20 caught) found these survivors:
+
+- `privacy/policy.py:88`: removing reason codes from classification is not noticed. No test has an Encounter or medication whose *reason* is in a protected category.
+- `privacy/policy.py:226` and `:228` (redaction of a screening answer and of a medication ingredient) are never executed.
+- `evidence/safety_gate.py:346`: a flag ending exactly on the as-of date has no boundary test.
+- `audit/middleware.py:150`: the resources read during a failed call are not asserted.
+- `orchestration/assess.py:167`: "unreadable, not absent" is not asserted for psychosocial signals.
+
+Every window-edge mutant in the engine, the signal evaluation and the gate's discharge windows was caught, which is to the suite's credit.
+
+### T9. The record does not show tests written first (Low, confirmed)
+
+`tests/golden/test_assessment_golden.py` says the expectations were "written by hand ... before the engine existed". Commit `3062650` added the engine and the golden snapshots together and changed six personas' expected recommendation from `"pending"` in the same commit. The cohort, its harness and the report also arrived in one commit. The tests may well have been written first within the session; the history cannot show it, so the red step of the project's test-driven rule cannot be audited.
+
+**Recommendation.** Commit a failing test separately from the code that passes it, at least for clinical rules.
+
+### T10. Two ways the suite can mislead its own maintainers (Low, confirmed)
+
+- **Environment leak.** `tests/conftest.py:25` calls `create_server()` with no context, which reads `os.environ`. With `ADHD_MCP_TRANSPORT=http` set in the shell, all five contract tests error. With `ADHD_MCP_EXPERIMENTAL_CONDITIONS=autism`, running `UPDATE_SNAPSHOTS=1` would write the wrong contract into the snapshots. Clear `ADHD_MCP_*` in an autouse fixture.
+- **Report staleness.** The "report is stale" test fingerprints the data files and the cohort (`tests/evals/report.py:59`), not the engine. A logic change that alters the sensitivity figures leaves the committed evaluation report looking current.
 
 ## Documentation
 
@@ -410,7 +452,7 @@ Each fix should start as a failing test, per the project's rules. The experiment
 7. Clinical decisions, with the reviewer: C1 window rule, C2 episode counting, C4 medication, C5 fill status, C7 scope.
 8. S2: LOINC verification; a file path for site codes.
 9. The model-in-the-loop run with a real model (open question 4).
-10. Corrections to documents (X findings) and tests (T findings) below.
+10. Corrections to documents (X findings) and tests (T findings): start with T6 (scope tests) and T7 (the synthetic-data guard).
 
 **Before any use with real data**
 

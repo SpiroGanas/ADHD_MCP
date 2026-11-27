@@ -21,7 +21,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- Nothing is being built. The peer review pull request [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) is open and waits for the owner.
+- Nothing is being built. The peer review pull request [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) is open, mergeable, and CI is green on all four jobs; it waits for the owner.
 
 ## Next steps
 
