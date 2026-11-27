@@ -1,0 +1,351 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "List the mental health and related codes in a patient's FHIR Condition resources (ICD-10-CM), grouped into the families the referral rules use: ADHD codes, attention symptoms, depression, anxiety, PTSD, personality, substance use, sleep, narcolepsy, head injury, family history, and other chapter 5 codes. Each entry gives the code, first onset and recorded dates, the clinical status of its latest record (resolved entries are kept and labelled), an onset order, and every Condition it was found in; codes repeated across encounters appear once. Read-only. Use it to see what has been coded and in what order. A code listed here is a record entry, not a diagnosis made by this tool. Self-harm codes are reported by check_safety_gate.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "get_mh_problem_list",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "description": "The date the record was read as of",
+        "format": "date",
+        "type": "string"
+      },
+      "data_completeness": {
+        "description": "Each data category read: available, empty, incomplete or failed. An empty record is not a clean record.",
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "definition_version": {
+        "type": "string"
+      },
+      "families": {
+        "description": "Families with at least one coded condition, in a fixed order",
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "entries": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "clinical_status": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Clinical status of the latest record"
+                  },
+                  "code": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "display": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      },
+                      "system": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "system",
+                      "code"
+                    ],
+                    "type": "object"
+                  },
+                  "first_recorded": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Earliest recorded date, if any"
+                  },
+                  "last_recorded": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Latest recorded date, if any"
+                  },
+                  "onset": {
+                    "anyOf": [
+                      {
+                        "format": "date",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Earliest onset date recorded, if any"
+                  },
+                  "onset_order": {
+                    "anyOf": [
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Rank by first known date (onset or recorded), 1 = earliest; equal dates share a rank; null when undated"
+                  },
+                  "references": {
+                    "items": {
+                      "additionalProperties": false,
+                      "description": "A pointer to the FHIR resource a fact came from.",
+                      "properties": {
+                        "id": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "resource_type": {
+                          "enum": [
+                            "Patient",
+                            "Condition",
+                            "Observation",
+                            "QuestionnaireResponse",
+                            "MedicationRequest",
+                            "MedicationDispense",
+                            "MedicationStatement",
+                            "Medication",
+                            "Encounter",
+                            "Procedure",
+                            "ServiceRequest",
+                            "CarePlan",
+                            "Flag"
+                          ],
+                          "type": "string"
+                        },
+                        "version": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "description": "meta.versionId when the server has one"
+                        }
+                      },
+                      "required": [
+                        "resource_type",
+                        "id"
+                      ],
+                      "type": "object"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  },
+                  "resolved": {
+                    "description": "True when the latest record is resolved or inactive",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "code",
+                  "onset",
+                  "first_recorded",
+                  "last_recorded",
+                  "clinical_status",
+                  "resolved",
+                  "onset_order",
+                  "references"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "family": {
+              "description": "Value set id of the family",
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "family",
+            "title",
+            "entries"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "families_checked": {
+        "description": "Every family looked for",
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "description": "Always false: these results are never a diagnosis",
+        "type": "boolean"
+      },
+      "notice": {
+        "description": "Standard notice on how to read these results",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "notice",
+      "data_completeness",
+      "versions",
+      "families",
+      "families_checked",
+      "definition_version"
+    ],
+    "type": "object"
+  },
+  "title": "Get Mh Problem List"
+}

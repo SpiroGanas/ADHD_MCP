@@ -3,7 +3,7 @@
 from fastmcp import FastMCP
 
 from adhd_mcp import versions
-from adhd_mcp.tools import safety_gate, server_info
+from adhd_mcp.tools import problem_list, safety_gate, server_info
 from adhd_mcp.tools.context import ToolContext, context_from_environment
 
 INSTRUCTIONS = (
@@ -28,6 +28,7 @@ def create_server(context: ToolContext | None = None) -> FastMCP:
     )
     server_info.register(mcp)
     safety_gate.register(mcp, context)
+    problem_list.register(mcp, context)
     return mcp
 
 

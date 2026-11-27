@@ -1,0 +1,23 @@
+# Families reported by get_mh_problem_list, in display order. Each family is a value set.
+# A code is listed under every family it matches; the fallback family lists chapter 5 codes
+# that match no other family. Self-harm codes are reported by check_safety_gate instead.
+id = "problem_list"
+version = "0.1.0"
+fallback = "mh.mental_behavioral_chapter"
+families = [
+    "care.adhd_diagnosis",
+    "symptom.attention_executive",
+    "mh.depression",
+    "mh.generalized_anxiety",
+    "mh.ptsd",
+    "mh.borderline_personality",
+    "mh.intermittent_explosive_disorder",
+    "sud.alcohol",
+    "sud.stimulant",
+    "sud.other",
+    "sleep.insomnia_delayed_phase",
+    "care.narcolepsy",
+    "injury.tbi",
+    "injury.history_tbi",
+    "family.mental_behavioral_history",
+]

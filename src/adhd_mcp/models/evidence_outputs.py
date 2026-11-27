@@ -5,7 +5,37 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from adhd_mcp.models.domain import DataCompleteness, SafetyGateResult, Versions
+from adhd_mcp.models.domain import DataCompleteness, ResourceRef, SafetyGateResult, Versions
+
+
+class _Frozen(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+
+class CodeRef(_Frozen):
+    system: str | None
+    code: str
+    display: str | None = None
+
+
+class ProblemEntry(_Frozen):
+    code: CodeRef
+    onset: date | None = Field(description="Earliest onset date recorded, if any")
+    first_recorded: date | None = Field(description="Earliest recorded date, if any")
+    last_recorded: date | None = Field(description="Latest recorded date, if any")
+    clinical_status: str | None = Field(description="Clinical status of the latest record")
+    resolved: bool = Field(description="True when the latest record is resolved or inactive")
+    onset_order: int | None = Field(
+        description="Rank by first known date (onset or recorded), 1 = earliest; equal dates "
+        "share a rank; null when undated"
+    )
+    references: list[ResourceRef] = Field(min_length=1)
+
+
+class ProblemFamily(_Frozen):
+    family: str = Field(description="Value set id of the family")
+    title: str
+    entries: list[ProblemEntry]
 
 
 class EvidenceOutput(BaseModel):
@@ -29,3 +59,11 @@ class EvidenceOutput(BaseModel):
 class SafetyGateOutput(EvidenceOutput):
     safety_gate: SafetyGateResult
     gate_definition_version: str = Field(description="Version of the safety gate definition")
+
+
+class ProblemListOutput(EvidenceOutput):
+    families: list[ProblemFamily] = Field(
+        description="Families with at least one coded condition, in a fixed order"
+    )
+    families_checked: list[str] = Field(description="Every family looked for")
+    definition_version: str

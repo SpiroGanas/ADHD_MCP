@@ -17,9 +17,8 @@ from adhd_mcp.evidence.safety_gate import (
     load_gate_content,
     load_gate_definition,
 )
-from adhd_mcp.fhir.errors import FhirRequestError
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
-from adhd_mcp.fhir.port import SearchResult, SearchType, SearchWarning
+from adhd_mcp.fhir.port import SearchWarning
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.models.domain import (
     CheckOutcome,
@@ -29,6 +28,7 @@ from adhd_mcp.models.domain import (
 )
 from adhd_mcp.terminology import UnverifiedContentError, ValueSet, load_value_set
 from adhd_mcp.terminology.site_codes import load_site_codes, load_site_codes_file
+from tests.helpers.failing_adapter import FailingAdapter
 from tests.helpers.wording import assert_no_diagnostic_language
 from tests.personas.builder import PersonaBuilder
 from tests.personas.definitions import PHQ9_QUESTIONNAIRE
@@ -488,19 +488,6 @@ async def test_with_no_coded_check_active_conditions_are_not_read(
     result, notes = await assess_safety_gate(records, "t01-patient", AS_OF, content(strict=True))
     assert "Condition" not in [n.category for n in notes]
     assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
-
-
-class FailingAdapter(FixtureFhirAdapter):
-    def __init__(self, p: PersonaBuilder, failing: set[str]) -> None:
-        super().__init__(p.resources)
-        self.failing = failing
-
-    async def search(
-        self, resource_type: SearchType, patient_id: str, **kw: object
-    ) -> SearchResult:
-        if resource_type in self.failing:
-            raise FhirRequestError(f"search {resource_type}: failed", status=503, transient=True)
-        return await super().search(resource_type, patient_id, **kw)  # type: ignore[arg-type]
 
 
 async def failing_gate(p: PersonaBuilder, failing: set[str]) -> tuple[SafetyGateResult, list]:  # type: ignore[type-arg]
