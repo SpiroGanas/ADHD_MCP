@@ -1,0 +1,47 @@
+# How get_utilization_summary counts visits. Changing anything here is a clinical content
+# change. Local encounter codes are in data/site_codes/.
+id = "utilization"
+version = "0.1.0"
+
+# Encounter statuses that mean the visit happened.
+encounter_statuses = ["finished", "in-progress", "arrived", "triaged", "onleave", "unknown"]
+
+# Acute care: emergency class (v3 ActCode EMER), or an encounter the site maps as urgent care.
+acute_care_classes = ["EMER"]
+acute_care_concepts = ["urgent_care_encounter"]
+
+# An acute care visit is an injury visit if it carries an injury code or an accidental
+# external-cause code (on a Condition of the visit, a diagnosis of the visit, or its reason).
+# It is not counted as accidental if a self-harm code is on the same visit.
+injury_value_sets = ["injury.injury_codes", "injury.accidental_external_cause"]
+self_harm_value_sets = [
+  "safety.suicide_attempt",
+  "safety.intentional_self_harm_external_cause",
+  "safety.intentional_self_poisoning",
+  "safety.undetermined_intent_poisoning",
+  "safety.self_harm_asphyxiation",
+  "safety.nonsuicidal_self_harm",
+]
+
+# A crash as driver is a condition in this set; several codes for one encounter (or, without
+# an encounter, one day) count as one crash. Passenger codes are not in the set.
+driver_value_set = "injury.motor_vehicle_driver"
+
+# Psychiatric inpatient or residential stays (site-mapped encounter codes).
+psychiatric_concepts = ["psychiatric_inpatient_encounter", "psychiatric_residential_encounter"]
+
+# Count windows in days before the as-of date, inclusive (research report, ADHD section).
+[[windows]]
+id = "days_0_30"
+from_days = 0
+to_days = 30
+
+[[windows]]
+id = "days_31_180"
+from_days = 31
+to_days = 180
+
+[[windows]]
+id = "days_181_730"
+from_days = 181
+to_days = 730

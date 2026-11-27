@@ -2,7 +2,7 @@
 # code system the project defines for synthetic data, so entries are verified by
 # construction. A real site supplies its own file with its local codes (Phase 8).
 id = "synthetic"
-version = "0.1.0"
+version = "0.2.0"
 title = "Synthetic test site"
 description = "Local codes used by the synthetic personas. Not for use with real data."
 
@@ -78,6 +78,32 @@ title = "ADHD care plan"
 system = "urn:adhd-mcp:synthetic-local-code"
 match = "exact"
 code = "adhd-care-plan"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.urgent_care_encounter]
+title = "Urgent care visit"
+
+[[concepts.urgent_care_encounter.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "urgent-care"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.military_separation_date]
+title = "Date of separation from military service"
+
+[[concepts.military_separation_date.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "military-separation-date"
 verified = true
 source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
 source_version = "0.1.0"

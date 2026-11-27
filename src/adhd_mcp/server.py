@@ -7,9 +7,11 @@ from adhd_mcp.tools import (
     existing_care,
     medication_timeline,
     problem_list,
+    psychosocial,
     safety_gate,
     screening,
     server_info,
+    utilization,
 )
 from adhd_mcp.tools.context import ToolContext, context_from_environment
 
@@ -39,6 +41,8 @@ def create_server(context: ToolContext | None = None) -> FastMCP:
     screening.register(mcp, context)
     existing_care.register(mcp, context)
     medication_timeline.register(mcp, context)
+    utilization.register(mcp, context)
+    psychosocial.register(mcp, context)
     return mcp
 
 

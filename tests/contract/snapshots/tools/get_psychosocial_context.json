@@ -1,0 +1,526 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Report a patient's psychosocial context from coded data: homelessness or housing instability (Z59.0, Z59.81), legal problems (Z65.0-Z65.3), and education or employment problems (Z55, Z56), from Condition codes and coded social-history Observation values; and the date of separation from military service where the site records it. Each domain is found, not_found, or unknown when data could not be read; a missing separation date is unknown, never assumed. Coded data under-records these problems, so not_found is weak evidence of absence. Read-only. Not a diagnosis.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "get_psychosocial_context",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "description": "The date the record was read as of",
+        "format": "date",
+        "type": "string"
+      },
+      "data_completeness": {
+        "description": "Each data category read: available, empty, incomplete or failed. An empty record is not a clean record.",
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "definition_version": {
+        "type": "string"
+      },
+      "domains": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "families": {
+              "description": "Coded findings grouped by value set",
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "clinical_status": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Clinical status of the latest record"
+                        },
+                        "code": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "code": {
+                              "type": "string"
+                            },
+                            "display": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ],
+                              "default": null
+                            },
+                            "system": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            }
+                          },
+                          "required": [
+                            "system",
+                            "code"
+                          ],
+                          "type": "object"
+                        },
+                        "first_recorded": {
+                          "anyOf": [
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Earliest recorded date, if any"
+                        },
+                        "last_recorded": {
+                          "anyOf": [
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Latest recorded date, if any"
+                        },
+                        "onset": {
+                          "anyOf": [
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Earliest onset date recorded, if any"
+                        },
+                        "onset_order": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "description": "Rank by first known date (onset or recorded), 1 = earliest; equal dates share a rank; null when undated"
+                        },
+                        "references": {
+                          "items": {
+                            "additionalProperties": false,
+                            "description": "A pointer to the FHIR resource a fact came from.",
+                            "properties": {
+                              "id": {
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "resource_type": {
+                                "enum": [
+                                  "Patient",
+                                  "Condition",
+                                  "Observation",
+                                  "QuestionnaireResponse",
+                                  "MedicationRequest",
+                                  "MedicationDispense",
+                                  "MedicationStatement",
+                                  "Medication",
+                                  "Encounter",
+                                  "Procedure",
+                                  "ServiceRequest",
+                                  "CarePlan",
+                                  "Flag"
+                                ],
+                                "type": "string"
+                              },
+                              "version": {
+                                "anyOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ],
+                                "default": null,
+                                "description": "meta.versionId when the server has one"
+                              }
+                            },
+                            "required": [
+                              "resource_type",
+                              "id"
+                            ],
+                            "type": "object"
+                          },
+                          "minItems": 1,
+                          "type": "array"
+                        },
+                        "resolved": {
+                          "description": "True when the latest record is resolved or inactive",
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "onset",
+                        "first_recorded",
+                        "last_recorded",
+                        "clinical_status",
+                        "resolved",
+                        "onset_order",
+                        "references"
+                      ],
+                      "type": "object"
+                    },
+                    "type": "array"
+                  },
+                  "family": {
+                    "description": "Value set id of the family",
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "family",
+                  "title",
+                  "entries"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "observation_references": {
+              "description": "Social-history Observations whose coded value is in the domain",
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "status": {
+              "description": "unknown when a category could not be read completely",
+              "enum": [
+                "found",
+                "not_found",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "domain",
+            "title",
+            "status",
+            "families",
+            "observation_references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "description": "Always false: these results are never a diagnosis",
+        "type": "boolean"
+      },
+      "military": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Why the date is unknown"
+          },
+          "references": {
+            "items": {
+              "additionalProperties": false,
+              "description": "A pointer to the FHIR resource a fact came from.",
+              "properties": {
+                "id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "resource_type": {
+                  "enum": [
+                    "Patient",
+                    "Condition",
+                    "Observation",
+                    "QuestionnaireResponse",
+                    "MedicationRequest",
+                    "MedicationDispense",
+                    "MedicationStatement",
+                    "Medication",
+                    "Encounter",
+                    "Procedure",
+                    "ServiceRequest",
+                    "CarePlan",
+                    "Flag"
+                  ],
+                  "type": "string"
+                },
+                "version": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "meta.versionId when the server has one"
+                }
+              },
+              "required": [
+                "resource_type",
+                "id"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "separation_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null when unknown; never defaulted"
+          },
+          "status": {
+            "enum": [
+              "recorded",
+              "unknown"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "separation_date",
+          "status",
+          "references"
+        ],
+        "type": "object"
+      },
+      "notice": {
+        "description": "Standard notice on how to read these results",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "notice",
+      "data_completeness",
+      "versions",
+      "domains",
+      "military",
+      "definition_version"
+    ],
+    "type": "object"
+  },
+  "title": "Get Psychosocial Context"
+}

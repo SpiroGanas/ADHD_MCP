@@ -31,6 +31,9 @@ SITE_CONCEPTS: Mapping[str, str] = {
     "adhd_evaluation_request": "ServiceRequest code of a referral for ADHD evaluation",
     "adhd_evaluation_procedure": "Procedure code of an ADHD evaluation",
     "adhd_care_plan": "CarePlan category of an ADHD care plan",
+    "urgent_care_encounter": "Encounter type or service type of an urgent care visit",
+    "military_separation_date": "Observation code whose value is the date of separation "
+    "from military service",
 }
 
 

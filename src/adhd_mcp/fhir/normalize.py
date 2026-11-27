@@ -148,6 +148,7 @@ def _condition(raw: Raw) -> ConditionRecord:
         onset=_choice_date(raw, "onset"),
         abatement=_choice_date(raw, "abatement"),
         recorded=_date(raw, "recordedDate"),
+        encounter=parse_reference((raw.get("encounter") or {}).get("reference")),
     )
 
 
@@ -265,6 +266,12 @@ def _encounter(raw: Raw) -> EncounterRecord:
             (raw.get("hospitalization") or {}).get("dischargeDisposition")
         ),
         reason_codes=_concepts(raw.get("reasonCode")),
+        diagnoses=tuple(
+            ref
+            for d in raw.get("diagnosis") or []
+            if (ref := parse_reference((d.get("condition") or {}).get("reference")))
+            and ref.resource_type == "Condition"
+        ),
     )
 
 

@@ -1,5 +1,6 @@
 """Output schemas of the evidence tools. Fixed by contract snapshots."""
 
+import datetime as dt
 from datetime import date
 from typing import Literal
 
@@ -206,3 +207,66 @@ class MedicationTimelineOutput(EvidenceOutput):
     classes_checked: list[str]
     definition_version: str
     drug_class_versions: list[str] = Field(description="'<class id> <version>' for each class")
+
+
+class UtilizationEvent(_Frozen):
+    kind: Literal["acute_care_visit", "injury_visit", "crash_as_driver", "psychiatric_stay"]
+    date: dt.date | None = Field(description="Visit or admission date; null when undated")
+    end: dt.date | None = Field(default=None, description="Discharge date of a stay, if known")
+    references: list[ResourceRef] = Field(
+        min_length=1, description="The encounter first, then the conditions coding it"
+    )
+
+
+class WindowCount(_Frozen):
+    measure: Literal[
+        "acute_care_visit", "injury_visit", "crash_as_driver", "psychiatric_stay", "any_encounter"
+    ]
+    days_0_30: int
+    days_31_180: int
+    days_181_730: int
+    total_730: int
+
+
+class UtilizationOutput(EvidenceOutput):
+    events: list[UtilizationEvent] = Field(
+        description="Every event found, oldest first (undated last), by kind"
+    )
+    counts: list[WindowCount] = Field(
+        description="Events per window before the as-of date. any_encounter is the overall "
+        "record volume, so a rule can avoid simply rewarding frequent attendance"
+    )
+    visit_days_730: int = Field(description="Distinct days with any encounter in 730 days")
+    missed_appointments: Literal["not_read"] = Field(
+        description="Missed appointments are recorded in Appointment resources, which this "
+        "server does not read yet"
+    )
+    psychiatric_stays_checked: bool = Field(
+        description="False when the site maps no psychiatric encounter codes"
+    )
+    definition_version: str
+
+
+class PsychosocialDomain(_Frozen):
+    domain: str
+    title: str
+    status: Literal["found", "not_found", "unknown"] = Field(
+        description="unknown when a category could not be read completely"
+    )
+    families: list[ProblemFamily] = Field(description="Coded findings grouped by value set")
+    observation_references: list[ResourceRef] = Field(
+        description="Social-history Observations whose coded value is in the domain"
+    )
+
+
+class MilitaryContext(_Frozen):
+    separation_date: dt.date | None = Field(description="Null when unknown; never defaulted")
+    status: Literal["recorded", "unknown"]
+    reason: str | None = Field(default=None, description="Why the date is unknown")
+    references: list[ResourceRef]
+
+
+class PsychosocialOutput(EvidenceOutput):
+    domains: list[PsychosocialDomain]
+    military: MilitaryContext
+    definition_version: str

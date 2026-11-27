@@ -52,6 +52,7 @@ class ConditionRecord(_Record):
     onset: DateRange | None
     abatement: DateRange | None
     recorded: DateRange | None
+    encounter: ResourceRef | None = None
 
 
 class ObservationComponent(BaseModel):
@@ -111,6 +112,8 @@ class EncounterRecord(_Record):
     period: DateRange | None
     discharge_disposition: tuple[Coding, ...]
     reason_codes: tuple[Coding, ...]
+    #: Conditions listed in Encounter.diagnosis.
+    diagnoses: tuple[ResourceRef, ...] = ()
 
 
 class ProcedureRecord(_Record):

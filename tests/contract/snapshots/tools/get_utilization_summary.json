@@ -1,0 +1,324 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Summarize a patient's health care use: emergency and urgent care visits, accidental injury visits (one per visit however many injury codes it carries; visits with a self-harm code are not counted as accidental), motor-vehicle crashes as driver (passenger codes do not count), and psychiatric inpatient or residential stays. Counts each in windows of 0-30, 31-180 and 181-730 days before the as-of date, and reports overall record volume (all encounters and distinct visit days) so frequent attendance can be told apart from specific events. Missed appointments are not read yet. Read-only. A visit in the record is not a diagnosis.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "get_utilization_summary",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "description": "The date the record was read as of",
+        "format": "date",
+        "type": "string"
+      },
+      "counts": {
+        "description": "Events per window before the as-of date. any_encounter is the overall record volume, so a rule can avoid simply rewarding frequent attendance",
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "days_0_30": {
+              "type": "integer"
+            },
+            "days_181_730": {
+              "type": "integer"
+            },
+            "days_31_180": {
+              "type": "integer"
+            },
+            "measure": {
+              "enum": [
+                "acute_care_visit",
+                "injury_visit",
+                "crash_as_driver",
+                "psychiatric_stay",
+                "any_encounter"
+              ],
+              "type": "string"
+            },
+            "total_730": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "measure",
+            "days_0_30",
+            "days_31_180",
+            "days_181_730",
+            "total_730"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "data_completeness": {
+        "description": "Each data category read: available, empty, incomplete or failed. An empty record is not a clean record.",
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "definition_version": {
+        "type": "string"
+      },
+      "events": {
+        "description": "Every event found, oldest first (undated last), by kind",
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Visit or admission date; null when undated"
+            },
+            "end": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Discharge date of a stay, if known"
+            },
+            "kind": {
+              "enum": [
+                "acute_care_visit",
+                "injury_visit",
+                "crash_as_driver",
+                "psychiatric_stay"
+              ],
+              "type": "string"
+            },
+            "references": {
+              "description": "The encounter first, then the conditions coding it",
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "required": [
+            "kind",
+            "date",
+            "references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "description": "Always false: these results are never a diagnosis",
+        "type": "boolean"
+      },
+      "missed_appointments": {
+        "const": "not_read",
+        "description": "Missed appointments are recorded in Appointment resources, which this server does not read yet",
+        "type": "string"
+      },
+      "notice": {
+        "description": "Standard notice on how to read these results",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "psychiatric_stays_checked": {
+        "description": "False when the site maps no psychiatric encounter codes",
+        "type": "boolean"
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      },
+      "visit_days_730": {
+        "description": "Distinct days with any encounter in 730 days",
+        "type": "integer"
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "notice",
+      "data_completeness",
+      "versions",
+      "events",
+      "counts",
+      "visit_days_730",
+      "missed_appointments",
+      "psychiatric_stays_checked",
+      "definition_version"
+    ],
+    "type": "object"
+  },
+  "title": "Get Utilization Summary"
+}

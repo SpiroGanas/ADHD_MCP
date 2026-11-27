@@ -25,6 +25,8 @@ TOOLS = [
     "get_screening_history",
     "check_existing_care",
     "get_medication_timeline",
+    "get_utilization_summary",
+    "get_psychosocial_context",
 ]
 
 

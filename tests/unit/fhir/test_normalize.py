@@ -411,3 +411,30 @@ def test_medication_links_to_its_prescription(kind: str, element: str) -> None:
     )
     assert isinstance(record, MedicationRecord)
     assert record.prescriptions == (ResourceRef(resource_type="MedicationRequest", id="r1"),)
+
+
+def test_condition_keeps_its_encounter_and_encounter_its_diagnoses() -> None:
+    condition_record = normalize(
+        {
+            "resourceType": "Condition",
+            "id": "c9",
+            "code": {"coding": [{"system": ICD10CM, "code": "S62.302A"}]},
+            "encounter": {"reference": "Encounter/e9"},
+        }
+    )
+    assert isinstance(condition_record, ConditionRecord)
+    assert condition_record.encounter == ResourceRef(resource_type="Encounter", id="e9")
+    encounter_record = normalize(
+        {
+            "resourceType": "Encounter",
+            "id": "e9",
+            "status": "finished",
+            "diagnosis": [
+                {"condition": {"reference": "Condition/c9"}},
+                {"condition": {"reference": "Procedure/x"}},
+                {"use": {"text": "no condition"}},
+            ],
+        }
+    )
+    assert isinstance(encounter_record, EncounterRecord)
+    assert encounter_record.diagnoses == (ResourceRef(resource_type="Condition", id="c9"),)
