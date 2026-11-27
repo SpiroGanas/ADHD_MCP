@@ -52,6 +52,11 @@ class ScorerRef(_Frozen):
         description="A statistical score, if the scorer gives one. Reported only; in this "
         "version it never changes the recommendation"
     )
+    failed: bool = Field(
+        default=False,
+        description="True when the scorer failed: no score, and the recommendation is the "
+        "ruleset's alone, as always",
+    )
 
 
 class AssessmentOutput(Recommendation):

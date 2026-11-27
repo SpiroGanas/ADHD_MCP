@@ -717,6 +717,11 @@
           {
             "additionalProperties": false,
             "properties": {
+              "failed": {
+                "default": false,
+                "description": "True when the scorer failed: no score, and the recommendation is the ruleset's alone, as always",
+                "type": "boolean"
+              },
               "id": {
                 "type": "string"
               },

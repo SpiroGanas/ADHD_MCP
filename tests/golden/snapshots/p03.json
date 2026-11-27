@@ -274,6 +274,7 @@
     "status": "positive"
   },
   "scorer": {
+    "failed": false,
     "id": "rules-only",
     "score": null,
     "version": "1.0.0"

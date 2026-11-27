@@ -25,4 +25,4 @@ Version 1.0 decides with deterministic rules held as versioned data. The rules e
 - The same evidence and ruleset always give the same output, which makes golden tests possible.
 - Rulesets are immutable once released; every clinical change is a new version with its own tests and rule card.
 - The starting rule is a heuristic from the literature, not a validated rule, and every output and document must say so.
-- The scorer interface must be proven with a dummy scorer (Phase 8) so it does not rot unused.
+- The scorer interface must be proven with a dummy scorer (Phase 8) so it does not rot unused. Done 2026-11-27: `DummyScorer`, off by default; a failing scorer gives no score and leaves the assessment unchanged.

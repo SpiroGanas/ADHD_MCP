@@ -32,3 +32,15 @@ def test_a_fixture_directory_selects_the_fixture_adapter() -> None:
     context = context_from_environment({"ADHD_MCP_FIXTURE_DIR": str(BUNDLE_DIR)})
     assert isinstance(context.port, FixtureFhirAdapter)
     assert context.site_codes.id == "synthetic"
+
+
+def test_the_rules_only_scorer_is_the_default() -> None:
+    plugin = context_from_environment({}).conditions.get("adhd")
+    assert plugin.scorer is not None
+    assert plugin.scorer.id == "rules-only"
+
+
+def test_the_dummy_scorer_can_be_switched_on() -> None:
+    plugin = context_from_environment({"ADHD_MCP_SCORER": "dummy"}).conditions.get("adhd")
+    assert plugin.scorer is not None
+    assert plugin.scorer.id == "dummy-not-a-model"

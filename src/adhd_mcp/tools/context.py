@@ -12,6 +12,7 @@ a process; tests pass a context to ``create_server`` directly.
 With neither data source set, patient tools return a ``not_configured`` error.
 """
 
+import dataclasses
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
@@ -27,16 +28,21 @@ from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.port import FhirReadPort
 from adhd_mcp.fhir.smart import SmartBackendAuth
 from adhd_mcp.privacy import PrivacyPolicy, load_privacy_policy
+from adhd_mcp.rules.scorer import SCORERS
 from adhd_mcp.terminology.site_codes import SiteCodes, load_site_codes
 
 #: Used for a FHIR server whose local codes have not been mapped.
 NO_SITE_CODES = SiteCodes(id="none", version="0", title="No local code mapping")
 
 
-def default_conditions() -> ConditionRegistry:
-    """The conditions this server assesses: ADHD only in version 1.0."""
+def default_conditions(*, scorer: str = "rules-only") -> ConditionRegistry:
+    """The conditions this server assesses: ADHD only in version 1.0. ``scorer`` names an
+    entry of ``SCORERS``; the default leaves the ADHD plugin as released."""
     registry = ConditionRegistry()
-    registry.register(adhd_plugin())
+    plugin = adhd_plugin()
+    if scorer != "rules-only":
+        plugin = dataclasses.replace(plugin, scorer=SCORERS[scorer]())
+    registry.register(plugin)
     return registry
 
 
@@ -83,6 +89,7 @@ def context_from_environment(env: Mapping[str, str] = os.environ) -> ToolContext
         port=port,
         clock=clock,
         site_codes=site,
+        conditions=default_conditions(scorer=settings.scorer),
         privacy=load_privacy_policy(settings.privacy_policy),
         audit_sink=JsonlAuditSink(settings.audit_file) if settings.audit_file else None,
         scopes_required=settings.auth is not None,

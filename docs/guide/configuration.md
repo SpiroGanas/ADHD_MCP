@@ -10,6 +10,7 @@ Set one. With neither, every patient tool returns a `not_configured` error.
 |---|---|
 | `ADHD_MCP_FIXTURE_DIR` | A directory of FHIR R4 bundles (JSON) to read in memory. Use `tests/personas/bundles` for the 14 synthetic personas |
 | `ADHD_MCP_FHIR_BASE_URL` | A FHIR R4 server. The server only issues GET requests to it. Wins over `ADHD_MCP_FIXTURE_DIR` |
+| `ADHD_MCP_SCORER` | `rules-only` (default) or `dummy`. The dummy scorer is not a model: it always reports a score of 0.0 to prove the scorer slot (Phase 8). A score never changes the recommendation |
 | `ADHD_MCP_SITE_CODES` | The local code mapping in `src/adhd_mcp/data/site_codes/` (only `synthetic` exists). Defaults to `synthetic` with fixture data and to no mapping with a FHIR server, in which case checks that need local codes report "not performed" ([ADR 0008](../adr/0008-site-codes-and-search-warnings.md)) |
 
 ### A local FHIR server

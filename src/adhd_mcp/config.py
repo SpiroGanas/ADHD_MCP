@@ -20,6 +20,7 @@ from files named by a variable, never from the variable itself.
 | ``ADHD_MCP_AUDIT_FILE`` | Append-only JSON Lines audit file; required for HTTP |
 | ``ADHD_MCP_PRIVACY_POLICY`` | A site's privacy policy file (default: packaged policy) |
 | ``ADHD_MCP_SITE_CODES`` | Site code mapping |
+| ``ADHD_MCP_SCORER`` | ``rules-only`` (default) or ``dummy`` (Phase 8 proof; not a model) |
 """
 
 from collections.abc import Mapping
@@ -28,6 +29,8 @@ from pathlib import Path
 from typing import Literal
 
 import httpx2
+
+from adhd_mcp.rules.scorer import SCORERS
 
 
 class ConfigError(Exception):
@@ -62,6 +65,7 @@ class Settings:
     smart: SmartSettings | None
     audit_file: Path | None
     privacy_policy: Path | None
+    scorer: str = "rules-only"
 
 
 def _url(env: Mapping[str, str], name: str, *, https: bool = False) -> str:
@@ -168,6 +172,9 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         if audit is None:
             raise ConfigError("HTTP transport needs ADHD_MCP_AUDIT_FILE")
     policy = _file(env, "ADHD_MCP_PRIVACY_POLICY") if env.get("ADHD_MCP_PRIVACY_POLICY") else None
+    scorer = env.get("ADHD_MCP_SCORER", "rules-only")
+    if scorer not in SCORERS:
+        raise ConfigError(f"ADHD_MCP_SCORER must be one of: {', '.join(SCORERS)}")
     return Settings(
         transport=transport,  # type: ignore[arg-type]
         host=host,
@@ -176,4 +183,5 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         smart=_smart(env),
         audit_file=audit,
         privacy_policy=policy,
+        scorer=scorer,
     )

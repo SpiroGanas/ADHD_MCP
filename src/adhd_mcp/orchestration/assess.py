@@ -39,6 +39,7 @@ from adhd_mcp.models.domain import (
     WeightClass,
 )
 from adhd_mcp.rules.engine import Decision, decide
+from adhd_mcp.rules.scorer import run_scorer
 from adhd_mcp.rules.signals import SignalEvidence, evaluate_signals
 from adhd_mcp.terminology.site_codes import SiteCodes
 
@@ -192,13 +193,7 @@ async def assess(
         if f.present and f.weight == "note" and f.signal in plugin.note_texts
     ]
     notes += exclusions.notes
-    scorer = (
-        ScorerRef(
-            id=plugin.scorer.id, version=plugin.scorer.version, score=plugin.scorer.score(findings)
-        )
-        if plugin.scorer is not None
-        else None
-    )
+    scorer = run_scorer(plugin.scorer, findings) if plugin.scorer is not None else None
     return Assessment(
         gate=gate,
         exclusions=exclusions,
