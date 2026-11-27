@@ -2,6 +2,8 @@
 
 * Search follows ``next`` links to the end, but only within the configured server's origin
   and base path (a server cannot redirect the client elsewhere), and at most ``max_pages``.
+* OperationOutcome issues of severity warning or worse, on any page, are returned as
+  ``SearchWarning`` (severity and issue code only; diagnostic text is dropped).
 * Resources of the searched type without an id are passed on, so normalization reports
   them as skipped instead of their vanishing here.
 * Timeouts, connection errors, 429 and 5xx are retried with exponential backoff; a numeric
@@ -21,7 +23,14 @@ from typing import Any, Self
 import httpx2
 
 from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
-from adhd_mcp.fhir.port import RawResource, SearchType, validate_patient_id
+from adhd_mcp.fhir.port import (
+    WARNING_SEVERITIES,
+    RawResource,
+    SearchResult,
+    SearchType,
+    SearchWarning,
+    validate_patient_id,
+)
 from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES
 
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
@@ -142,7 +151,7 @@ class HttpFhirAdapter:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
-    ) -> list[RawResource]:
+    ) -> SearchResult:
         validate_patient_id(patient_id)
         if resource_type not in DATE_SEARCH:
             raise ValueError(f"unsupported search type {resource_type!r}")
@@ -157,6 +166,7 @@ class HttpFhirAdapter:
         label = f"search {resource_type}"
         results: dict[tuple[str, str], RawResource] = {}
         without_id: list[RawResource] = []
+        warnings: list[SearchWarning] = []
         url: httpx2.URL | None = self._url(resource_type)
         page_params: dict[str, str] | None = params
         pages = 0
@@ -172,13 +182,15 @@ class HttpFhirAdapter:
             for entry in bundle.get("entry") or []:
                 resource = entry.get("resource") or {}
                 kind = resource.get("resourceType")
-                if kind == resource_type and not resource.get("id"):
+                if kind == "OperationOutcome":
+                    warnings.extend(_warnings(resource))
+                elif kind == resource_type and not resource.get("id"):
                     without_id.append(resource)  # reported as skipped by normalization
                 elif kind in (resource_type, "Medication") and resource.get("id"):
                     results[(kind, resource["id"])] = resource
             url = self._next_link(bundle, label)
             page_params = None
-        return list(results.values()) + without_id
+        return SearchResult(resources=list(results.values()) + without_id, warnings=tuple(warnings))
 
     def _next_link(self, bundle: dict[str, Any], label: str) -> httpx2.URL | None:
         for link in bundle.get("link") or []:
@@ -191,3 +203,11 @@ class HttpFhirAdapter:
                     )
                 return url
         return None
+
+
+def _warnings(outcome: dict[str, Any]) -> list[SearchWarning]:
+    return [
+        SearchWarning(severity=issue["severity"], code=str(issue.get("code") or "unknown"))
+        for issue in outcome.get("issue") or []
+        if isinstance(issue, dict) and issue.get("severity") in WARNING_SEVERITIES
+    ]

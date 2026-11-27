@@ -2,12 +2,18 @@
 
 import copy
 import json
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, date, datetime
 from pathlib import Path
 
 from adhd_mcp.fhir.errors import ResourceNotFoundError
-from adhd_mcp.fhir.port import RawResource, SearchType, validate_patient_id
+from adhd_mcp.fhir.port import (
+    RawResource,
+    SearchResult,
+    SearchType,
+    SearchWarning,
+    validate_patient_id,
+)
 from adhd_mcp.fhir.search import MEDICATION_TYPES, matches_since, matches_updated_since
 
 _DEFAULT_LAST_UPDATED = datetime(2026, 1, 1, tzinfo=UTC)
@@ -17,12 +23,18 @@ class FixtureFhirAdapter:
     """Implements ``FhirReadPort`` over a fixed set of resources.
 
     Resources without ``meta.lastUpdated`` are stamped with ``last_updated``, as a server
-    would stamp them on load.
+    would stamp them on load. ``warnings`` simulates server OperationOutcome issues for a
+    resource type, returned with every search of that type.
     """
 
     def __init__(
-        self, resources: Iterable[RawResource], *, last_updated: datetime = _DEFAULT_LAST_UPDATED
+        self,
+        resources: Iterable[RawResource],
+        *,
+        last_updated: datetime = _DEFAULT_LAST_UPDATED,
+        warnings: Mapping[str, Sequence[SearchWarning]] | None = None,
     ) -> None:
+        self._warnings = {k: tuple(v) for k, v in (warnings or {}).items()}
         self._by_key: dict[tuple[str, str], RawResource] = {}
         for raw in resources:
             resource = copy.deepcopy(raw)
@@ -52,7 +64,7 @@ class FixtureFhirAdapter:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
-    ) -> list[RawResource]:
+    ) -> SearchResult:
         validate_patient_id(patient_id)
         subject = f"Patient/{patient_id}"
         found = [
@@ -65,7 +77,9 @@ class FixtureFhirAdapter:
         ]
         if resource_type in MEDICATION_TYPES:
             found += self._referenced_medications(found)
-        return copy.deepcopy(found)
+        return SearchResult(
+            resources=copy.deepcopy(found), warnings=self._warnings.get(resource_type, ())
+        )
 
     def _referenced_medications(self, resources: list[RawResource]) -> list[RawResource]:
         out: dict[str, RawResource] = {}

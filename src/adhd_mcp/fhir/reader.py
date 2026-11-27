@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict
 from adhd_mcp.fhir.codes import Coding
 from adhd_mcp.fhir.errors import FhirRequestError
 from adhd_mcp.fhir.normalize import normalize, normalize_many
-from adhd_mcp.fhir.port import FhirReadPort, SearchType
+from adhd_mcp.fhir.port import FhirReadPort, SearchType, SearchWarning
 from adhd_mcp.fhir.records import (
     CarePlanRecord,
     ConditionRecord,
@@ -35,6 +35,7 @@ class ReadResult[R: BaseModel](BaseModel):
 
     records: tuple[R, ...]
     skipped: tuple[Skipped, ...]
+    warnings: tuple[SearchWarning, ...] = ()
 
 
 def record_codes(record: Record) -> tuple[Coding, ...]:  # noqa: PLR0911
@@ -76,15 +77,15 @@ class PatientRecords:
         since: date | None,
         value_set: ValueSet | None,
     ) -> ReadResult[R]:
-        raw = await self._port.search(resource_type, patient_id, since=since)
-        normalized = normalize_many(raw)
+        found = await self._port.search(resource_type, patient_id, since=since)
+        normalized = normalize_many(found.resources)
         records = tuple(
             r
             for r in normalized.records
             if isinstance(r, record_type)
             and (value_set is None or value_set.matching_codings(record_codes(r)))
         )
-        return ReadResult[R](records=records, skipped=normalized.skipped)
+        return ReadResult[R](records=records, skipped=normalized.skipped, warnings=found.warnings)
 
     async def conditions(
         self, patient_id: str, *, since: date | None = None, value_set: ValueSet | None = None

@@ -6,6 +6,7 @@ import pytest
 
 from adhd_mcp.fhir.codes import ICD10CM, LOINC
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
+from adhd_mcp.fhir.port import SearchWarning
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.fhir.records import (
     ConditionRecord,
@@ -117,3 +118,10 @@ async def test_every_resource_type_has_a_reader(records: PatientRecords) -> None
         result = await method("p07-patient")
         assert result.records == ()
         assert result.skipped == ()
+
+
+async def test_search_warnings_are_passed_through() -> None:
+    warning = SearchWarning(severity="warning", code="incomplete")
+    records = PatientRecords(FixtureFhirAdapter(all_resources(), warnings={"Flag": [warning]}))
+    assert (await records.flags("p03-patient")).warnings == (warning,)
+    assert (await records.conditions("p03-patient")).warnings == ()
