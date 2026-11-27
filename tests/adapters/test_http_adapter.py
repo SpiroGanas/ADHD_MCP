@@ -165,6 +165,9 @@ async def test_non_bundle_search_response_is_a_failure(
         {"resourceType": "Bundle", "entry": [], "link": "next"},
         {"resourceType": "Bundle", "entry": [], "link": [{"relation": "next", "url": 7}]},
         {"resourceType": "Bundle", "entry": [{"resource": {"resourceType": "Condition", "id": 7}}]},
+        {"resourceType": "Bundle", "entry": [{"search": {"mode": "match"}}]},
+        {"resourceType": "Bundle", "entry": [{"resource": {"id": "x"}}]},
+        {"resourceType": "Bundle", "entry": [{"resource": {"resourceType": 5, "id": "x"}}]},
     ],
     ids=[
         "entry-not-object",
@@ -174,6 +177,9 @@ async def test_non_bundle_search_response_is_a_failure(
         "links-not-list",
         "link-url-not-string",
         "id-not-string",
+        "entry-without-resource",
+        "resource-without-type",
+        "type-not-string",
     ],
 )
 async def test_a_structurally_broken_bundle_is_a_failure(

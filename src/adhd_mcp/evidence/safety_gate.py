@@ -416,10 +416,16 @@ async def assess_safety_gate(
         "Flag": flags,
     }
     notes = [completeness(c, read[c]) for c in _CATEGORY_ORDER if c in needed]
-    failed = {n.category for n in notes if n.status == "failed"}
+    # A check whose data was read only in part fails, exactly like one whose data could not
+    # be read: partial data never supports "not found" (owner decision 2026-11-27).
+    unreadable = {
+        n.category: ("" if n.status == "failed" else " completely")
+        for n in notes
+        if n.status in ("failed", "incomplete")
+    }
 
     def failures(*categories: str) -> list[str]:
-        return [c for c in categories if c in failed]
+        return [f"{c}{unreadable[c]}" for c in categories if c in unreadable]
 
     checks: list[SafetyCheck] = []
     all_hits: list[_Hits] = []

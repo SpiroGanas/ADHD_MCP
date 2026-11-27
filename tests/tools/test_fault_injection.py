@@ -2,7 +2,8 @@
 
 Each fault hits one resource type's searches on an otherwise healthy server (the in-process
 fake FHIR server behind the HTTP adapter). Whatever the fault, the server must say so: the
-category is reported as failed or incomplete, the safety gate is never plain "clear", and a
+category is reported as failed or incomplete, the safety gate is never plain "clear" (and is
+"data_unavailable" when an active gate check needed the category), and a
 fault in a source of ADHD signals never yields a confident "no_recommendation".
 """
 
@@ -27,6 +28,9 @@ pytestmark = pytest.mark.anyio
 
 #: Resource types read by the safety gate.
 GATE_TYPES = {"Condition", "Observation", "QuestionnaireResponse", "Encounter", "Flag"}
+#: Gate types read by checks that are active today (the PHQ-9 and C-SSRS checks, which read
+#: Observation and QuestionnaireResponse, are not performed until LOINC is verified).
+ACTIVE_GATE_TYPES = {"Condition", "Encounter", "Flag"}
 #: Resource types the ADHD signals are read from.
 SIGNAL_TYPES = {
     "Condition",
@@ -143,6 +147,15 @@ def garbage_resource(_: httpx2.Request, response: httpx2.Response | None) -> htt
     return _json(bundle)
 
 
+def entry_without_resource(_: httpx2.Request, response: httpx2.Response | None) -> httpx2.Response:
+    """An entry with no resource, or a resource with no type: neither may vanish silently."""
+    bundle = _healthy_bundle(response)
+    bundle.setdefault("entry", []).extend(
+        [{"search": {"mode": "match"}}, {"resource": {"id": "z"}}]
+    )
+    return _json(bundle)
+
+
 def garbage_entries(_: httpx2.Request, response: httpx2.Response | None) -> httpx2.Response:
     """``entry`` is not a list."""
     bundle = _healthy_bundle(response)
@@ -182,6 +195,7 @@ FAULTS: dict[str, Fault] = {
     "garbage_entry": garbage_entry,
     "garbage_resource": garbage_resource,
     "garbage_entries": garbage_entries,
+    "entry_without_resource": entry_without_resource,
     "garbage_link": garbage_link,
     "server_warning": server_warning,
 }
@@ -264,6 +278,9 @@ async def test_every_fault_is_reported_and_never_gives_a_confident_clean_result(
     assert out["safety_gate"]["status"] != "clear"
     if target in GATE_TYPES:
         assert out["safety_gate"]["status"] in {"data_unavailable", "clear_limited_data"}
+    if target in ACTIVE_GATE_TYPES:
+        # Partial data never supports "not found": the gate cannot be evaluated.
+        assert out["safety_gate"]["status"] == "data_unavailable"
     if out["safety_gate"]["status"] == "data_unavailable":
         assert out["recommendation"] == "insufficient_data"
     # A fault in a signal source never yields a confident "no_recommendation".
@@ -275,14 +292,15 @@ async def test_every_fault_is_reported_and_never_gives_a_confident_clean_result(
 
 
 @pytest.mark.parametrize("fault_name", sorted(FAULTS))
-async def test_a_failed_gate_category_withholds_a_referral_suggestion(
+async def test_any_flag_fault_fails_the_check_and_withholds_a_suggestion(
     fixed_clock: FixedClock, fault_name: str
 ) -> None:
-    """p01 meets the rules, but a gate that could not read flags or observations completely
-    must not let a suggestion through as if the gate were clear."""
-    for target in ("Flag", "Observation"):
-        out = await assess_with_fault(fixed_clock, "p01", target, FAULTS[fault_name])
-        if out["safety_gate"]["status"] == "data_unavailable":
-            assert out["recommendation"] == "insufficient_data"
-        else:
-            assert out["safety_gate"]["status"] == "clear_limited_data"
+    """p01 meets the rules. Flags that could not be read, or were read only in part, fail the
+    high-risk flag check: the gate is data_unavailable and no suggestion is made (owner
+    decision 2026-11-27, open question 19)."""
+    out = await assess_with_fault(fixed_clock, "p01", "Flag", FAULTS[fault_name])
+    flag_check = next(c for c in out["safety_gate"]["checks"] if c["id"] == "high_risk_flag")
+    assert flag_check["outcome"] == "failed"
+    assert flag_check["reason"].startswith("Could not read Flag")
+    assert out["safety_gate"]["status"] == "data_unavailable"
+    assert out["recommendation"] == "insufficient_data"
