@@ -19,7 +19,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Remaining, in order: Oracle Health desk review (item 3); deployment guide (item 7); next-stage plan (item 8).
+- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Oracle Health desk review (item 3), deployment guide (item 7) and next-stage proposal (item 8): [docs/integration/oracle_health.md](docs/integration/oracle_health.md), [docs/guide/deployment.md](docs/guide/deployment.md), [docs/next_stage_plan.md](docs/next_stage_plan.md). Remaining: clinical safety review, then the pull request.
 
 ## Next steps
 

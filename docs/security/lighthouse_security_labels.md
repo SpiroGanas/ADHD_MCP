@@ -22,4 +22,4 @@ The policy classifies a resource by its security labels **or** by a code in the 
 
 ## To finish
 
-With sandbox access, read the sandbox test patients' resources for `meta.security` and for substance-use, HIV and sickle-cell codes, and record what appears here. A real deployment needs the site's privacy officer to choose the action per category.
+With sandbox access, read the sandbox test patients' resources for `meta.security` and for substance-use, HIV and sickle-cell codes, and record what appears here. A real deployment needs the site's privacy officer to choose the action per category ([deployment guide](../guide/deployment.md)).

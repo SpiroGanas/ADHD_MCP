@@ -129,7 +129,8 @@ All commands are listed in [CLAUDE.md](CLAUDE.md#commands). To contribute, read 
 | [status.md](status.md) | Work done and next steps; updated every session |
 | [project_plan.md](project_plan.md) | Phased, test-driven plan |
 | [CHANGELOG.md](CHANGELOG.md) | Changes by version |
-| [docs/guide/](docs/guide/) | Configuration and client setup |
+| [docs/guide/](docs/guide/) | Configuration, client setup and the [deployment guide](docs/guide/deployment.md) |
+| [docs/integration/](docs/integration/) | VA Lighthouse adapter notes and the Oracle Health desk review |
 | [docs/reference/tools.md](docs/reference/tools.md) | Tool reference |
 | [docs/limitations.md](docs/limitations.md) | What the tool cannot do |
 | [docs/architecture.md](docs/architecture.md) | Components, data flow, tool contracts |

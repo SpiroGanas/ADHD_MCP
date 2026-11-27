@@ -41,4 +41,4 @@ Assets: patient data read from FHIR (including specially protected categories); 
 
 ## Out of scope here
 
-Network transport security (TLS termination) and rate limiting belong to the hosting environment; the deployment guide (Phase 8) must require them. Model-side risks (an assistant paraphrasing a suggestion as a diagnosis) are covered by the wording guard and the Phase 7 model-in-the-loop evaluation.
+Network transport security (TLS termination) and rate limiting belong to the hosting environment; the [deployment guide](../guide/deployment.md) requires them. Model-side risks (an assistant paraphrasing a suggestion as a diagnosis) are covered by the wording guard and the Phase 7 model-in-the-loop evaluation.
