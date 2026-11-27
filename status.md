@@ -12,14 +12,14 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## Done
 
-- **Phase 7** (items 1 to 4 and 6 to 9; item 5 waits for a live model run; pull request to come): fault injection, 16 fault types on every resource type the assessment searches, and fixes for malformed Bundles (item 6); labelled cohort of 184 patients, evaluation harness and generated [report](docs/evaluation/adhd_ruleset_1.0.0.md) (items 1, 2); [sex-balance review](docs/evaluation/sex_balance_review.md) (item 3); [model-in-the-loop harness](docs/evaluation/model_in_the_loop.md) with scripted stand-ins (item 4); latency target and request budget, [performance](docs/evaluation/performance.md) (item 7); README rewritten, configuration and client guides, generated tool reference, limitations, change log, link checker (item 8); versioning policy [ADR 0013](docs/adr/0013-versioning-and-release.md) (proposed), version 1.0.0rc1, `scripts/release_check.py`, Dockerfile built and smoke-tested in CI (item 9). Risk register reviewed.
+- **Phase 7** (items 1 to 4 and 6 to 9; item 5 waits for a live model run; [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6)): fault injection, 16 fault types on every resource type the assessment searches, and fixes for malformed Bundles (item 6); labelled cohort of 184 patients, evaluation harness and generated [report](docs/evaluation/adhd_ruleset_1.0.0.md) (items 1, 2); [sex-balance review](docs/evaluation/sex_balance_review.md) (item 3); [model-in-the-loop harness](docs/evaluation/model_in_the_loop.md) with scripted stand-ins (item 4); latency target and request budget, [performance](docs/evaluation/performance.md) (item 7); README rewritten, configuration and client guides, generated tool reference, limitations, change log, link checker (item 8); versioning policy [ADR 0013](docs/adr/0013-versioning-and-release.md) (proposed), version 1.0.0rc1, `scripts/release_check.py`, Dockerfile built and smoke-tested in CI (item 9). Risk register reviewed.
 - PR #5 (Phases 4 to 6) merged into `main`.
 - **Phase 6** (all nine work items; [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5)): audit, trace context, sensitive-data policy, OAuth resource server, SMART backend services, HTTP transport, threat model ([ADR 0011](docs/adr/0011-audit-tracing-and-privacy.md), [ADR 0012](docs/adr/0012-authentication.md)).
 - **Phases 1 to 5** ([#1](https://github.com/SpiroGanas/ADHD_MCP/pull/1) to [#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5)): research and plan; walking skeleton, FHIR layer, terminology, personas; evidence tools; rules engine, ruleset 1.0.0 (draft), `assess_referral_need`, `draft_referral_proposal`, resources, prompts.
 
 ## In progress
 
-- Open the Phase 7 pull request from `ccr-5c748898-yqc67t`, watch CI (four jobs, including the new container job and the first live run of `tests/integration/test_performance_live.py`), answer review.
+- Pull request [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) for Phase 7: open; watching CI (four jobs, including the new container job and the first live run of `tests/integration/test_performance_live.py`) and review.
 
 ## Next steps
 
@@ -90,3 +90,4 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
 | [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |
 | [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
+| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Open |
