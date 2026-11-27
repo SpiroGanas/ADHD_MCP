@@ -1,0 +1,15 @@
+id = "safety.intentional_self_poisoning"
+version = "0.1.0"
+title = "Poisoning, intentional self-harm (T36-T65)"
+description = "Safety gate signal. The intent digit is the last character before the 7th character: the 6th character in six-character codes (T36.0X2A, T40.602A) and the 5th in five-character codes (T36.92XA). 2 = intentional self-harm. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "regex"
+code = "T(?:3[6-9]|[45][0-9]|6[0-5])\\.(?:[0-9A-Z]{2}2[ADS]?|[0-9A-Z]2X[ADS])"
+display = "T36-T65 codes whose intent digit is 2"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

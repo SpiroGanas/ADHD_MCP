@@ -1,0 +1,15 @@
+id = "safety.suicidal_ideation"
+version = "0.1.0"
+title = "Suicidal ideation"
+description = "Safety gate signal. Exact code only: the parent R45.85 also holds homicidal ideation (R45.850). FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "R45.851"
+display = "Suicidal ideations"
+verified = true
+source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2026, April 1 2026 update"
+checked_on = "2026-11-26"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

@@ -1,0 +1,27 @@
+id = "pcptsd5"
+version = "0.1.0"
+title = "Primary Care PTSD Screen for DSM-5 (PC-PTSD-5)"
+
+[[codes]]
+role = "panel"
+system = "http://loinc.org"
+code = "102010-6"
+display = "The Primary Care PTSD Screen for DSM-5 [PC-PTSD-5]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[codes]]
+role = "total_score"
+system = "http://loinc.org"
+code = "102017-1"
+display = "PC-PTSD-5 score [PC-PTSD-5]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[cutoffs]]
+id = "positive"
+code = "102017-1"
+operator = ">="
+value = 3
+verified = false
+note = "Value as in the research report. Current National Center for PTSD guidance (Bovin 2016) recommends 4 as the default and 3 for higher sensitivity, for example in women. Open question for the project owner."

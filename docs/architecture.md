@@ -1,6 +1,8 @@
 # Architecture
 
-How ADHD_MCP is put together. This is a design document; nothing here is built yet. It changes as phases complete, and costly decisions are recorded in [adr/](adr/README.md).
+How ADHD_MCP is put together. This is a design document that changes as phases complete; costly decisions are recorded in [adr/](adr/README.md).
+
+**Built so far (Phases 1 and 2):** the FastMCP server with `get_server_info`; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets and instrument definitions; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology).
 
 ## Purpose and boundary
 
@@ -47,31 +49,49 @@ Dependencies point downward only. A layer never imports from one above it.
 | Terminology store | Load versioned value sets and cutoffs; refuse unverified entries in strict mode | Hold codes in program logic |
 | Audit and tracing | Record every call with identifiers, versions and references | Record clinical values or text |
 
-## Planned repository layout
+## Repository layout
 
-Created in Phase 1. Names may be adjusted then; the separation of concerns should not be.
+Packages are created when a test first needs them; those marked *planned* do not exist yet.
 
 ```
 src/adhd_mcp/
-  server            FastMCP application assembly
+  server.py         FastMCP application assembly
+  versions.py       server, tool-contract and ruleset version lines
+  clock.py          injected clock (the only place the real clock is read)
   tools/            thin tool wrappers, one per tool
-  resources/        MCP resources
-  prompts/          MCP prompts
-  orchestration/    assess_referral_need flow
-  rules/            engine, ruleset loading, scorer interface
-  conditions/adhd/  ADHD plugin
-  evidence/         evidence assemblers
-  privacy/          sensitive-data policy
-  fhir/             port, adapters, normalization
-  terminology/      value set loading and matching
-  audit/            audit records, tracing
+  wording/          approved wording and the diagnostic-language guard
+  fhir/             port, fixture and HTTP adapters, search semantics, normalization, reader
+  terminology/      value set and instrument loading and matching
   models/           shared typed models and output schemas
-  data/             rulesets, signal catalog, value sets, instrument metadata
+  data/             wording, code systems, value sets, instruments (rulesets later)
+  resources/  prompts/  orchestration/  rules/  conditions/adhd/
+  evidence/  privacy/  audit/                                  planned
 tests/
-  unit/  contract/  tools/  integration/  golden/  property/  evals/
-  personas/         synthetic FHIR bundles and their narratives
+  unit/  contract/  tools/  property/  adapters/  integration/
+  golden/  evals/                                              planned
+  helpers/          wording assertion, fake FHIR server
+  personas/         synthetic FHIR bundles, catalog and builder
+scripts/            check, synthetic-data guard, persona build and load, population generator
 docs/
 ```
+
+## Implemented: FHIR access and terminology
+
+```
+ FhirReadPort (read_patient, search)       no write method (standing invariant 4)
+   |-- FixtureFhirAdapter                   in-memory resources or bundle files
+   |-- HttpFhirAdapter                      GET only; paging, retries, origin-pinned next links
+          |
+          v  raw FHIR JSON
+ normalize_many  ->  typed records + skipped list (entered-in-error, refuted, no id, malformed)
+          |
+          v
+ PatientRecords  ->  ReadResult(records, skipped), optionally filtered by a ValueSet
+```
+
+- **Search semantics** (`fhir/search.py`) are shared by every adapter: `since` is FHIR `ge` on each type's clinical date; `updated_since` is `_lastUpdated`; medication searches include referenced `Medication` resources. Both adapters pass one shared behavioural suite (`tests/adapters/shared_suite.py`), and the HTTP adapter also passes it against a live HAPI FHIR server in CI.
+- **Normalization** rules are in [ADR 0007](adr/0007-fhir-modeling.md). Records keep the resource id and version for evidence; they keep no names, identifiers or free text.
+- **Terminology**: value sets (`data/value_sets/`) and instruments (`data/instruments/`) are TOML with per-entry verification provenance. ICD-10-CM `prefix` entries match at the category boundary (`F15` matches `F15.10`, not `F150`); `regex` entries cover families defined by character position, such as the intent character of poisoning codes. Strict loading refuses anything unverified (standing invariant 6).
 
 ## Request flow for `assess_referral_need`
 

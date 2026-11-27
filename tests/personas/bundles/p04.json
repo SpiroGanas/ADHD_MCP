@@ -1,0 +1,215 @@
+{
+  "resourceType": "Bundle",
+  "id": "p04-bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "p04-patient",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+              "code": "HTEST"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "urn:adhd-mcp:synthetic-id",
+            "value": "SYN-0004"
+          }
+        ],
+        "name": [
+          {
+            "family": "Synthetic",
+            "given": [
+              "Persona04"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1990-12-24"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p04-cond-1",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F90.0",
+              "display": "ADHD, predominantly inattentive type"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p04-patient"
+        },
+        "onsetDateTime": "2021",
+        "recordedDate": "2021-09-09"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p04-cond-2",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F10.10",
+              "display": "Alcohol abuse, uncomplicated"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p04-patient"
+        },
+        "recordedDate": "2020-02-02"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "p04-medreq-1",
+        "status": "completed",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "6901",
+              "display": "methylphenidate"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p04-patient"
+        },
+        "authoredOn": "2026-05-01",
+        "dispenseRequest": {
+          "expectedSupplyDuration": {
+            "value": 30,
+            "unit": "days",
+            "system": "http://unitsofmeasure.org",
+            "code": "d"
+          }
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "F90.0"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Medication",
+        "id": "p04-med-1",
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "6901",
+              "display": "methylphenidate"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "p04-meddisp-1",
+        "status": "completed",
+        "medicationReference": {
+          "reference": "Medication/p04-med-1"
+        },
+        "subject": {
+          "reference": "Patient/p04-patient"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/p04-medreq-1"
+          }
+        ],
+        "whenHandedOver": "2026-05-02",
+        "daysSupply": {
+          "value": 30,
+          "unit": "days",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        }
+      }
+    }
+  ]
+}

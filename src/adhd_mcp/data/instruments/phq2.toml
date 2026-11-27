@@ -1,0 +1,28 @@
+id = "phq2"
+version = "0.1.0"
+title = "Patient Health Questionnaire-2 (PHQ-2)"
+licensing_note = "PHQ instruments are copyright Pfizer. No item text is stored here."
+
+[[codes]]
+role = "panel"
+system = "http://loinc.org"
+code = "55757-9"
+display = "Patient Health Questionnaire 2 item (PHQ-2) [Reported]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[codes]]
+role = "total_score"
+system = "http://loinc.org"
+code = "55758-7"
+display = "Patient Health Questionnaire 2 item (PHQ-2) total score [Reported]"
+verified = false
+note = "LOINC code and name confirmed only through search-index summaries of loinc.org on 2026-11-26; loinc.org was not reachable from the build environment. Remains unverified."
+
+[[cutoffs]]
+id = "positive"
+code = "55758-7"
+operator = ">="
+value = 3
+verified = false
+note = "Kroenke, Spitzer and Williams, Med Care 2003 (PMID 14583691), checked through the abstract only."

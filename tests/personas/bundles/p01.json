@@ -1,0 +1,679 @@
+{
+  "resourceType": "Bundle",
+  "id": "p01-bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "p01-patient",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+              "code": "HTEST"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "urn:adhd-mcp:synthetic-id",
+            "value": "SYN-0001"
+          }
+        ],
+        "name": [
+          {
+            "family": "Synthetic",
+            "given": [
+              "Persona01"
+            ]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1992-02-11"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "p01-enc-1",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "EMER"
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "period": {
+          "start": "2024-09-03T22:10:00Z",
+          "end": "2024-09-04T02:00:00Z"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-1",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "S62.302A",
+              "display": "Fracture of metacarpal bone"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p01-enc-1"
+        },
+        "recordedDate": "2024-09-03"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-2",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "W01.0XXA",
+              "display": "Fall from slipping, tripping"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p01-enc-1"
+        },
+        "recordedDate": "2024-09-03"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "p01-enc-2",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "EMER"
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "period": {
+          "start": "2025-11-20T17:00:00Z",
+          "end": "2025-11-20T21:30:00Z"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-3",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "V43.52XA",
+              "display": "Car driver injured in collision with car in traffic accident"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p01-enc-2"
+        },
+        "recordedDate": "2025-11-20"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-4",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "S13.4XXA",
+              "display": "Sprain of ligaments of cervical spine"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p01-enc-2"
+        },
+        "recordedDate": "2025-11-20"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "p01-enc-3",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "EMER"
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "period": {
+          "start": "2026-03-02T09:00:00Z",
+          "end": "2026-03-02T12:00:00Z"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-5",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "S61.411A",
+              "display": "Laceration of right hand"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p01-enc-3"
+        },
+        "recordedDate": "2026-03-02"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-6",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "W26.0XXA",
+              "display": "Contact with knife"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p01-enc-3"
+        },
+        "recordedDate": "2026-03-02"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-7",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F15.10",
+              "display": "Other stimulant abuse, uncomplicated"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "onsetDateTime": "2025-03",
+        "recordedDate": "2025-03-02"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-8",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F10.10",
+              "display": "Alcohol abuse, uncomplicated"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "onsetDateTime": "2024",
+        "recordedDate": "2024-08-14"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-9",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "G47.00",
+              "display": "Insomnia, unspecified"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "recordedDate": "2025-06-01"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p01-cond-10",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "Z56.0",
+              "display": "Unemployment, unspecified"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "recordedDate": "2025-12-01"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "p01-obs-1",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "44260-8",
+              "display": "PHQ-9 item 9"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "effectiveDateTime": "2026-02-01T10:00:00Z",
+        "valueQuantity": {
+          "value": 0,
+          "unit": "{score}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "p01-obs-2",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "44261-6",
+              "display": "PHQ-9 total score"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "effectiveDateTime": "2026-02-01T10:00:00Z",
+        "valueQuantity": {
+          "value": 8,
+          "unit": "{score}",
+          "system": "http://unitsofmeasure.org",
+          "code": "{score}"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Observation",
+        "id": "p01-obs-3",
+        "status": "final",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                "code": "survey"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://loinc.org",
+              "code": "44249-1",
+              "display": "PHQ-9 panel"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p01-patient"
+        },
+        "effectiveDateTime": "2026-02-01T10:00:00Z",
+        "hasMember": [
+          {
+            "reference": "Observation/p01-obs-1"
+          },
+          {
+            "reference": "Observation/p01-obs-2"
+          }
+        ]
+      }
+    }
+  ]
+}
