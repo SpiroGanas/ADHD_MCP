@@ -86,7 +86,7 @@ async def test_an_assessment_records_recommendation_ruleset_and_policy() -> None
     assert record.recommendation == "consider_referral_for_formal_screening"
     assert record.ruleset == "adhd 1.0.0 (draft)"
     assert record.scorer == "rules-only 1.0.0"
-    assert record.privacy_policy == "privacy 0.1.0"
+    assert record.privacy_policy == "privacy 0.2.0"
     assert {r.id for r in record.resources_read} >= {"p01-patient", "p01-cond-8"}
 
 

@@ -102,6 +102,9 @@ async def test_the_token_is_reused_until_shortly_before_it_expires() -> None:
     [
         httpx2.Response(401, json={"error": "invalid_client"}),
         httpx2.Response(200, json={"access_token": "x", "token_type": "mac"}),
+        httpx2.Response(
+            200, json={"access_token": "x", "token_type": "bearer", "expires_in": "soon"}
+        ),
     ],
 )
 async def test_a_refused_or_odd_token_response_is_an_error(response: httpx2.Response) -> None:
@@ -122,8 +125,10 @@ def test_plain_http_token_urls_are_refused() -> None:
 
 
 async def adapter_with(fhir: FakeFhirServer, tokens: TokenServer) -> HttpFhirAdapter:
+    # An authenticated FHIR base must be https; the mock transport ignores the scheme.
+    https_base = BASE.replace("http://", "https://", 1)
     return HttpFhirAdapter(
-        BASE, transport=fhir.transport(), sleep=no_sleep, auth=make_auth(tokens, clock())
+        https_base, transport=fhir.transport(), sleep=no_sleep, auth=make_auth(tokens, clock())
     )
 
 

@@ -21,6 +21,9 @@ from adhd_mcp.rules.catalog import SignalDefinition
 
 _NOT_FOUND = "Not found in the record."
 _UNREADABLE = "Not checked: the data it needs could not be read."
+_OBSERVATION_ONLY = (
+    "Found only in coded social-history observations, which this ruleset does not count."
+)
 
 
 @dataclass(frozen=True)
@@ -115,8 +118,11 @@ def _counted(
     )
 
 
-def evaluate_signal(s: SignalDefinition, evidence: SignalEvidence, as_of: date) -> SignalFinding:
+def evaluate_signal(  # noqa: PLR0911 - one return per outcome
+    s: SignalDefinition, evidence: SignalEvidence, as_of: date
+) -> SignalFinding:
     if s.source in ("condition", "psychosocial"):
+        observed = False
         if s.source == "condition":
             readable = evidence.problem_families is not None
             entries = [
@@ -127,6 +133,11 @@ def evaluate_signal(s: SignalDefinition, evidence: SignalEvidence, as_of: date) 
             ]
         else:
             readable = evidence.psychosocial is not None
+            observed = any(
+                d.observation_references
+                for d in evidence.psychosocial or ()
+                if d.domain == s.domain
+            )
             entries = [
                 e
                 for d in evidence.psychosocial or ()
@@ -136,6 +147,8 @@ def evaluate_signal(s: SignalDefinition, evidence: SignalEvidence, as_of: date) 
             ]
         if not readable:
             return _finding(s, False, _UNREADABLE)
+        if s.source == "psychosocial" and not entries and observed:
+            return _finding(s, False, _OBSERVATION_ONLY)
         return _entries(s, entries, as_of)
     if s.source == "events":
         if evidence.utilization_events is None:

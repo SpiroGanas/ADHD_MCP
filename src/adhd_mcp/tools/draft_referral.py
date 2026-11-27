@@ -12,6 +12,7 @@ from fastmcp import FastMCP
 from adhd_mcp.models.assessment import ReferralDraftOutput
 from adhd_mcp.models.domain import RecommendationCode, ResourceRef
 from adhd_mcp.orchestration.assess import Assessment
+from adhd_mcp.privacy import PrivacyPolicy
 from adhd_mcp.tools.assessment import ConditionArg, run_assessment
 from adhd_mcp.tools.common import (
     ASSESS_SCOPE,
@@ -44,12 +45,25 @@ def _reference(ref: ResourceRef) -> dict[str, str]:
 
 
 def build_draft(
-    patient_id: str, condition_title: str, ruleset: str, a: Assessment
+    patient_id: str,
+    condition_title: str,
+    ruleset: str,
+    a: Assessment,
+    policy: PrivacyPolicy,
 ) -> dict[str, Any]:
     refs = sorted(
         {r for item in a.basis for r in item.references}, key=lambda r: (r.resource_type, r.id)
     )
-    titles = ", ".join(f.title for f in a.findings if f.present and f.weight != "note")
+    present = [f for f in a.findings if f.present and f.weight != "note"]
+    # Signals from a protected category are cited by reference only: their titles would
+    # name the category in free text a clinician may paste into an order.
+    shown = [
+        f.title for f in present if f.protected is None or policy.action(f.protected) == "allow"
+    ]
+    hidden = len(present) - len(shown)
+    titles = ", ".join(shown) if shown else "protected signals only"
+    if shown and hidden:
+        titles += f"; and {hidden} protected signal(s) cited by reference only"
     draft: dict[str, Any] = {
         "resourceType": "ServiceRequest",
         "meta": {"tag": [DRAFT_TAG]},
@@ -81,7 +95,9 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         draft = None
         why = None
         if result.recommendation is RecommendationCode.CONSIDER_REFERRAL:
-            draft = build_draft(request.patient_id, plugin.title, plugin.ruleset.label, result)
+            draft = build_draft(
+                request.patient_id, plugin.title, plugin.ruleset.label, result, context.privacy
+            )
         else:
             why = (
                 f"The assessment result is {result.recommendation.value}: "

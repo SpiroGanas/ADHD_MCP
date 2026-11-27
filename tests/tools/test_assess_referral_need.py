@@ -205,3 +205,16 @@ def test_registering_a_condition_twice_is_refused() -> None:
 async def test_as_of_is_echoed(persona_client: Client) -> None:  # type: ignore[type-arg]
     out = await assess(persona_client, "p01-patient", as_of="2026-01-01")
     assert date.fromisoformat(out["as_of"]) == date(2026, 1, 1)
+
+
+def test_a_ruleset_naming_exclusions_needs_an_exclusion_check() -> None:
+    ruleset = DUMMY_RULESET.replace("exclusions = []", 'exclusions = ["existing_care"]')
+    with pytest.raises(ValueError, match="none are wired"):
+        ConditionPlugin(
+            id="dummy",
+            title="x",
+            catalog=parse_catalog(DUMMY_CATALOG),
+            ruleset=parse_ruleset(ruleset, released=()),
+            recommendation_texts={},
+            next_step="x",
+        )

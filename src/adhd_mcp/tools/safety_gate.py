@@ -41,7 +41,7 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         request = await start_request(context, patient_id, as_of)
         content = load_gate_content(context.site_codes, strict=True)
         gate, notes = await assess_safety_gate(
-            request.records, request.patient_id, request.as_of, content
+            request.gate_records, request.patient_id, request.as_of, content
         )
         output = SafetyGateOutput(
             patient_id=request.patient_id,

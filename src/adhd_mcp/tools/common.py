@@ -76,17 +76,26 @@ class PatientRequest:
     as_of: date
     patient: PatientRecord
     records: PatientRecords
+    #: Unfiltered reads for the safety gate only (see ``request_ports``).
+    gate_records: PatientRecords
     ledger: PrivacyLedger = field(default_factory=PrivacyLedger)
 
 
-def request_port(
+def request_ports(
     context: ToolContext, ledger: PrivacyLedger, *, cached: bool = False
-) -> FhirReadPort:
-    """The port one request reads through: the source, audited, then the privacy policy,
-    then (for multi-assembler tools) a request-scoped cache."""
+) -> tuple[FhirReadPort, FhirReadPort]:
+    """The ports one request reads through: (evidence, safety gate).
+
+    Both start from the source, audited, then (for multi-assembler tools) a request-scoped
+    cache, so no query repeats. Evidence then passes through the privacy policy. The safety
+    gate does not: a self-harm signal must never be hidden from it by a withhold policy,
+    and its output carries only signal names and references, never codes.
+    """
     assert context.port is not None  # noqa: S101 - checked by start_request
-    port: FhirReadPort = PrivacyPort(AuditingPort(context.port), context.privacy, ledger)
-    return RequestCachedPort(port) if cached else port
+    base: FhirReadPort = AuditingPort(context.port)
+    if cached:
+        base = RequestCachedPort(base)
+    return PrivacyPort(base, context.privacy, ledger), base
 
 
 async def start_request(
@@ -104,7 +113,8 @@ async def start_request(
     if as_of > today:
         raise tool_error(ErrorCode.INVALID_INPUT, "as_of must not be in the future")
     ledger = PrivacyLedger()
-    records = PatientRecords(request_port(context, ledger, cached=cached))
+    evidence_port, gate_port = request_ports(context, ledger, cached=cached)
+    records = PatientRecords(evidence_port)
     try:
         patient = await records.patient(patient_id)
     except ResourceNotFoundError as exc:
@@ -112,7 +122,12 @@ async def start_request(
     except FhirRequestError as exc:
         raise tool_error(ErrorCode.FHIR_UNAVAILABLE, "the FHIR server could not be read") from exc
     return PatientRequest(
-        patient_id=patient_id, as_of=as_of, patient=patient, records=records, ledger=ledger
+        patient_id=patient_id,
+        as_of=as_of,
+        patient=patient,
+        records=records,
+        gate_records=PatientRecords(gate_port),
+        ledger=ledger,
     )
 
 
@@ -122,9 +137,15 @@ def privacy_note(context: ToolContext, request: PatientRequest) -> PrivacyNote:
 
 def apply_privacy[M: BaseModel](request: PatientRequest, output: M) -> M:
     """Replace codes resting on restricted resources (policy "cite") with "restricted"."""
-    if not request.ledger.restricted_refs:
+    ledger = request.ledger
+    if not ledger.restricted_refs and not ledger.withheld_types:
         return output
-    data: Any = redact_output(output.model_dump(mode="json"), request.ledger.restricted_refs)
+    data: Any = redact_output(output.model_dump(mode="json"), ledger.restricted_refs)
+    # A category that lost records to a withhold policy is reported as withheld, never as
+    # complete (an empty or partial record must not look clean).
+    for note in data.get("data_completeness") or []:
+        if note["category"] in ledger.withheld_types and note["status"] in {"available", "empty"}:
+            note["status"] = "withheld"
     return type(output).model_validate(data)
 
 

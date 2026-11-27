@@ -16,6 +16,13 @@ Phase 6 requires one audit record per tool call with no clinical values (standin
 
 **Sensitive data.** `data/privacy.toml` defines protected categories by security label (`meta.security`) and by value set: substance use, HIV, sickle cell disease. A policy maps each category to `allow`, `cite` or `withhold`; the default is `cite` for all three (owner decision). A filtering port applies `withhold` before evidence assembly: withheld resources never reach an assembler, and the output's `privacy` section names the category and the count withheld. Under `cite`, resources still feed the rules, but any coded entry from them is shown as `restricted` with only its references and dates. A site may load its own policy file (`ADHD_MCP_PRIVACY_POLICY`).
 
+Amended after the clinical safety review (2026-11-27):
+
+- **The safety gate reads every record.** It reads through the audited, cached port but not through the privacy filter, so a withhold policy can never hide a self-harm signal (for example a suicidal-ideation code carrying a substance-use security label). The gate's output carries signal names and references only, never codes.
+- **Only categories an output can use are named.** A category has a `disclose` flag; HIV and sickle-cell disease are `false` because no output or rule uses them, so naming them (even as a count) would only reveal that such a record exists. A test keeps the flag equal to whether any output family or signal uses the category's value sets.
+- **Withheld means withheld.** A resource type that lost records to a withhold policy (in a disclosed category) is reported as `withheld` in data completeness, never as complete.
+- **Draft referrals** cite protected signals by reference only; their titles appear in the draft's note only under `allow`.
+
 ## Alternatives considered
 
 | Option | Why not |

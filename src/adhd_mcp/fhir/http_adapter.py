@@ -67,6 +67,12 @@ class HttpFhirAdapter:
         url = httpx2.URL(base_url.rstrip("/"))
         if url.scheme not in {"http", "https"} or not url.host:
             raise ValueError("FHIR base URL must be an absolute http or https URL")
+        if (
+            auth is not None
+            and url.scheme != "https"
+            and url.host not in {"localhost", "127.0.0.1"}
+        ):
+            raise ValueError("an authenticated FHIR base URL must use https")
         self._base = url
         self._client = httpx2.AsyncClient(
             transport=transport,

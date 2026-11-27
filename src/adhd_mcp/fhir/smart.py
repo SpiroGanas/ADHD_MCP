@@ -89,8 +89,14 @@ class SmartBackendAuth:
                 raise FhirRequestError(
                     "SMART token response is not a bearer token", transient=False
                 )
+            try:
+                lifetime = int(body.get("expires_in", 300))
+            except (TypeError, ValueError) as exc:
+                raise FhirRequestError(
+                    "SMART token response has a bad expiry", transient=False
+                ) from exc
             self._token = token
-            self._expires = self._clock.now() + timedelta(seconds=int(body.get("expires_in", 300)))
+            self._expires = self._clock.now() + timedelta(seconds=lifetime)
             return token
 
     def invalidate(self) -> None:

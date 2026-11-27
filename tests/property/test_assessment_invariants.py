@@ -73,12 +73,13 @@ def test_assessment_invariants_hold_for_generated_records(
 ) -> None:
     p = build(spec)
     records_ = PatientRecords(FixtureFhirAdapter(p.resources))
-    result = asyncio.run(assess(adhd_plugin(), records_, p.patient_id, AS_OF, SITE))
+    result = asyncio.run(assess(adhd_plugin(), records_, records_, p.patient_id, AS_OF, site=SITE))
     request = PatientRequest(
         patient_id=p.patient_id,
         as_of=AS_OF,
         patient=asyncio.run(records_.patient(p.patient_id)),
         records=records_,
+        gate_records=records_,
     )
     # Building the output runs every model validator (gate consistency, basis, references).
     out = build_output(CONTEXT, request, "adhd", result)

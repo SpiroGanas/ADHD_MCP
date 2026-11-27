@@ -44,6 +44,10 @@ class ConditionPlugin:
             self.ruleset.catalog_version,
         ):
             raise ValueError(f"condition {self.id}: ruleset and catalog versions differ")
+        if self.ruleset.exclusions and self.exclusions is None:
+            raise ValueError(
+                f"condition {self.id}: the ruleset names exclusions but none are wired"
+            )
 
 
 class ConditionRegistry:

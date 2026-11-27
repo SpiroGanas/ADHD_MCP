@@ -98,7 +98,12 @@ async def run_assessment(
     request = await start_request(context, patient_id, as_of, cached=True)
     plugin = context.conditions.get(condition)
     result = await assess(
-        plugin, request.records, request.patient_id, request.as_of, context.site_codes
+        plugin,
+        request.records,
+        request.gate_records,
+        request.patient_id,
+        request.as_of,
+        site=context.site_codes,
     )
     return request, result
 

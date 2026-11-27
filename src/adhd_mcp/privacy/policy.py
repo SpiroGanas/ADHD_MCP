@@ -42,6 +42,9 @@ class Category(_Frozen):
     title: str
     value_sets: tuple[str, ...]
     labels: tuple[Label, ...]
+    #: Whether outputs may name this category. False for categories no output or rule
+    #: uses: naming them would reveal only that such a record exists.
+    disclose: bool
 
 
 class PolicyFile(_Frozen):
@@ -91,6 +94,9 @@ class PrivacyPolicy:
     def action(self, category: str) -> Action:
         return self.actions.get(category, "cite")
 
+    def disclosed(self, category: str) -> bool:
+        return any(c.disclose for c in self.categories if c.id == category)
+
 
 def parse_privacy_policy(text: str) -> PrivacyPolicy:
     data = PolicyFile.model_validate(tomllib.loads(text))
@@ -133,23 +139,28 @@ class PrivacyLedger:
     withheld: Counter[str] = field(default_factory=Counter)
     restricted: Counter[str] = field(default_factory=Counter)
     restricted_refs: set[tuple[str, str]] = field(default_factory=set)
-    _seen: set[tuple[str, str, str]] = field(default_factory=set)
+    #: Resource types that lost records to a withhold policy (disclosed categories only).
+    withheld_types: set[str] = field(default_factory=set)
+    _seen: set[tuple[str, ...]] = field(default_factory=set)
 
     def note(self, policy: PrivacyPolicy) -> PrivacyNote:
+        """Only disclosed categories are named (see ``Category.disclose``)."""
+
+        def counts(counter: Counter[str]) -> list[PrivacyCount]:
+            return [
+                PrivacyCount(category=c, records=n)
+                for c, n in sorted(counter.items())
+                if policy.disclosed(c)
+            ]
+
         return PrivacyNote(
-            policy=policy.label,
-            withheld=[
-                PrivacyCount(category=c, records=n) for c, n in sorted(self.withheld.items())
-            ],
-            restricted=[
-                PrivacyCount(category=c, records=n) for c, n in sorted(self.restricted.items())
-            ],
+            policy=policy.label, withheld=counts(self.withheld), restricted=counts(self.restricted)
         )
 
-    def _count(self, kind: str, category: str, key: tuple[str, str]) -> None:
+    def count(self, kind: str, category: str, key: tuple[str, str]) -> None:
         # The same resource can be read twice in one request (several assemblers).
-        if (kind, *key) not in self._seen:
-            self._seen.add((kind, *key))
+        if (kind, category, *key) not in self._seen:
+            self._seen.add((kind, category, *key))
             (self.withheld if kind == "withheld" else self.restricted)[category] += 1
 
 
@@ -183,10 +194,12 @@ class PrivacyPort:
             withheld = sorted(c for c, a in actions.items() if a == "withhold")
             if withheld:
                 for c in withheld:
-                    self.ledger._count("withheld", c, key)
+                    self.ledger.count("withheld", c, key)
+                    if self._policy.disclosed(c):
+                        self.ledger.withheld_types.add(key[0])
                 continue
             for c in sorted(c for c, a in actions.items() if a == "cite"):
-                self.ledger._count("restricted", c, key)
+                self.ledger.count("restricted", c, key)
                 self.ledger.restricted_refs.add(key)
             kept.append(raw)
         return SearchResult(resources=kept, warnings=found.warnings)

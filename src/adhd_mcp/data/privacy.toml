@@ -8,7 +8,7 @@
 # Changing anything here is a policy change. A site may supply its own file
 # (ADHD_MCP_PRIVACY_POLICY).
 id = "privacy"
-version = "0.1.0"
+version = "0.2.0"
 
 [actions]
 substance_use = "cite"
@@ -20,6 +20,8 @@ sickle_cell = "cite"
 [[categories]]
 id = "substance_use"
 title = "Substance use"
+# Substance-use signals feed the ADHD rules and the problem list, so outputs name it.
+disclose = true
 value_sets = ["sud.alcohol", "sud.blood_alcohol_level", "sud.alcohol_in_blood", "sud.stimulant", "sud.other"]
 labels = [
   { system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "ETH" },
@@ -31,11 +33,15 @@ labels = [
 [[categories]]
 id = "hiv"
 title = "HIV"
+# No output or rule uses HIV data: outputs never name the category, so a count cannot
+# reveal that such a record exists.
+disclose = false
 value_sets = ["privacy.hiv"]
 labels = [{ system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "HIV" }]
 
 [[categories]]
 id = "sickle_cell"
 title = "Sickle-cell disease"
+disclose = false
 value_sets = ["privacy.sickle_cell"]
 labels = [{ system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "SCA" }]

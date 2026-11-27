@@ -116,8 +116,10 @@ def _status(notes: Sequence[DataCompleteness], *categories: str) -> bool:
 async def assess(
     plugin: ConditionPlugin,
     records: PatientRecords,
+    gate_records: PatientRecords,
     patient_id: str,
     as_of: date,
+    *,
     site: SiteCodes,
 ) -> Assessment:
     async def no_exclusions() -> ExclusionResult:
@@ -129,7 +131,7 @@ async def assess(
         else no_exclusions()
     )
     gate_result, exclusions, problems, psychosocial, utilization, medication = await asyncio.gather(
-        assess_safety_gate(records, patient_id, as_of, load_gate_content(site)),
+        assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site)),
         exclusions_call,
         assemble_problem_list(records, patient_id, as_of, load_problem_list_content()),
         assemble_psychosocial(records, patient_id, as_of, load_psychosocial_content(site)),

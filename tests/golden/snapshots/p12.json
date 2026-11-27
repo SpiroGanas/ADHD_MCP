@@ -161,7 +161,7 @@
   "notice": "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment.",
   "patient_id": "p12-patient",
   "privacy": {
-    "policy": "privacy 0.1.0",
+    "policy": "privacy 0.2.0",
     "restricted": [
       {
         "category": "substance_use",
