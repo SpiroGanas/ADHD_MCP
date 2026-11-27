@@ -3,7 +3,7 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phase 8 (VA readiness and extensibility), started 2026-11-27 ahead of the 1.0.0 tag (owner decision). Release candidate 1.0.0rc1; tagging 1.0.0 still waits for the owner's review of the clinical content.
+**Current phase:** Phase 8 (VA readiness and extensibility) complete on the branch except the live Lighthouse run (no credentials); PR #7 open. Started 2026-11-27 ahead of the 1.0.0 tag (owner decision). Release candidate 1.0.0rc1; tagging 1.0.0 still waits for the owner's review of the clinical content.
 **Branch:** `claude/tender-lamport-y0qpyy`
 
 ## Summary
@@ -19,11 +19,11 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Oracle Health desk review (item 3), deployment guide (item 7) and next-stage proposal (item 8): [docs/integration/oracle_health.md](docs/integration/oracle_health.md), [docs/guide/deployment.md](docs/guide/deployment.md), [docs/next_stage_plan.md](docs/next_stage_plan.md). Clinical safety review done 2026-11-27: one blocking finding (orders-only antidepressant count on servers without dispenses or statements) resolved by owner decision to keep it and disclose it; non-blocking findings fixed (gate fails without Condition, profiles must offer Condition and Encounter, no draft for experimental rulesets, rule cards, ADR 0014 proposed). Next: open the pull request.
+- **Phase 8**, one PR with a commit per work item. Done: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter, data-shape findings and security-label review (items 1, 2, 4; [docs/integration/lighthouse.md](docs/integration/lighthouse.md)). Oracle Health desk review (item 3), deployment guide (item 7) and next-stage proposal (item 8): [docs/integration/oracle_health.md](docs/integration/oracle_health.md), [docs/guide/deployment.md](docs/guide/deployment.md), [docs/next_stage_plan.md](docs/next_stage_plan.md). Clinical safety review done 2026-11-27: one blocking finding (orders-only antidepressant count on servers without dispenses or statements) resolved by owner decision to keep it and disclose it; non-blocking findings fixed (gate fails without Condition, profiles must offer Condition and Encounter, no draft for experimental rulesets, rule cards, ADR 0014 proposed). Pull request [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) open; watching CI and review.
 
 ## Next steps
 
-1. Continue Phase 8 from the first unfinished item under "In progress".
+1. Get [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) green and merged; the Lighthouse live run waits for sandbox credentials (open question 5).
 2. Project owner decisions before tagging 1.0.0 (open questions 1, 4, 14, 16, 17): review and approve, or change, the signal catalog (`reviewed_by_owner = false`), the [rule card](docs/clinical/rule_card_adhd_1.0.md), the clinician wording in `src/adhd_mcp/data/wording.toml`, the drug-class curation (ADR 0009) and medication parameters; choose a sex-balance option; approve ADR 0013.
 3. Then release: ruleset status `released` with its sha256 in `src/adhd_mcp/data/released_rulesets.toml`; rule card status Released; tool contract `1.0.0` (snapshots, tool reference); version `1.0.0` in `pyproject.toml` and `CHANGELOG.md`; regenerate the evaluation report; `uv run python scripts/release_check.py` passes; the owner tags `v1.0.0` on `main`.
 4. When the owner approves the budget and SDK: a live model driver, the model-in-the-loop run, then tool description tuning (item 5).
@@ -99,4 +99,5 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
 | [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |
 | [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
-| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Open |
+| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Merged |
+| [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Open |
