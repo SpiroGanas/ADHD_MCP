@@ -19,7 +19,7 @@ from tests.personas import persona_ids
 
 pytestmark = pytest.mark.anyio
 
-PATIENT_TOOLS = ["check_safety_gate", "get_mh_problem_list"]
+PATIENT_TOOLS = ["check_safety_gate", "get_mh_problem_list", "get_screening_history"]
 
 
 async def call(client: Client, tool: str, args: dict[str, Any]) -> Any:  # type: ignore[type-arg]
