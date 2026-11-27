@@ -21,3 +21,12 @@ class FhirRequestError(FhirError):
         super().__init__(message)
         self.status = status
         self.transient = transient
+
+
+class SearchNotSupportedError(FhirError):
+    """The FHIR server does not offer this resource type at all. Not a failure: the data
+    cannot exist there, so checks that need it are "not performed", never "not found"."""
+
+    def __init__(self, resource_type: str) -> None:
+        super().__init__(f"search {resource_type}: not offered by this FHIR server")
+        self.resource_type = resource_type

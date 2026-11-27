@@ -6,7 +6,15 @@ The tool is not clinically validated, and no version of it diagnoses.
 
 ## [Unreleased]
 
-Nothing yet.
+Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
+
+### Added
+
+- Data-completeness status `not_supported`: the FHIR server does not offer a resource type at all (for example VA Lighthouse has no Flag, QuestionnaireResponse, ServiceRequest, CarePlan, MedicationDispense or MedicationStatement). A safety gate or exclusion check that needs such a type is "not performed" with the reason, never "not found"; an assessment proceeds without dispenses and statements when medication orders were read. `HttpFhirAdapter(supported_types=...)` refuses other types without a request.
+
+### Changed
+
+- Tool contract 0.3.0 to 0.4.0: the `status` enum of every `data_completeness` entry gains `not_supported`.
 
 ## [1.0.0rc1] - 2026-11-27
 

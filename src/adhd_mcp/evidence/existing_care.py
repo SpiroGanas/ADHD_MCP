@@ -18,7 +18,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category
+from adhd_mcp.evidence.common import (
+    completeness,
+    not_after,
+    not_offered_reason,
+    read_category,
+    usable,
+)
 from adhd_mcp.fhir.dates import DateRange
 from adhd_mcp.fhir.reader import PatientRecords, ReadResult
 from adhd_mcp.fhir.records import (
@@ -149,6 +155,7 @@ def _check(
     refs: Sequence[ResourceRef],
     *,
     failed: list[str],
+    not_offered: list[str],
     not_performed: bool = False,
 ) -> ExclusionCheck:
     if not_performed:
@@ -172,6 +179,13 @@ def _check(
             outcome=CheckOutcome.FAILED,
             reason=f"Could not read {', '.join(failed)}",
         )
+    if not_offered:
+        return ExclusionCheck(
+            check=check,
+            description=description,
+            outcome=CheckOutcome.NOT_PERFORMED,
+            reason=not_offered_reason(not_offered),
+        )
     return ExclusionCheck(check=check, description=description, outcome=CheckOutcome.NOT_FOUND)
 
 
@@ -184,7 +198,7 @@ def _referral_related(sr: ServiceRequestRecord, content: ExistingCareContent) ->
 async def assemble_existing_care(
     records: PatientRecords, patient_id: str, as_of: date, content: ExistingCareContent
 ) -> ExistingCareResult:
-    reads: tuple[Any, ...] = await asyncio.gather(
+    raw: tuple[Any, ...] = await asyncio.gather(
         read_category(records.conditions(patient_id)),
         read_category(records.service_requests(patient_id)),
         read_category(records.procedures(patient_id)),
@@ -200,8 +214,10 @@ async def assemble_existing_care(
         "MedicationRequest",
         "MedicationStatement",
     )
-    notes = [completeness(n, r) for n, r in zip(names, reads, strict=True)]
+    notes = [completeness(n, r) for n, r in zip(names, raw, strict=True)]
+    reads = [usable(r) for r in raw]
     failed = {n.category for n in notes if n.status == "failed"}
+    not_offered = {n.category for n in notes if n.status == "not_supported"}
     conditions: Sequence[ConditionRecord] = [
         c for c in _records(reads[0]) if not_after(c.onset or c.recorded, as_of)
     ]
@@ -244,6 +260,9 @@ async def assemble_existing_care(
     def failures(*categories: str) -> list[str]:
         return [c for c in categories if c in failed]
 
+    def unoffered(*categories: str) -> list[str]:
+        return [c for c in categories if c in not_offered]
+
     days = content.definition.completed_window_days
     checks = [
         _check(
@@ -251,18 +270,21 @@ async def assemble_existing_care(
             "ADHD code (F90) on a Condition or as a medication reason",
             diagnosis_refs,
             failed=failures("Condition", "MedicationRequest", "MedicationStatement"),
+            not_offered=unoffered("Condition", "MedicationRequest", "MedicationStatement"),
         ),
         _check(
             "adhd_referral",
             f"ADHD referral or evaluation request, open or completed within {days} days",
             excluding("service_request"),
             failed=failures("ServiceRequest"),
+            not_offered=unoffered("ServiceRequest"),
         ),
         _check(
             "adhd_evaluation_procedure",
             f"ADHD evaluation in progress or completed within {days} days",
             excluding("procedure"),
             failed=failures("Procedure"),
+            not_offered=unoffered("Procedure"),
             not_performed=not site.maps("adhd_evaluation_procedure"),
         ),
         _check(
@@ -270,6 +292,7 @@ async def assemble_existing_care(
             f"ADHD care plan, open or completed within {days} days",
             excluding("care_plan"),
             failed=failures("CarePlan"),
+            not_offered=unoffered("CarePlan"),
             not_performed=not site.maps("adhd_care_plan"),
         ),
     ]

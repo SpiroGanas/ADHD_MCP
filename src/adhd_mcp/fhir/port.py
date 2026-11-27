@@ -78,6 +78,8 @@ class FhirReadPort(Protocol):
         Medication searches also return the ``Medication`` resources they reference.
         Warnings mean the server may have returned less than everything (truncated,
         suppressed or withheld results); callers must disclose them.
-        Raises ``FhirRequestError`` when the request fails; no resources means none found.
+        Raises ``FhirRequestError`` when the request fails, and ``SearchNotSupportedError``
+        when the server does not offer the resource type at all; no resources means none
+        found.
         """
         ...

@@ -73,6 +73,7 @@
                 "empty",
                 "incomplete",
                 "withheld",
+                "not_supported",
                 "failed"
               ],
               "type": "string"

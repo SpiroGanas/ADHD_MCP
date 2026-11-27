@@ -46,8 +46,9 @@ _SEVERITY = {
     DataStatus.AVAILABLE: 0,
     DataStatus.EMPTY: 0,
     DataStatus.WITHHELD: 1,
-    DataStatus.INCOMPLETE: 2,
-    DataStatus.FAILED: 3,
+    DataStatus.NOT_SUPPORTED: 2,
+    DataStatus.INCOMPLETE: 3,
+    DataStatus.FAILED: 4,
 }
 _READABLE = frozenset({DataStatus.AVAILABLE, DataStatus.EMPTY})
 
@@ -109,8 +110,17 @@ def _choose(
     return RecommendationCode.NO_RECOMMENDATION
 
 
-def _status(notes: Sequence[DataCompleteness], *categories: str) -> bool:
-    return all(n.status in _READABLE for n in notes if n.category in categories)
+def _status(
+    notes: Sequence[DataCompleteness], *categories: str, may_be_absent: Sequence[str] = ()
+) -> bool:
+    """Whether every category was read completely. A category in ``may_be_absent`` may
+    instead be one the server does not offer (a failed or partial read still counts)."""
+    return all(
+        n.status in _READABLE
+        or (n.category in may_be_absent and n.status is DataStatus.NOT_SUPPORTED)
+        for n in notes
+        if n.category in categories
+    )
 
 
 async def assess(
@@ -156,8 +166,16 @@ async def assess(
         utilization_events=utilization.events
         if _status(completeness, "Encounter", "Condition")
         else None,
+        # A server that offers no dispenses or statements leaves orders as the whole
+        # medication record (the timeline then uses orders); orders themselves are required.
         distinct_agents=medication.distinct_agents
-        if _status(completeness, "MedicationRequest", "MedicationDispense", "MedicationStatement")
+        if _status(
+            completeness,
+            "MedicationRequest",
+            "MedicationDispense",
+            "MedicationStatement",
+            may_be_absent=("MedicationDispense", "MedicationStatement"),
+        )
         else None,
     )
     findings = evaluate_signals(plugin.catalog.signals, evidence, as_of)

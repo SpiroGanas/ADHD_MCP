@@ -1,6 +1,6 @@
 # Tool reference
 
-Generated from the contract snapshots in `tests/contract/snapshots/` by `uv run python scripts/build_tool_reference.py`; do not edit by hand. Tool contract version **0.3.0**.
+Generated from the contract snapshots in `tests/contract/snapshots/` by `uv run python scripts/build_tool_reference.py`; do not edit by hand. Tool contract version **0.4.0**.
 
 Every tool is read-only. No result is a diagnosis: every patient tool returns `is_diagnosis: false` and a notice. The tool is not clinically validated.
 

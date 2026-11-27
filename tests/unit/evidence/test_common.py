@@ -4,9 +4,17 @@ from datetime import date, timedelta
 
 import pytest
 
-from adhd_mcp.evidence.common import completeness, in_window, latest, not_after, read_category
+from adhd_mcp.evidence.common import (
+    NOT_SUPPORTED,
+    completeness,
+    in_window,
+    latest,
+    not_after,
+    read_category,
+    usable,
+)
 from adhd_mcp.fhir.dates import DatePrecision, DateRange
-from adhd_mcp.fhir.errors import FhirRequestError
+from adhd_mcp.fhir.errors import FhirRequestError, SearchNotSupportedError
 from adhd_mcp.fhir.port import SearchWarning
 from adhd_mcp.fhir.reader import ReadResult
 from adhd_mcp.fhir.records import ConditionRecord, Skipped, SkipReason
@@ -90,6 +98,8 @@ def test_completeness_reports_each_state() -> None:
     note = completeness("Condition", warned)
     assert (note.status, note.warnings) == (DataStatus.INCOMPLETE, ["suppressed"])
     assert completeness("Condition", None).status is DataStatus.FAILED
+    note = completeness("Flag", NOT_SUPPORTED)
+    assert (note.status, note.records, note.warnings) == (DataStatus.NOT_SUPPORTED, 0, [])
 
 
 async def test_read_category_turns_a_request_failure_into_none() -> None:
@@ -125,3 +135,19 @@ def test_an_unreadable_resource_alone_is_not_an_empty_category() -> None:
     skipped = (Skipped(ref=None, resource_type="Condition", reason=SkipReason.MALFORMED),)
     note = completeness("Condition", ReadResult[ConditionRecord](records=(), skipped=skipped))
     assert note.status is DataStatus.INCOMPLETE
+
+
+async def test_read_category_marks_a_type_the_server_does_not_offer() -> None:
+    async def unsupported() -> ReadResult[ConditionRecord]:
+        raise SearchNotSupportedError("Flag")
+
+    assert await read_category(unsupported()) is NOT_SUPPORTED
+
+
+def test_an_unsupported_category_is_never_usable_as_read_data() -> None:
+    """Logic must treat "not offered" as unknown, exactly like a failed read, never as
+    "searched and found nothing"."""
+    read = ReadResult[ConditionRecord](records=(), skipped=())
+    assert usable(NOT_SUPPORTED) is None
+    assert usable(None) is None
+    assert usable(read) is read

@@ -16,7 +16,7 @@ from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.models.domain import CheckOutcome
 from adhd_mcp.terminology.site_codes import SiteCodes, load_site_codes, load_site_codes_file
-from tests.helpers.failing_adapter import FailingAdapter
+from tests.helpers.failing_adapter import FailingAdapter, UnsupportingAdapter
 from tests.personas import all_resources
 from tests.personas.builder import PersonaBuilder
 
@@ -250,6 +250,31 @@ async def test_a_failed_read_leaves_the_answer_unknown() -> None:
     result = await assemble_existing_care(records, p.patient_id, AS_OF, content)
     assert result.excluded is None
     assert outcomes(result)["adhd_referral"] is CheckOutcome.FAILED
+
+
+async def test_a_type_the_server_does_not_offer_leaves_its_check_not_performed() -> None:
+    p = person()
+    records = PatientRecords(UnsupportingAdapter(p, {"ServiceRequest", "MedicationStatement"}))
+    content = load_existing_care_content(load_site_codes("synthetic"))
+    result = await assemble_existing_care(records, p.patient_id, AS_OF, content)
+    assert result.excluded is None
+    checks = {c.check: c for c in result.exclusions_checked}
+    assert checks["adhd_referral"].outcome is CheckOutcome.NOT_PERFORMED
+    assert (
+        checks["adhd_referral"].reason
+        == "Not performed: the FHIR server does not offer ServiceRequest."
+    )
+    assert checks["adhd_diagnosis_code"].outcome is CheckOutcome.NOT_PERFORMED
+    assert checks["adhd_evaluation_procedure"].outcome is CheckOutcome.NOT_FOUND
+
+
+async def test_a_found_exclusion_stands_when_a_type_is_not_offered() -> None:
+    p = person()
+    p.condition("F90.2", "ADHD, combined type", recorded=ago(100))
+    records = PatientRecords(UnsupportingAdapter(p, {"ServiceRequest", "MedicationStatement"}))
+    content = load_existing_care_content(load_site_codes("synthetic"))
+    result = await assemble_existing_care(records, p.patient_id, AS_OF, content)
+    assert result.excluded is True
 
 
 async def test_a_found_exclusion_stands_despite_a_failure() -> None:

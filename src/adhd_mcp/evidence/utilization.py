@@ -9,11 +9,11 @@ from dataclasses import dataclass
 from datetime import date
 from functools import cache
 from importlib.resources import files
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category
+from adhd_mcp.evidence.common import completeness, not_after, read_category, usable
 from adhd_mcp.fhir.codes import Coding
 from adhd_mcp.fhir.reader import PatientRecords, ReadResult
 from adhd_mcp.fhir.records import ConditionRecord, EncounterRecord
@@ -172,13 +172,13 @@ async def assemble_utilization(
     records: PatientRecords, patient_id: str, as_of: date, content: UtilizationContent
 ) -> UtilizationResult:
     d = content.definition
-    reads: tuple[Any, ...] = await asyncio.gather(
+    raw_encounters, raw_conditions = await asyncio.gather(
         read_category(records.encounters(patient_id)),
         read_category(records.conditions(patient_id)),
     )
-    encounter_read: ReadResult[EncounterRecord] | None = reads[0]
-    condition_read: ReadResult[ConditionRecord] | None = reads[1]
-    notes = [completeness("Encounter", encounter_read), completeness("Condition", condition_read)]
+    notes = [completeness("Encounter", raw_encounters), completeness("Condition", raw_conditions)]
+    encounter_read: ReadResult[EncounterRecord] | None = usable(raw_encounters)
+    condition_read: ReadResult[ConditionRecord] | None = usable(raw_conditions)
     encounters = [
         e
         for e in (encounter_read.records if encounter_read else ())

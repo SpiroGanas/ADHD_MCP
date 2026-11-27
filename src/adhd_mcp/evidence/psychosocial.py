@@ -7,11 +7,10 @@ from dataclasses import dataclass
 from datetime import date
 from functools import cache
 from importlib.resources import files
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category
+from adhd_mcp.evidence.common import completeness, not_after, read_category, usable
 from adhd_mcp.evidence.problem_list import conditions_as_of, group_conditions
 from adhd_mcp.fhir.reader import PatientRecords, ReadResult
 from adhd_mcp.fhir.records import ConditionRecord, ObservationRecord
@@ -100,16 +99,16 @@ def _military(
 async def assemble_psychosocial(
     records: PatientRecords, patient_id: str, as_of: date, content: PsychosocialContent
 ) -> PsychosocialResult:
-    reads: tuple[Any, ...] = await asyncio.gather(
+    raw_conditions, raw_observations = await asyncio.gather(
         read_category(records.conditions(patient_id)),
         read_category(records.observations(patient_id)),
     )
-    condition_read: ReadResult[ConditionRecord] | None = reads[0]
-    observation_read: ReadResult[ObservationRecord] | None = reads[1]
     notes = [
-        completeness("Condition", condition_read),
-        completeness("Observation", observation_read),
+        completeness("Condition", raw_conditions),
+        completeness("Observation", raw_observations),
     ]
+    condition_read: ReadResult[ConditionRecord] | None = usable(raw_conditions)
+    observation_read: ReadResult[ObservationRecord] | None = usable(raw_observations)
     complete = all(n.status in _COMPLETE for n in notes)
     conditions = conditions_as_of(condition_read.records if condition_read else (), as_of)
     observations = [

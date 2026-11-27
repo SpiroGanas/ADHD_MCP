@@ -121,7 +121,7 @@ docs/
 
 - **Context** (`tools/context.py`): the FHIR port, the clock and the site code mapping are injected into `create_server`. As a process the server reads `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_FIXTURE_DIR`, and `ADHD_MCP_SITE_CODES` (default `synthetic` for fixtures, no mapping for a FHIR server). Outputs report the mapping in `versions.site_codes` ([ADR 0008](adr/0008-site-codes-and-search-warnings.md)).
 - **As-of date**: every tool reads the record as of a date (default today, never the future); items dated later are ignored. Look-back windows are inclusive at both ends.
-- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings, or resources that could not be read) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one.
+- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings, or resources that could not be read), `not_supported` (the FHIR server does not offer the resource type) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one. A check that needs a type the server does not offer is "not performed", never "not found"; an assessment may proceed without dispenses and statements when medication orders were read (the timeline then uses orders), but never without orders.
 - **Record text**: no output carries display text from the record. Labels come from value sets or instrument data, or are omitted.
 - **Site codes** (`data/site_codes/`): local codes with no standard (psychiatric inpatient and residential encounters, high-risk flags, ADHD referrals, evaluations and care plans, screening questionnaires). A concept a site does not map leaves the dependent check "not performed". Only the synthetic site exists.
 - **Clinical definitions are data**: `data/safety_gate.toml`, `data/problem_list.toml`, `data/existing_care.toml`, `data/medication_timeline.toml`, `data/utilization.toml`, `data/psychosocial.toml`, each versioned and reported in outputs.
@@ -193,7 +193,7 @@ Fields of the `assess_referral_need` result. The exact schema is fixed by contra
 | Basis | List of evidence items: signal name, weight class, resource references, dates |
 | Exclusions checked | What was looked for and what was found |
 | Decision trace | Which rules fired and which did not |
-| Data completeness | Which data categories were available, empty, withheld or failed to load |
+| Data completeness | Which data categories were available, empty, incomplete, withheld, not offered by the FHIR server (`not_supported`) or failed to load |
 | Versions | Server, tool contract, ruleset, and scorer if present |
 
 ### Resources and prompts

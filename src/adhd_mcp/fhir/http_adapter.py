@@ -14,6 +14,9 @@
 * A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
   raises ``FhirRequestError``. Error messages never include response bodies.
 
+* With ``supported_types``, a search of any other type raises ``SearchNotSupportedError``
+  before a request is made (a server that does not offer the type at all).
+
 * With ``auth`` (SMART backend services) every request carries the server's own bearer
   token; after a 401 the token is renewed once. A caller's MCP token is never forwarded.
 * Inside a traced tool call every request carries a W3C ``traceparent`` with the call's
@@ -22,7 +25,7 @@
 
 import asyncio
 import re
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Collection
 from datetime import date, datetime
 from types import TracebackType
 from typing import Any, Self
@@ -30,7 +33,7 @@ from typing import Any, Self
 import httpx2
 
 from adhd_mcp.audit.trace import outgoing_traceparent
-from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
+from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError, SearchNotSupportedError
 from adhd_mcp.fhir.port import (
     WARNING_SEVERITIES,
     RawResource,
@@ -66,6 +69,7 @@ class HttpFhirAdapter:
         max_pages: int = 1000,
         sleep: Sleep = asyncio.sleep,
         auth: SmartBackendAuth | None = None,
+        supported_types: Collection[str] | None = None,
     ) -> None:
         url = httpx2.URL(base_url.rstrip("/"))
         if url.scheme not in {"http", "https"} or not url.host:
@@ -90,6 +94,7 @@ class HttpFhirAdapter:
         self._max_pages = max_pages
         self._sleep = sleep
         self._auth = auth
+        self._supported = frozenset(supported_types) if supported_types is not None else None
 
     async def __aenter__(self) -> Self:
         return self
@@ -186,6 +191,8 @@ class HttpFhirAdapter:
         validate_patient_id(patient_id)
         if resource_type not in DATE_SEARCH:
             raise ValueError(f"unsupported search type {resource_type!r}")
+        if self._supported is not None and resource_type not in self._supported:
+            raise SearchNotSupportedError(resource_type)
         params: dict[str, str] = {"patient": patient_id, "_count": str(self._page_size)}
         if since is not None:
             params[DATE_SEARCH[resource_type][0]] = f"ge{since.isoformat()}"

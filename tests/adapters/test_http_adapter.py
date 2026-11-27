@@ -4,7 +4,7 @@ from datetime import UTC, date, datetime
 import httpx2
 import pytest
 
-from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
+from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError, SearchNotSupportedError
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.normalize import normalize_many
 from adhd_mcp.fhir.port import SEARCHABLE_TYPES, SearchWarning
@@ -51,6 +51,20 @@ class TestHttpAdapterAgainstStub(SharedAdapterSuite):
             await adapter.search(resource_type, "p02-patient")
         assert server.requests
         assert {r.method for r in server.requests} == {"GET"}
+
+
+async def test_a_type_the_server_does_not_offer_is_refused_before_any_request(
+    server: FakeFhirServer, sleeps: Sleeps
+) -> None:
+    async with HttpFhirAdapter(
+        BASE, transport=server.transport(), sleep=sleeps, supported_types={"Condition"}
+    ) as adapter:
+        with pytest.raises(SearchNotSupportedError) as raised:
+            await adapter.search("Flag", "p01-patient")
+        assert raised.value.resource_type == "Flag"
+        assert not server.requests
+        found = await adapter.search("Condition", "p01-patient")
+    assert {r["id"] for r in found.resources} == bundle_ids("p01", "Condition")
 
 
 async def test_follows_paging_to_the_end(adapter: HttpFhirAdapter, server: FakeFhirServer) -> None:
