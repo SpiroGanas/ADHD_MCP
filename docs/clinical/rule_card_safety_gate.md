@@ -7,7 +7,7 @@
 | Status | Draft |
 | Author | Claude Code agent, under the project owner's decisions of 2026-11-26 and 2026-11-27 |
 | Clinical reviewer and date | None yet (open question 1). The human spot-check of the `safety.*` value sets is waived for development and is a release blocker |
-| Server versions that can load it | 0.1.0 and later (tool contract 0.2.0) |
+| Server versions that can load it | 0.1.0 and later, including release candidate 1.0.0rc1 (tool contract 0.2.0 and later) |
 
 ## Intended use
 
@@ -42,8 +42,8 @@ A negative PHQ-9 item 9 never clears the gate: each check is independent, and an
 | Status | When |
 |---|---|
 | `positive` | Any check found a current signal. Fixed guidance is returned (`safety_gate_guidance` in `data/wording.toml`) |
-| `data_unavailable` | No signal found and a check failed because its data could not be read |
-| `clear_limited_data` | No signal found, nothing failed, and a check was not performed, or the record is empty, or a category is incomplete (the server warned, or a resource could not be read) |
+| `data_unavailable` | No signal found and a check failed because its data could not be read, or was read only in part (the server warned, or a resource could not be read). Partial data never supports "not found" (owner decision 2026-11-27, server 1.0.0rc1) |
+| `clear_limited_data` | No signal found, nothing failed, and a check was not performed, or the record is empty |
 | `clear` | Every check ran and found nothing |
 
 Today the two LOINC-based checks are not performed, so no gate is plain `clear`.
@@ -95,3 +95,4 @@ From the research report, safety gate section: prior self-harm is the strongest 
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1.0 | 2026-11-27 | First draft, revised after the clinical safety review (unreadable resources limit the gate; finished stays without a discharge date dated by their start) | Phase 3 |
+| 0.1.0 (server 1.0.0rc1) | 2026-11-27 | A check whose data was read only in part now fails (gate `data_unavailable`, no referral suggestion) instead of reporting not found with a limited gate. Gate definition data unchanged; the behaviour is in `evidence/safety_gate.py` | Phase 7 clinical safety review; owner decision (open question 19) |

@@ -25,5 +25,6 @@ A short record of each decision that would be costly to reverse: what was decide
 | [0010](0010-rulesets-engine-and-plugins.md) | Rulesets as data, a condition-independent engine, and condition plugins | Accepted |
 | [0011](0011-audit-tracing-and-privacy.md) | Audit records, trace context and the sensitive-data policy | Accepted |
 | [0012](0012-authentication.md) | Authentication toward MCP clients and toward the FHIR server | Accepted |
+| [0013](0013-versioning-and-release.md) | Versioning and release policy | Proposed |
 
 Expected next: none planned.

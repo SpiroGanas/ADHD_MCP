@@ -20,4 +20,6 @@ Where things are:
 | Why a decision was made | [docs/adr/](docs/adr/README.md) |
 | Clinical rules and limits | [docs/clinical/](docs/clinical/) |
 | Clinical evidence | [research/](research/) |
-| Contribution workflow | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| How the rules and the tools were evaluated | [docs/evaluation/](docs/evaluation/README.md) |
+| Running and configuring the server | [README.md](README.md), [docs/guide/](docs/guide/configuration.md) |
+| Contribution workflow and releases | [CONTRIBUTING.md](CONTRIBUTING.md), [CHANGELOG.md](CHANGELOG.md) |

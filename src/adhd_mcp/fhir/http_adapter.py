@@ -5,7 +5,10 @@
 * OperationOutcome issues of severity warning or worse, on any page, are returned as
   ``SearchWarning`` (severity and issue code only; diagnostic text is dropped).
 * Resources of the searched type without an id are passed on, so normalization reports
-  them as skipped instead of their vanishing here.
+  them as skipped instead of their vanishing here. A structurally broken Bundle (an entry
+  without a resource; an entry, resource or link that is not an object; a resource type, id
+  or link URL that is missing or not a string) fails the search: the category is reported
+  as failed, never read in part or silently shortened.
 * Timeouts, connection errors, 429 and 5xx are retried with exponential backoff; a numeric
   ``Retry-After`` is honoured up to ``max_backoff``. Other failures are not retried.
 * A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
@@ -207,8 +210,7 @@ class HttpFhirAdapter:
             bundle = await self._get(url, label, page_params)
             if not isinstance(bundle, dict) or bundle.get("resourceType") != "Bundle":
                 raise FhirRequestError(f"{label}: response is not a Bundle", transient=False)
-            for entry in bundle.get("entry") or []:
-                resource = entry.get("resource") or {}
+            for resource in _entries(bundle, label):
                 kind = resource.get("resourceType")
                 if kind == "OperationOutcome":
                     warnings.extend(_warnings(resource))
@@ -221,8 +223,13 @@ class HttpFhirAdapter:
         return SearchResult(resources=list(results.values()) + without_id, warnings=tuple(warnings))
 
     def _next_link(self, bundle: dict[str, Any], label: str) -> httpx2.URL | None:
-        for link in bundle.get("link") or []:
+        links = bundle.get("link") or []
+        if not isinstance(links, list) or not all(isinstance(link, dict) for link in links):
+            raise _malformed(label)
+        for link in links:
             if link.get("relation") == "next" and link.get("url"):
+                if not isinstance(link["url"], str):
+                    raise _malformed(label)
                 url = httpx2.URL(link["url"])
                 if not self._same_origin(url):
                     raise FhirRequestError(
@@ -231,6 +238,33 @@ class HttpFhirAdapter:
                     )
                 return url
         return None
+
+
+def _malformed(label: str) -> FhirRequestError:
+    return FhirRequestError(f"{label}: malformed Bundle", transient=False)
+
+
+def _entries(bundle: dict[str, Any], label: str) -> list[RawResource]:
+    """The resources of a search Bundle. Any structural damage (an entry without a resource, an
+    entry or resource that is not an object, a resource type that is missing or not a string,
+    an id that is not a string) fails the whole search, so the category is reported as failed
+    rather than read partly or silently shortened."""
+    entries = bundle.get("entry") or []
+    if not isinstance(entries, list):
+        raise _malformed(label)
+    resources: list[RawResource] = []
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise _malformed(label)
+        resource = entry.get("resource")
+        if (
+            not isinstance(resource, dict)
+            or not isinstance(resource.get("resourceType"), str)
+            or not isinstance(resource.get("id", ""), str)
+        ):
+            raise _malformed(label)
+        resources.append(resource)
+    return resources
 
 
 def _issue_code(raw: Any) -> str:

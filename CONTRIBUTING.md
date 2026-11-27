@@ -22,7 +22,7 @@ This guide applies to human developers and AI agents alike. AI agents must also 
 2. **Create a branch** from the default branch.
 3. **Work test-first.** Write a failing test, make it pass, refactor. See the [TDD rules](project_plan.md#test-driven-development-rules).
 4. **Keep changes small.** One work item per pull request where practical.
-5. **Run all checks locally** (tests, lint, type check) before pushing. The commands are in CLAUDE.md once Phase 1 defines them.
+5. **Run all checks locally** with `./scripts/check` (lint, format, types, synthetic-data guard, tests) before pushing. Every command is listed in [CLAUDE.md](CLAUDE.md#commands).
 6. **Update documentation** in the same pull request: [status.md](status.md) always; architecture, rule card or an ADR when relevant.
 7. **Open a pull request** using the template and complete its checklist.
 8. **Follow it through.** Fix CI failures and respond to review until it is merged.
@@ -39,6 +39,12 @@ This guide applies to human developers and AI agents alike. AI agents must also 
 - Do not skip, weaken or delete a test to get a green run.
 - Changing a contract snapshot is a deliberate act; say why in the pull request.
 - New rules need personas: one that triggers, one that narrowly misses, one that is excluded.
+- A change to a ruleset, the signal catalog, a value set, a drug class or the evaluation cohort needs a regenerated evaluation report (`uv run python scripts/evaluate_ruleset.py`); a test fails until it is.
+- A change to a tool contract needs regenerated snapshots and tool reference (`UPDATE_SNAPSHOTS=1 uv run pytest tests/contract`, then `uv run python scripts/build_tool_reference.py`).
+
+## Releases
+
+Versioning and the release steps are in [ADR 0013](docs/adr/0013-versioning-and-release.md). Add each change to the `Unreleased` section of [CHANGELOG.md](CHANGELOG.md). Before a tag, `uv run python scripts/release_check.py` must pass; only the project owner tags a release.
 
 ## Decisions
 

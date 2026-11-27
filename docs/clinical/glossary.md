@@ -72,3 +72,14 @@ Terms used across the project. Clinical figures and sources are in the [research
 | 42 CFR Part 2 | Federal rule protecting substance use disorder treatment records |
 | HIPAA | US health privacy and security law |
 | Non-device CDS | Decision support software that meets criteria excluding it from medical device regulation |
+
+## Evaluation terms
+
+| Term | Meaning |
+|---|---|
+| Labelled cohort | The designed set of 184 synthetic patients used to evaluate a ruleset (`tests/evals/cohort.py`); each has an intended outcome written by hand |
+| Archetype | One designed presentation in the cohort, built for every sex and age band |
+| Research profile | The cohort designer's reading of the research report for an archetype: suggestive, not suggestive, boundary or not applicable. Not a diagnosis and not ground truth |
+| Presentation style | For suggestive archetypes: externalizing (substance-related disorders, injuries, crashes, legal problems) or internalizing (depression, anxiety, insomnia, attention complaints, antidepressant changes) |
+| Illustrative mix | An assumed share of presentation styles per sex, used only to show what the style gap would mean for each sex; not an estimate |
+| Model in the loop | Evaluation of how a language model uses the server's tools, graded from the transcript |

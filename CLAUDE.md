@@ -54,7 +54,7 @@ Follow the TDD rules in [project_plan.md](project_plan.md#test-driven-developmen
 - Never weaken, skip or delete a test to get a green run. If a test is wrong, say why and fix the test in its own commit.
 - Unit tests use no network and no real clock.
 - Clinical rules need a test for each branch, including the "do not recommend" cases.
-- Run the full check suite (tests, lint, type check) before every commit, once Phase 1 defines the commands. Record those commands in the "Commands" section below.
+- Run the full check suite (`./scripts/check`: tests, lint, type check) before every commit. Keep the "Commands" section below current.
 
 ## When programming is done
 
@@ -106,6 +106,12 @@ Defined in Phase 1 ([ADR 0006](docs/adr/0006-tooling-versions.md)). Requires [uv
 | Run over HTTP with OAuth | `ADHD_MCP_TRANSPORT=http` plus the auth and audit variables listed in `src/adhd_mcp/config.py` |
 | Rebuild RxNorm drug classes (needs rxnav.nlm.nih.gov) | `uv run python scripts/build_drug_classes.py` |
 | Inspect the server | `uv run fastmcp inspect src/adhd_mcp/server.py:create_server` |
+| Regenerate the ruleset evaluation report (after any clinical content or cohort change; about 2 minutes) | `uv run python scripts/evaluate_ruleset.py` |
+| Model-in-the-loop evaluation (scripted stand-in drivers only) | `uv run python scripts/evaluate_model.py --driver careful` |
+| Benchmark a full assessment (in process, or `--url` a FHIR server) | `uv run python scripts/benchmark.py` |
+| Regenerate the tool reference after a contract change | `uv run python scripts/build_tool_reference.py` |
+| Check the repository is ready to tag its version | `uv run python scripts/release_check.py` |
+| Build the package / the container image | `uv build` / `docker build -t adhd-mcp .` |
 
 ## Slash commands and subagents
 

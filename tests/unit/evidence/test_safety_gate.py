@@ -535,7 +535,11 @@ async def test_a_signal_found_elsewhere_keeps_the_gate_positive_despite_a_failur
     assert outcome(result, "psychiatric_discharge") is CheckOutcome.FAILED
 
 
-async def test_server_warnings_make_a_clean_result_limited() -> None:
+# Owner decision 2026-11-27 (open question 19): a check whose data was read only in part
+# fails, exactly as if the data could not be read; the gate is then data_unavailable.
+
+
+async def test_server_warnings_fail_the_checks_that_need_the_category() -> None:
     p = person()
     p.condition("I10", "Essential hypertension", recorded=ago(10))
     adapter = FixtureFhirAdapter(
@@ -544,11 +548,15 @@ async def test_server_warnings_make_a_clean_result_limited() -> None:
     result, notes = await assess_safety_gate(
         PatientRecords(adapter), p.patient_id, AS_OF, content()
     )
-    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
     assert {n.category: n.status for n in notes}["Condition"] is DataStatus.INCOMPLETE
+    check = next(c for c in result.checks if c.id == "suicidal_ideation_code")
+    assert check.outcome is CheckOutcome.FAILED
+    assert check.reason == "Could not read Condition completely"
+    assert outcome(result, "high_risk_flag") is CheckOutcome.NOT_FOUND
 
 
-async def test_a_malformed_resource_never_lets_the_gate_say_clear() -> None:
+async def test_a_malformed_resource_makes_the_gate_data_unavailable() -> None:
     p = person()
     p.condition("F41.1", "Generalized anxiety disorder", recorded=ago(10))
     cid = p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
@@ -556,8 +564,28 @@ async def test_a_malformed_resource_never_lets_the_gate_say_clear() -> None:
     result, notes = await assess_safety_gate(
         PatientRecords(FixtureFhirAdapter(p.resources)), p.patient_id, AS_OF, content()
     )
-    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
     assert {n.category: n.status for n in notes}["Condition"] is DataStatus.INCOMPLETE
+
+
+async def test_a_signal_found_in_partly_read_data_keeps_the_gate_positive() -> None:
+    p = person()
+    p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
+    adapter = FixtureFhirAdapter(
+        p.resources, warnings={"Condition": [SearchWarning(severity="warning", code="suppressed")]}
+    )
+    result, _ = await assess_safety_gate(PatientRecords(adapter), p.patient_id, AS_OF, content())
+    assert result.status is SafetyGateStatus.POSITIVE
+    assert outcome(result, "suicidal_ideation_code") is CheckOutcome.FOUND
+
+
+async def test_a_failed_and_a_partly_read_category_are_both_named() -> None:
+    p = person()
+    adapter = FailingAdapter(p, {"Encounter"})
+    adapter._warnings = {"Condition": (SearchWarning(severity="warning", code="suppressed"),)}
+    result, _ = await assess_safety_gate(PatientRecords(adapter), p.patient_id, AS_OF, content())
+    check = next(c for c in result.checks if c.id == "suicidal_ideation_code")
+    assert check.reason == "Could not read Condition completely, Encounter"
 
 
 async def test_completeness_covers_every_category_read() -> None:
