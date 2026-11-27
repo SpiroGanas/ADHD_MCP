@@ -1,0 +1,48 @@
+id = "care.autism_diagnosis"
+version = "0.1.0"
+title = "Autism codes (experimental stub)"
+description = "Exclusion of the experimental autism stub (Phase 8): an existing autism code means the patient is already in care. Rett's syndrome (F84.2) and childhood disintegrative disorder (F84.3) are not included (owner decision 2026-11-27)."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "F84.0"
+display = "Autistic disorder"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "F84.5"
+display = "Asperger's syndrome"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "F84.8"
+display = "Other pervasive developmental disorders"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "F84.9"
+display = "Pervasive developmental disorder, unspecified"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

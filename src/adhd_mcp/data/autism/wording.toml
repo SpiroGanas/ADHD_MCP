@@ -1,0 +1,12 @@
+# Wording of the EXPERIMENTAL autism stub (Phase 8, item 5). Drafted by the agent to prove
+# the plugin interface; not reviewed or approved for clinical use. Every text says so.
+version = "0.0.1"
+title = "Autism (experimental stub)"
+next_step = "Experimental stub, not for clinical use: no screening instrument or next step has been reviewed for this condition."
+
+[recommendations]
+consider_referral_for_formal_screening = "Experimental stub, not for clinical use: the placeholder rule would suggest considering referral for formal autism screening."
+no_recommendation = "Experimental stub, not for clinical use: the placeholder rule suggests no referral for formal autism screening."
+address_safety_gate_first = "Experimental stub, not for clinical use. Self-harm signals were found in the record. Follow the safety guidance first; no screening referral is suggested until the signals have been addressed."
+already_in_care = "Experimental stub, not for clinical use: an autism code is already recorded, so no new referral is suggested."
+insufficient_data = "Experimental stub, not for clinical use: too little data could be read to make a suggestion."

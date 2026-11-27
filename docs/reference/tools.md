@@ -26,7 +26,7 @@ Suggest whether a clinician should consider referring a patient for formal adult
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `as_of` | string (date) or null | no | Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future. |
-| `condition` | string | no | Condition to assess. Only 'adhd' in this version. |
+| `condition` | string | no | Condition to assess: 'adhd'. An experimental stub such as 'autism' only when the server enables it; stubs are not for clinical use. |
 | `patient_id` | string | yes | FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.' |
 
 **Output** (top-level fields)
@@ -116,7 +116,7 @@ Draft a referral for formal adult ADHD screening from an assessment, for a clini
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `as_of` | string (date) or null | no | Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future. |
-| `condition` | string | no | Condition to assess. Only 'adhd' in this version. |
+| `condition` | string | no | Condition to assess: 'adhd'. An experimental stub such as 'autism' only when the server enables it; stubs are not for clinical use. |
 | `patient_id` | string | yes | FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.' |
 
 **Output** (top-level fields)

@@ -21,6 +21,8 @@ from files named by a variable, never from the variable itself.
 | ``ADHD_MCP_PRIVACY_POLICY`` | A site's privacy policy file (default: packaged policy) |
 | ``ADHD_MCP_SITE_CODES`` | Site code mapping |
 | ``ADHD_MCP_SCORER`` | ``rules-only`` (default) or ``dummy`` (Phase 8 proof; not a model) |
+| ``ADHD_MCP_EXPERIMENTAL_CONDITIONS`` | Experimental stubs to register, comma-separated |
+|  | (``autism``); none by default. Not for clinical use |
 """
 
 from collections.abc import Mapping
@@ -31,6 +33,9 @@ from typing import Literal
 import httpx2
 
 from adhd_mcp.rules.scorer import SCORERS
+
+#: Experimental stub conditions that ``ADHD_MCP_EXPERIMENTAL_CONDITIONS`` can switch on.
+EXPERIMENTAL_CONDITIONS = frozenset({"autism"})
 
 
 class ConfigError(Exception):
@@ -66,6 +71,7 @@ class Settings:
     audit_file: Path | None
     privacy_policy: Path | None
     scorer: str = "rules-only"
+    experimental_conditions: tuple[str, ...] = ()
 
 
 def _url(env: Mapping[str, str], name: str, *, https: bool = False) -> str:
@@ -175,6 +181,14 @@ def load_settings(env: Mapping[str, str]) -> Settings:
     scorer = env.get("ADHD_MCP_SCORER", "rules-only")
     if scorer not in SCORERS:
         raise ConfigError(f"ADHD_MCP_SCORER must be one of: {', '.join(SCORERS)}")
+    experimental = tuple(
+        c.strip() for c in env.get("ADHD_MCP_EXPERIMENTAL_CONDITIONS", "").split(",") if c.strip()
+    )
+    if not set(experimental) <= EXPERIMENTAL_CONDITIONS:
+        raise ConfigError(
+            "ADHD_MCP_EXPERIMENTAL_CONDITIONS may name only: "
+            + ", ".join(sorted(EXPERIMENTAL_CONDITIONS))
+        )
     return Settings(
         transport=transport,  # type: ignore[arg-type]
         host=host,
@@ -184,4 +198,5 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         audit_file=audit,
         privacy_policy=policy,
         scorer=scorer,
+        experimental_conditions=experimental,
     )

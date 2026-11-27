@@ -23,7 +23,7 @@
       },
       "condition": {
         "default": "adhd",
-        "description": "Condition to assess. Only 'adhd' in this version.",
+        "description": "Condition to assess: 'adhd'. An experimental stub such as 'autism' only when the server enables it; stubs are not for clinical use.",
         "type": "string"
       },
       "patient_id": {

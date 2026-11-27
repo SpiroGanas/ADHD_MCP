@@ -1,0 +1,42 @@
+# EXPERIMENTAL STUB (Phase 8, item 5). This catalog exists to prove the condition plugin
+# interface with a second condition. Its signals are PLACEHOLDERS built only from value sets
+# already verified for the ADHD work. They are NOT a reviewed autism signal set, NOT
+# clinical content and must not be used for any patient. Same format as the ADHD catalog.
+
+id = "autism.signal_catalog"
+version = "0.0.1"
+condition = "autism"
+reviewed_by_owner = false
+
+[[signals]]
+id = "ptsd_code"
+title = "PTSD code (placeholder)"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.ptsd"]
+window_days = 1095
+evidence = "Placeholder for the plugin proof. Research report, autism section: autistic veterans are anecdotally first labelled with PTSD (secondary, opinion). Not reviewed."
+inference = true
+
+[[signals]]
+id = "depression_or_anxiety_code"
+title = "Depression or anxiety code (placeholder)"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.depression", "mh.generalized_anxiety"]
+window_days = 1095
+evidence = "Placeholder for the plugin proof. Research report, autism section: higher rates of depression and anxiety diagnoses in autistic adults (Croen 2015). Not reviewed."
+inference = true
+
+[[signals]]
+id = "borderline_personality_code"
+title = "Borderline personality code (placeholder)"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.borderline_personality"]
+window_days = 1095
+evidence = "Placeholder for the plugin proof. Research report, consolidated table: a BPD label as a possible autism mask in women. Not reviewed."
+inference = true

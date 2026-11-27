@@ -42,7 +42,11 @@ DESCRIPTION = (
 )
 
 ConditionArg = Annotated[
-    str, Field(description="Condition to assess. Only 'adhd' in this version.")
+    str,
+    Field(
+        description="Condition to assess: 'adhd'. An experimental stub such as 'autism' only "
+        "when the server enables it; stubs are not for clinical use."
+    ),
 ]
 
 

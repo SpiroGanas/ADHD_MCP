@@ -227,7 +227,7 @@ Three independent version lines, all reported in every output and audit record. 
 
 ## Extensibility
 
-- **New condition:** add a plugin with its own signal catalog, ruleset and next-step text. The engine and evidence tools are shared.
+- **New condition:** add a plugin with its own signal catalog, ruleset and next-step text. The engine and evidence tools are shared. Proven in Phase 8 by the experimental autism stub (`conditions/autism.py`, `data/autism/`; registered only by `ADHD_MCP_EXPERIMENTAL_CONDITIONS=autism`), added without changing the engine, the ADHD ruleset or any ADHD golden test ([rule card](clinical/rule_card_autism_stub.md)).
 - **Statistical model:** implement the scorer interface (`rules/scorer.py`) and add it to `SCORERS`. The engine runs with or without a scorer, and the scorer's identity and version flow into outputs and audit records. A score is reported only; a scorer that raises gives no score and `failed: true`, and the assessment is otherwise unchanged. Proven in Phase 8 with `DummyScorer` (`ADHD_MCP_SCORER=dummy`; not a model): a test runs every persona with the scorer present, absent and failing and requires identical assessments.
 - **New FHIR back end:** implement the FHIR port and pass the shared adapter test suite.
 

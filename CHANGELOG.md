@@ -14,9 +14,11 @@ Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
 
 - `DummyScorer` (`ADHD_MCP_SCORER=dummy`), clearly labelled `dummy-not-a-model`: a constant score of 0.0 that proves the scorer slot. Off by default.
 
+- Experimental autism stub (`ADHD_MCP_EXPERIMENTAL_CONDITIONS=autism`; off by default; not for clinical use) proving the condition plugin interface: exclusion on recorded autism codes F84.0, F84.5, F84.8, F84.9 (verified against ICD-10-CM FY2027), three placeholder modifiers, ruleset `autism 0.0.1 (experimental)`. Ruleset status `experimental` added. [Rule card](docs/clinical/rule_card_autism_stub.md).
+
 ### Changed
 
-- Tool contract 0.3.0 to 0.4.0: the `status` enum of every `data_completeness` entry gains `not_supported`; the assessment's `scorer` gains `failed`.
+- Tool contract 0.3.0 to 0.4.0: the `status` enum of every `data_completeness` entry gains `not_supported`; the assessment's `scorer` gains `failed`; the `condition` argument's description names experimental stubs.
 - A scorer that raises no longer fails the assessment: it gives no score and `failed: true`.
 
 ## [1.0.0rc1] - 2026-11-27

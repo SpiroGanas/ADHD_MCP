@@ -14,13 +14,14 @@ With neither data source set, patient tools return a ``not_configured`` error.
 
 import dataclasses
 import os
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from adhd_mcp.audit.records import AuditSink, JsonlAuditSink
 from adhd_mcp.clock import Clock, SystemClock
 from adhd_mcp.conditions.adhd import adhd_plugin
+from adhd_mcp.conditions.autism import autism_plugin
 from adhd_mcp.conditions.base import ConditionRegistry
 from adhd_mcp.config import SmartSettings, load_settings
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
@@ -35,14 +36,20 @@ from adhd_mcp.terminology.site_codes import SiteCodes, load_site_codes
 NO_SITE_CODES = SiteCodes(id="none", version="0", title="No local code mapping")
 
 
-def default_conditions(*, scorer: str = "rules-only") -> ConditionRegistry:
-    """The conditions this server assesses: ADHD only in version 1.0. ``scorer`` names an
-    entry of ``SCORERS``; the default leaves the ADHD plugin as released."""
+def default_conditions(
+    *, scorer: str = "rules-only", experimental: Sequence[str] = ()
+) -> ConditionRegistry:
+    """The conditions this server assesses: ADHD, plus any experimental stub named in
+    ``experimental`` (none by default; not for clinical use). ``scorer`` names an entry of
+    ``SCORERS``; the default leaves the ADHD plugin as it is."""
     registry = ConditionRegistry()
     plugin = adhd_plugin()
     if scorer != "rules-only":
         plugin = dataclasses.replace(plugin, scorer=SCORERS[scorer]())
     registry.register(plugin)
+    stubs = {"autism": autism_plugin}
+    for condition_id in experimental:
+        registry.register(stubs[condition_id]())
     return registry
 
 
@@ -89,7 +96,9 @@ def context_from_environment(env: Mapping[str, str] = os.environ) -> ToolContext
         port=port,
         clock=clock,
         site_codes=site,
-        conditions=default_conditions(scorer=settings.scorer),
+        conditions=default_conditions(
+            scorer=settings.scorer, experimental=settings.experimental_conditions
+        ),
         privacy=load_privacy_policy(settings.privacy_policy),
         audit_sink=JsonlAuditSink(settings.audit_file) if settings.audit_file else None,
         scopes_required=settings.auth is not None,
