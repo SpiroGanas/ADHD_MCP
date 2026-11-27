@@ -3,7 +3,7 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phase 3 (Evidence tools I) code complete, in a pull request awaiting CI and review. Phase 4 (Evidence tools II) is next.
+**Current phase:** Phase 3 (Evidence tools I) done and merged. Phase 4 (Evidence tools II) is next.
 **Branch:** `ccr-29d767ce-uqk8rh`
 
 ## Summary
@@ -20,13 +20,12 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 ## In progress
 
-- Phase 3 pull request [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4): CI green on all three jobs, including the first run of `tests/integration/test_tools_live.py` (every tool's answers from the local HAPI server equal the fixture answers). Waiting for owner review. The clinical safety review was run before opening the PR; its blocking finding and all should-fix findings are fixed (see the PR description).
+- Nothing. Phase 3 merged in [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) (CI green, including the first live HAPI run of every tool).
 
 ## Next steps
 
-1. Watch the Phase 3 PR through review; answer review comments.
-2. Project owner: review the new clinician-facing wording in `src/adhd_mcp/data/wording.toml` (`evidence_notice`, `safety_gate_guidance`) and the rule card draft; make the CI checks required for merge on `main`.
-3. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0009; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
+1. Project owner: review the new clinician-facing wording in `src/adhd_mcp/data/wording.toml` (`evidence_notice`, `safety_gate_guidance`) and the rule card draft; make the CI checks required for merge on `main`.
+2. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0009; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
 
 ## Open questions for the project owner
 
@@ -82,4 +81,4 @@ Owner decisions 2026-11-27 (start of Phase 3):
 | [SpiroGanas/ADHD_MCP#1](https://github.com/SpiroGanas/ADHD_MCP/pull/1) | Research report | Merged |
 | [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2) | Project plan, architecture and working documentation | Merged |
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
-| [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Open |
+| [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |
