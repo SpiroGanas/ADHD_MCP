@@ -98,6 +98,9 @@ class MedicationRecord(_Record):
     days_supply: float | None
     quantity: float | None
     reason_codes: tuple[Coding, ...] = ()
+    #: MedicationRequests a dispense fills (authorizingPrescription) or a statement is
+    #: based on (basedOn).
+    prescriptions: tuple[ResourceRef, ...] = ()
 
 
 class EncounterRecord(_Record):

@@ -1,0 +1,32 @@
+# How get_medication_timeline builds drug-class exposure periods. Changing anything here is a
+# clinical content change. Drug classes are in data/drug_classes/ (ADR 0009).
+id = "medication_timeline"
+version = "0.1.0"
+
+# Classes reported, in output order.
+classes = ["med.adhd_stimulant", "med.adhd_nonstimulant", "med.antidepressant", "med.sedative_hypnotic"]
+
+# A dispense or request with no days supply is assumed to cover this many days, and the
+# exposure says so (days_supply_assumed). Inference: common pharmacy fill length.
+assumed_days_supply = 30
+
+# Two supply periods of the same ingredient merge when the gap between them is at most this
+# many days; a longer gap starts a new exposure. Inference: a common permissible-gap choice in
+# pharmacoepidemiology.
+allowed_gap_days = 30
+
+# A dispense of the same ingredient handed over within this many days after a request was
+# authored fills it, when the dispense does not name its prescription.
+fill_window_days = 30
+
+# Request statuses and intents that count as a prescription; others (cancelled, draft,
+# proposals, plans) are ignored.
+request_statuses = ["active", "completed", "stopped", "on-hold", "unknown"]
+request_intents = ["order", "original-order", "reflex-order", "filler-order", "instance-order"]
+# Dispense statuses that mean the medication was handed over.
+dispense_statuses = ["completed", "in-progress", "unknown"]
+# Statement statuses that mean the medication was taken.
+statement_statuses = ["active", "completed", "stopped", "unknown"]
+
+# A medication whose reason is narcolepsy is marked, so rules never count it as ADHD treatment.
+narcolepsy_value_set = "care.narcolepsy"

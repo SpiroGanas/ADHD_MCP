@@ -24,6 +24,7 @@ PATIENT_TOOLS = [
     "get_mh_problem_list",
     "get_screening_history",
     "check_existing_care",
+    "get_medication_timeline",
 ]
 
 

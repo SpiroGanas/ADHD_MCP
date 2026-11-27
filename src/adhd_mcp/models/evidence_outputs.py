@@ -140,3 +140,69 @@ class ExistingCareOutput(EvidenceOutput):
     care_items: list[CareItem]
     narcolepsy: NarcolepsyFinding | None
     definition_version: str
+
+
+class IngredientRef(_Frozen):
+    rxcui: str = Field(description="RxNorm ingredient code")
+    name: str = Field(description="Ingredient name from the drug class data, not the record")
+
+
+class ExposurePeriod(_Frozen):
+    """A continuous period of exposure to one ingredient of a drug class."""
+
+    drug_class: str = Field(description="Drug class id")
+    ingredient: IngredientRef
+    start: date
+    end: date = Field(description="Last day covered, never after the as-of date")
+    sources: list[Literal["dispense", "statement", "request"]] = Field(
+        description="Record kinds the period is built from"
+    )
+    days_supply_assumed: bool = Field(
+        description="True if any supply length was missing and the assumed length was used"
+    )
+    for_narcolepsy: bool = Field(
+        description="A contributing order or statement gives narcolepsy as its reason"
+    )
+    references: list[ResourceRef] = Field(min_length=1)
+
+
+class PrescriptionEntry(_Frozen):
+    """One medication request in a drug class and whether it was dispensed."""
+
+    drug_class: str
+    ingredient: IngredientRef
+    date: date | None
+    fill_status: Literal["filled", "not_filled", "unknown"] = Field(
+        description="unknown when the record has no dispensing data or it could not be read"
+    )
+    references: list[ResourceRef] = Field(min_length=1)
+
+
+class AgentSummary(_Frozen):
+    ingredient: IngredientRef
+    first_date: date
+    last_date: date = Field(description="Last day of exposure (or of the latest record)")
+    references: list[ResourceRef] = Field(min_length=1)
+
+
+class DistinctAgents(_Frozen):
+    """Distinct ingredients of a class ever recorded; dose and brand variants collapse."""
+
+    drug_class: str
+    title: str
+    count: int
+    agents: list[AgentSummary]
+
+
+class MedicationTimelineOutput(EvidenceOutput):
+    exposures: list[ExposurePeriod] = Field(
+        description="By class, then ingredient, then start date"
+    )
+    prescriptions: list[PrescriptionEntry]
+    distinct_agents: list[DistinctAgents] = Field(description="One entry per class checked")
+    unclassified_records: int = Field(
+        description="Medication records in no class checked (not named, to keep output focused)"
+    )
+    classes_checked: list[str]
+    definition_version: str
+    drug_class_versions: list[str] = Field(description="'<class id> <version>' for each class")

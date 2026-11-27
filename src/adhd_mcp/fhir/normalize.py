@@ -212,6 +212,13 @@ def _medication(raw: Raw, medications: Mapping[str, Raw]) -> MedicationRecord:
             codes = normalize_concept(medications[medication_ref.id].get("code"))
 
     kind = raw["resourceType"]
+    links = raw.get("authorizingPrescription") or raw.get("basedOn") or []
+    prescriptions = tuple(
+        ref
+        for link in links
+        if (ref := parse_reference(link.get("reference"))) is not None
+        and ref.resource_type == "MedicationRequest"
+    )
     days_supply: float | None = None
     quantity: float | None = None
     if kind == "MedicationRequest":
@@ -240,6 +247,7 @@ def _medication(raw: Raw, medications: Mapping[str, Raw]) -> MedicationRecord:
         days_supply=days_supply,
         quantity=quantity,
         reason_codes=_concepts(raw.get("reasonCode")),
+        prescriptions=prescriptions,
     )
 
 

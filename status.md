@@ -3,8 +3,8 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phase 3 (Evidence tools I) code complete, in a pull request awaiting CI and review. Phase 4 (Evidence tools II) is next.
-**Branch:** `ccr-29d767ce-uqk8rh`
+**Current phase:** Phases 4, 5 and 6 in progress on one branch (owner request 2026-11-27: "program phases 4, 5 and 6").
+**Branch:** `claude/bold-tesla-bf2rn1`
 
 ## Summary
 
@@ -20,26 +20,21 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 ## In progress
 
-- Phase 3 pull request [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4): CI green on all three jobs, including the first run of `tests/integration/test_tools_live.py` (every tool's answers from the local HAPI server equal the fixture answers). Waiting for owner review. The clinical safety review was run before opening the PR; its blocking finding and all should-fix findings are fixed (see the PR description).
+- Phase 4 (evidence tools II), then Phase 5 (rules engine) and Phase 6 (audit, privacy, security). One PR for all three, a commit per work item.
 
 ## Next steps
 
-1. Watch the Phase 3 PR through review; answer review comments.
-2. Project owner: review the new clinician-facing wording in `src/adhd_mcp/data/wording.toml` (`evidence_notice`, `safety_gate_guidance`) and the rule card draft; make the CI checks required for merge on `main`.
-3. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0009; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
+1. Phase 4, work item 1, `get_medication_timeline`: write ADR 0009 (curated RxNorm ingredient lists, verified against RxNav), the drug-class data files, then the assembler test-first.
 
 ## Open questions for the project owner
 
 | # | Question | Needed by |
 |---|---|---|
 | 1 | Who reviews and approves clinical content (rule cards, signal catalog)? Is there a clinician adviser? (For now the owner waived the human spot-check until release.) | Phase 7 |
-| 3 | Default sensitive-data policy for substance-use and other specially protected data (proposal: cite existence and date only) | Phase 6 |
 | 4 | Is model API access and budget available for the model-in-the-loop evaluation? | Phase 7 |
 | 5 | Will VA Lighthouse sandbox access be requested, and by whom? (Apply during Phase 6.) | Phase 8 |
 | 6 | Should a priority tier be part of the 1.0 output? (Proposal: no.) | Phase 5 |
 | 9 | PC-PTSD-5 cutoff: 4 (current National Center for PTSD default) or 3 (research value; more sensitive, e.g. for women)? | Before LOINC verification (F2) |
-| 10 | Substance codes: include F13 (sedatives), F16 (hallucinogens), F18 (inhalants)? Count caffeine (F15 includes it)? Exclude Y90.0 (blood alcohol under 20 mg/100 ml)? | Phase 4 |
-| 11 | Other signal boundaries: count electric-bicycle drivers in V20-V29? Keep F32.81 (premenstrual dysphoric disorder) inside the depression family? Add G47.09 (other insomnia)? Use an explicit subset of Z55/Z56 rather than whole categories? Which housing codes count: homelessness Z59.0, housing instability Z59.81, inadequate housing Z59.1? | Phase 4 |
 | 12 | How should ASRS results be recognised in FHIR data, given no LOINC score code was found (follow-up F3)? Phase 3 lets a site map its ASRS questionnaire | Phase 5 |
 | 14 | Verify LOINC through a LOINC account (fhir.loinc.org) or NLM's redistribution? Until then PHQ-9 item 9 and C-SSRS checks are "not performed" and no screening cutoff is applied | Before release |
 
@@ -55,6 +50,15 @@ Owner decisions 2026-11-26 (start of Phase 1):
 - Phases 1 and 2 ship as one PR with a commit per work item.
 - Bulk synthetic data: in-repo seeded generator, built on demand, not committed; Synthea not added (2026-11-26).
 - Local FHIR server: HAPI FHIR `v8.12.0-2`, in memory (2026-11-26).
+
+Owner decisions 2026-11-27 (start of Phases 4 to 6):
+
+- Drug classes: hand-curated RxNorm ingredient lists per class, verified against RxNav (rxnav.nlm.nih.gov added to the environment), expanded to product codes by a script and committed as data (ADR 0009).
+- ADHD ruleset 1.0 uses the proposed defaults: recommend when at least one high-weight signal occurs with two or more modifiers, or two or more high-weight classes, all within 1095 days of the as-of date. High: stimulant-related disorder, alcohol (F10, Y90.1-Y90.9, R78.0), crash as driver, two or more accidental-injury visits within 730 days. TBI adds a neuropsychological-evaluation note and does not count toward referral. Modifiers: other SUD, PTSD, IED, depression or anxiety, three or more distinct antidepressants, BPD, insomnia, attention-symptom codes, legal, education or occupation, housing, family history. All marked inference in the rule card (open question 6 is still open; no priority tier).
+- Sensitive-data default (open question 3): cite existence and date only; rules still use the signal; the output states the category was restricted.
+- Signal boundaries (open questions 10, 11): value sets kept as verified (no F13/F16/F18; F15 whole; Y90.0 excluded from the alcohol signal; e-bike drivers counted; F32.81 kept; no G47.09; Z55/Z56 whole; housing = Z59.0 and Z59.81).
+- PyJWT and cryptography become direct pinned dependencies for Phase 6 authentication.
+- Phases 4 to 6 ship as one PR with a commit per work item.
 
 Owner decisions 2026-11-27 (start of Phase 3):
 
@@ -82,4 +86,4 @@ Owner decisions 2026-11-27 (start of Phase 3):
 | [SpiroGanas/ADHD_MCP#1](https://github.com/SpiroGanas/ADHD_MCP/pull/1) | Research report | Merged |
 | [SpiroGanas/ADHD_MCP#2](https://github.com/SpiroGanas/ADHD_MCP/pull/2) | Project plan, architecture and working documentation | Merged |
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
-| [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Open |
+| [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |

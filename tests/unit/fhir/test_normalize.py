@@ -389,3 +389,25 @@ def test_medication_reason_codes_are_kept(kind: str) -> None:
     )
     assert isinstance(record, MedicationRecord)
     assert record.reason_codes == (Coding(system=ICD10CM, code="G47.419"),)
+
+
+@pytest.mark.parametrize(
+    ("kind", "element"),
+    [("MedicationDispense", "authorizingPrescription"), ("MedicationStatement", "basedOn")],
+)
+def test_medication_links_to_its_prescription(kind: str, element: str) -> None:
+    record = normalize(
+        {
+            "resourceType": kind,
+            "id": "m2",
+            "status": "completed",
+            "medicationCodeableConcept": {"coding": [{"system": RXNORM, "code": "725"}]},
+            element: [
+                {"reference": "MedicationRequest/r1"},
+                {"reference": "ServiceRequest/s1"},
+                {"display": "no reference"},
+            ],
+        }
+    )
+    assert isinstance(record, MedicationRecord)
+    assert record.prescriptions == (ResourceRef(resource_type="MedicationRequest", id="r1"),)

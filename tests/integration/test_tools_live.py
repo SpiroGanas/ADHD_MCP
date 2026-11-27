@@ -19,7 +19,13 @@ from tests.personas import persona_ids
 
 pytestmark = [pytest.mark.integration, pytest.mark.anyio]
 
-TOOLS = ["check_safety_gate", "get_mh_problem_list", "get_screening_history", "check_existing_care"]
+TOOLS = [
+    "check_safety_gate",
+    "get_mh_problem_list",
+    "get_screening_history",
+    "check_existing_care",
+    "get_medication_timeline",
+]
 
 
 @pytest.fixture

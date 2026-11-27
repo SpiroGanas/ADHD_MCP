@@ -3,7 +3,14 @@
 from fastmcp import FastMCP
 
 from adhd_mcp import versions
-from adhd_mcp.tools import existing_care, problem_list, safety_gate, screening, server_info
+from adhd_mcp.tools import (
+    existing_care,
+    medication_timeline,
+    problem_list,
+    safety_gate,
+    screening,
+    server_info,
+)
 from adhd_mcp.tools.context import ToolContext, context_from_environment
 
 INSTRUCTIONS = (
@@ -31,6 +38,7 @@ def create_server(context: ToolContext | None = None) -> FastMCP:
     problem_list.register(mcp, context)
     screening.register(mcp, context)
     existing_care.register(mcp, context)
+    medication_timeline.register(mcp, context)
     return mcp
 
 

@@ -21,5 +21,6 @@ A short record of each decision that would be costly to reverse: what was decide
 | [0006](0006-tooling-versions.md) | Tooling and pinned versions | Accepted |
 | [0007](0007-fhir-modeling.md) | Narrow internal FHIR models | Accepted |
 | [0008](0008-site-codes-and-search-warnings.md) | Per-site local code mapping, and search warnings from the FHIR port | Accepted |
+| [0009](0009-rxnorm-drug-classes.md) | Hand-curated RxNorm drug classes, expanded and verified with RxNav | Accepted |
 
-Expected next: 0009 drug-class source (Phase 4).
+Expected next: 0010 rules and ruleset format (Phase 5); 0011 audit and privacy (Phase 6); 0012 authentication (Phase 6).

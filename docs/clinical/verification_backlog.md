@@ -72,9 +72,9 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 | Education and occupation problems | Z55.x, Z56.x | ICD-10-CM | Verified (`psychosocial.education_occupation`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
 | Housing instability | Z59.0x | ICD-10-CM | Corrected: Z59.0x is homelessness; housing instability is Z59.81x (`psychosocial.homelessness`, `psychosocial.housing_instability`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
 | Family history | Z81.8, Z82.x (mapping is an inference) | ICD-10-CM | Corrected: Z82.x covers physical disease and is dropped; family history of ADHD codes to Z81.8 (`family.mental_behavioral_history`) | CDC/NCHS ICD-10-CM tabular FY2027 and FY2026 (2026-04-01 update); agent check 2026-11-26, FY2027 re-check 2026-11-27 |
-| Stimulant and non-stimulant ADHD medications | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0009) | |
-| Antidepressants | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0009) | |
-| Sedative-hypnotics | No list given; build an RxNorm ingredient value set | RxNorm | Unverified. Phase 4 (ADR 0009) | |
+| Stimulant and non-stimulant ADHD medications | No list given; build an RxNorm ingredient value set | RxNorm | Verified: 7 stimulant and 2 non-stimulant ingredients (TTY IN, active), expanded to product codes (`med.adhd_stimulant`, `med.adhd_nonstimulant`). Guanfacine and clonidine left out (inference, ADR 0009) | NLM RxNav REST API, RxNorm release 02-Nov-2026 (API 3.1.358); agent check 2026-11-27 with `scripts/build_drug_classes.py` |
+| Antidepressants | No list given; build an RxNorm ingredient value set | RxNorm | Verified: 28 ingredients (`med.antidepressant`). Trazodone, doxepin, amitriptyline, selegiline and milnacipran left out (inference, ADR 0009) | NLM RxNav REST API, RxNorm release 02-Nov-2026 (API 3.1.358); agent check 2026-11-27 with `scripts/build_drug_classes.py` |
+| Sedative-hypnotics | No list given; build an RxNorm ingredient value set | RxNorm | Verified: 12 ingredients (`med.sedative_hypnotic`) | NLM RxNav REST API, RxNorm release 02-Nov-2026 (API 3.1.358); agent check 2026-11-27 with `scripts/build_drug_classes.py` |
 
 ## Follow-up verification
 
@@ -95,3 +95,5 @@ These are design choices drawn from the research, not verified facts. They need 
 | Occupational, educational and housing signals as modifiers | Described as inference |
 | Safety gate look-back windows other than 90 and 365 days for discharge | Not specified in the research |
 | Sex-specific thresholds | Recommended by the research; no values given |
+| Drug class membership (which ingredients count) | Curated in `scripts/drug_class_spec.toml`; exclusions listed in ADR 0009 |
+| Medication exposure parameters (30-day assumed supply, 30-day allowed gap, 30-day fill window) | Common pharmacoepidemiology choices, in `data/medication_timeline.toml` |

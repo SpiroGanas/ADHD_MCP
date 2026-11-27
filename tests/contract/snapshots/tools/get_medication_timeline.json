@@ -1,0 +1,536 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Summarize a patient's exposure to the drug classes the referral rules use: stimulant and non-stimulant ADHD medications, antidepressants and sedative-hypnotics (RxNorm ingredient classes). Builds exposure periods from dispenses and medication statements (and from orders only when the record has no dispensing data), merging overlapping fills and splitting at gaps longer than 30 days; a missing days supply is assumed to be 30 days and flagged. Lists each order with its fill status (filled, not filled, unknown), the count of distinct agents per class (dose and brand variants count once), and marks medication ordered for narcolepsy. Medications in no class are counted, not named. Read-only. A medication in the record is not a diagnosis.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "get_medication_timeline",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "description": "The date the record was read as of",
+        "format": "date",
+        "type": "string"
+      },
+      "classes_checked": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "data_completeness": {
+        "description": "Each data category read: available, empty, incomplete or failed. An empty record is not a clean record.",
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "definition_version": {
+        "type": "string"
+      },
+      "distinct_agents": {
+        "description": "One entry per class checked",
+        "items": {
+          "additionalProperties": false,
+          "description": "Distinct ingredients of a class ever recorded; dose and brand variants collapse.",
+          "properties": {
+            "agents": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "first_date": {
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "ingredient": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "description": "Ingredient name from the drug class data, not the record",
+                        "type": "string"
+                      },
+                      "rxcui": {
+                        "description": "RxNorm ingredient code",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "rxcui",
+                      "name"
+                    ],
+                    "type": "object"
+                  },
+                  "last_date": {
+                    "description": "Last day of exposure (or of the latest record)",
+                    "format": "date",
+                    "type": "string"
+                  },
+                  "references": {
+                    "items": {
+                      "additionalProperties": false,
+                      "description": "A pointer to the FHIR resource a fact came from.",
+                      "properties": {
+                        "id": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "resource_type": {
+                          "enum": [
+                            "Patient",
+                            "Condition",
+                            "Observation",
+                            "QuestionnaireResponse",
+                            "MedicationRequest",
+                            "MedicationDispense",
+                            "MedicationStatement",
+                            "Medication",
+                            "Encounter",
+                            "Procedure",
+                            "ServiceRequest",
+                            "CarePlan",
+                            "Flag"
+                          ],
+                          "type": "string"
+                        },
+                        "version": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "description": "meta.versionId when the server has one"
+                        }
+                      },
+                      "required": [
+                        "resource_type",
+                        "id"
+                      ],
+                      "type": "object"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "ingredient",
+                  "first_date",
+                  "last_date",
+                  "references"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "count": {
+              "type": "integer"
+            },
+            "drug_class": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "drug_class",
+            "title",
+            "count",
+            "agents"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "drug_class_versions": {
+        "description": "'<class id> <version>' for each class",
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "exposures": {
+        "description": "By class, then ingredient, then start date",
+        "items": {
+          "additionalProperties": false,
+          "description": "A continuous period of exposure to one ingredient of a drug class.",
+          "properties": {
+            "days_supply_assumed": {
+              "description": "True if any supply length was missing and the assumed length was used",
+              "type": "boolean"
+            },
+            "drug_class": {
+              "description": "Drug class id",
+              "type": "string"
+            },
+            "end": {
+              "description": "Last day covered, never after the as-of date",
+              "format": "date",
+              "type": "string"
+            },
+            "for_narcolepsy": {
+              "description": "A contributing order or statement gives narcolepsy as its reason",
+              "type": "boolean"
+            },
+            "ingredient": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "description": "Ingredient name from the drug class data, not the record",
+                  "type": "string"
+                },
+                "rxcui": {
+                  "description": "RxNorm ingredient code",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "rxcui",
+                "name"
+              ],
+              "type": "object"
+            },
+            "references": {
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "sources": {
+              "description": "Record kinds the period is built from",
+              "items": {
+                "enum": [
+                  "dispense",
+                  "statement",
+                  "request"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "start": {
+              "format": "date",
+              "type": "string"
+            }
+          },
+          "required": [
+            "drug_class",
+            "ingredient",
+            "start",
+            "end",
+            "sources",
+            "days_supply_assumed",
+            "for_narcolepsy",
+            "references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "description": "Always false: these results are never a diagnosis",
+        "type": "boolean"
+      },
+      "notice": {
+        "description": "Standard notice on how to read these results",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "prescriptions": {
+        "items": {
+          "additionalProperties": false,
+          "description": "One medication request in a drug class and whether it was dispensed.",
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "drug_class": {
+              "type": "string"
+            },
+            "fill_status": {
+              "description": "unknown when the record has no dispensing data or it could not be read",
+              "enum": [
+                "filled",
+                "not_filled",
+                "unknown"
+              ],
+              "type": "string"
+            },
+            "ingredient": {
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "description": "Ingredient name from the drug class data, not the record",
+                  "type": "string"
+                },
+                "rxcui": {
+                  "description": "RxNorm ingredient code",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "rxcui",
+                "name"
+              ],
+              "type": "object"
+            },
+            "references": {
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "required": [
+            "drug_class",
+            "ingredient",
+            "date",
+            "fill_status",
+            "references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "unclassified_records": {
+        "description": "Medication records in no class checked (not named, to keep output focused)",
+        "type": "integer"
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "notice",
+      "data_completeness",
+      "versions",
+      "exposures",
+      "prescriptions",
+      "distinct_agents",
+      "unclassified_records",
+      "classes_checked",
+      "definition_version",
+      "drug_class_versions"
+    ],
+    "type": "object"
+  },
+  "title": "Get Medication Timeline"
+}
