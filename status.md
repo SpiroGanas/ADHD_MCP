@@ -20,11 +20,11 @@ A FastMCP 4.2 server exposes five read-only tools: `get_server_info` and the Pha
 
 ## In progress
 
-- Phase 3 pull request [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4): waiting for CI and review. CI will make the first run of `tests/integration/test_tools_live.py`, which compares every tool's answers from the local HAPI server with the fixtures; it could not run in the build environment (no Docker). The clinical safety review was run before opening the PR; its blocking finding and all should-fix findings are fixed (see the PR description).
+- Phase 3 pull request [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4): CI green on all three jobs, including the first run of `tests/integration/test_tools_live.py` (every tool's answers from the local HAPI server equal the fixture answers). Waiting for owner review. The clinical safety review was run before opening the PR; its blocking finding and all should-fix findings are fixed (see the PR description).
 
 ## Next steps
 
-1. Watch the Phase 3 PR through CI and review; fix anything that fails. If the live integration test fails, compare the failing tool's output from HAPI and fixtures (likely causes: date formats, result order, versions).
+1. Watch the Phase 3 PR through review; answer review comments.
 2. Project owner: review the new clinician-facing wording in `src/adhd_mcp/data/wording.toml` (`evidence_notice`, `safety_gate_guidance`) and the rule card draft; make the CI checks required for merge on `main`.
 3. Phase 4, work item 1, `get_medication_timeline`: first decide the RxNorm drug-class source (ADR 0009; plan Phase 4 risks), then write persona expectations for p02 (five antidepressants) and p04/p06 (stimulants). The narcolepsy finding in `check_existing_care` uses medication reason codes only until drug classes exist.
 
