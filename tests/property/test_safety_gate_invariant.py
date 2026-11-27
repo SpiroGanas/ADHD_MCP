@@ -4,6 +4,7 @@ safety gate is never lost. Checked over generated records and generated gate res
 import asyncio
 from datetime import date, timedelta
 
+import pytest
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from pydantic import ValidationError
@@ -20,6 +21,7 @@ from adhd_mcp.models.domain import (
     SafetyCheck,
     SafetyGateResult,
     SafetyGateStatus,
+    Versions,
 )
 from adhd_mcp.terminology.site_codes import load_site_codes
 from tests.personas.builder import PersonaBuilder
@@ -116,7 +118,7 @@ def test_no_recommendation_hides_a_positive_gate(
             recommendation=code,
             condition_to_screen="adult ADHD",
             basis=[EvidenceItem(signal="s", references=[REF])],
-            versions={"server": "0", "tool_contract": "0"},  # type: ignore[arg-type]
+            versions=Versions(server="0", tool_contract="0"),
         )
     except ValidationError:
         return
@@ -126,7 +128,7 @@ def test_no_recommendation_hides_a_positive_gate(
 
 
 def test_a_recommendation_cannot_be_built_without_a_gate() -> None:
-    try:
+    with pytest.raises(ValidationError, match="safety_gate"):
         Recommendation.model_validate(
             {
                 "recommendation": "no_recommendation",
@@ -134,7 +136,3 @@ def test_a_recommendation_cannot_be_built_without_a_gate() -> None:
                 "versions": {"server": "0", "tool_contract": "0"},
             }
         )
-    except ValidationError as exc:
-        assert "safety_gate" in str(exc)
-    else:  # pragma: no cover - the assertion is the point
-        raise AssertionError("a recommendation without a safety gate was accepted")
