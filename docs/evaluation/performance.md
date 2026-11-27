@@ -27,6 +27,6 @@ The script runs every persona through `assess_referral_need` over an in-memory M
 | Source | Assessments | p50 | p95 | Max | Most FHIR requests |
 |---|---|---|---|---|---|
 | Fixture data, in process (development container) | 70 | 103 ms | 172 ms | 215 ms | 11 |
-| Local HAPI FHIR | Measured in CI by the integration job; no Docker daemon in the development container | | | | |
+| Local HAPI FHIR (CI integration job, 2026-11-27, PR #6) | 14 personas × 3 rounds after a warm-up | | Within the 2 s target (the test passed; figures are printed only on failure) | | Within the budget of 12 |
 
 About 60% of the in-process time is the MCP client validating the large output against its schema; the assessment itself takes about 35 ms (184 cohort patients in about 6 s through the harness). No regression to fix was found.

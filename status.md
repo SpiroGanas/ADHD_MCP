@@ -19,7 +19,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- Pull request [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) for Phase 7: open; watching CI (four jobs, including the new container job and the first live run of `tests/integration/test_performance_live.py`) and review.
+- Pull request [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) for Phase 7: open, mergeable; CI green on all four jobs, including the first container build and smoke test and the first live run of `tests/integration/test_performance_live.py` (p95 within 2 s against HAPI). Waiting for owner review.
 
 ## Next steps
 
@@ -75,7 +75,7 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 - LOINC codes and all screening cutoffs are unverified, so no screening score is used by the gate or the ruleset. ICD-10-CM is verified against FY2027; the human spot-check is still owed before release.
 - Ruleset 1.0.0 is a draft and not clinically validated; internalizing presentations, so likely women, are under-flagged (cohort: 8 of 40 against 32 of 32 externalizing; [sex-balance review](docs/evaluation/sex_balance_review.md)).
 - No real language model has used the server yet (model-in-the-loop harness tested with scripted stand-ins only).
-- The Dockerfile and the live latency test have not run yet: the development container has no Docker daemon, so their first run is in CI on the Phase 7 pull request.
+- The development container has no Docker daemon: the image and the live latency test run only in CI (both passed on PR #6).
 - The full list for users: [docs/limitations.md](docs/limitations.md).
 - Retired RxNorm product codes are not matched (ADR 0009). Missed appointments are not read (no Appointment search). Coded social-history observation values are reported but not counted by the ruleset.
 - ICD-10-CM codes sent without a dot do not match value sets (ADR 0007, Phase 8).

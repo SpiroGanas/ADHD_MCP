@@ -25,4 +25,4 @@ What ADHD_MCP 1.0.0rc1 cannot do, and why. Every item here is also in the releva
 - **Synthetic data only so far.** The server has never read real patient data. Hosting it for real use needs a site's privacy, security and governance review.
 - **Audit file.** The development audit file has no tamper evidence (risk P5, accepted); rate limiting is left to the hosting gateway (risk S6, accepted). See the [threat model](security/threat_model.md).
 - **Model use not yet evaluated live.** How real language models use the tools has been tested only with scripted stand-ins ([model-in-the-loop](evaluation/model_in_the_loop.md)).
-- **Latency measured in process.** The 2 s target is checked against a local HAPI server by the CI integration job (from the Phase 7 pull request on), never against a production EHR ([performance](evaluation/performance.md)).
+- **Latency measured in process.** The 2 s target is checked against a local HAPI server by the CI integration job (it passed on the Phase 7 pull request), never against a production EHR ([performance](evaluation/performance.md)).
