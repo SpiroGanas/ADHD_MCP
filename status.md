@@ -3,8 +3,8 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-27
-**Current phase:** Phase 7 (evaluation, hardening, release preparation) code complete on the branch; pull request next. Release candidate 1.0.0rc1. Tagging 1.0.0 waits for the owner's review of the clinical content (owner decision 2026-11-27).
-**Branch:** `ccr-5c748898-yqc67t`
+**Current phase:** Phase 8 (VA readiness and extensibility), started 2026-11-27 ahead of the 1.0.0 tag (owner decision). Release candidate 1.0.0rc1; tagging 1.0.0 still waits for the owner's review of the clinical content.
+**Branch:** `claude/tender-lamport-y0qpyy`
 
 ## Summary
 
@@ -19,15 +19,14 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- Pull request [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) for Phase 7: open, mergeable; CI green on all four jobs, including the first container build and smoke test and the first live run of `tests/integration/test_performance_live.py` (p95 within 2 s against HAPI). Waiting for owner review.
+- **Phase 8**, one PR with a commit per work item. Order: `not_supported` data status (contract 0.4.0); dummy scorer (item 6); autism stub (item 5); Lighthouse adapter from public docs with synthetic Lighthouse-shaped responses (item 1); data-shape, Oracle Health and security-label desk reviews (items 2 to 4); deployment guide (item 7); next-stage plan (item 8).
 
 ## Next steps
 
-1. Merge the Phase 7 pull request.
+1. Continue Phase 8 from the first unfinished item under "In progress".
 2. Project owner decisions before tagging 1.0.0 (open questions 1, 4, 14, 16, 17): review and approve, or change, the signal catalog (`reviewed_by_owner = false`), the [rule card](docs/clinical/rule_card_adhd_1.0.md), the clinician wording in `src/adhd_mcp/data/wording.toml`, the drug-class curation (ADR 0009) and medication parameters; choose a sex-balance option; approve ADR 0013.
 3. Then release: ruleset status `released` with its sha256 in `src/adhd_mcp/data/released_rulesets.toml`; rule card status Released; tool contract `1.0.0` (snapshots, tool reference); version `1.0.0` in `pyproject.toml` and `CHANGELOG.md`; regenerate the evaluation report; `uv run python scripts/release_check.py` passes; the owner tags `v1.0.0` on `main`.
 4. When the owner approves the budget and SDK: a live model driver, the model-in-the-loop run, then tool description tuning (item 5).
-5. Phase 8 (VA readiness and extensibility) after the release.
 
 ## Open questions for the project owner
 
@@ -35,7 +34,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 |---|---|---|
 | 1 | Who reviews and approves clinical content (rule cards, signal catalog)? Is there a clinician adviser? (For now the owner waived the human spot-check until release.) | Before release |
 | 4 | Model-in-the-loop live run: approve the budget (about 140 requests per model), the `anthropic` SDK as an optional `eval` dependency group, and the proposed pass bar in [model_in_the_loop.md](docs/evaluation/model_in_the_loop.md) | Before release |
-| 5 | Will VA Lighthouse sandbox access be requested, and by whom? | Phase 8 |
+| 5 | Will VA Lighthouse sandbox access be requested, and by whom? (No access as of 2026-11-27; the adapter is built from public docs and the live run waits.) | Phase 8 exit |
 | 6 | Should a priority tier be part of the 1.0 output? (Proposal: no; not built.) | Before release |
 | 9 | PC-PTSD-5 cutoff: 4 (current National Center for PTSD default) or 3? | Before LOINC verification (F2) |
 | 12 | How should ASRS results be recognised in FHIR data (follow-up F3)? | Phase 8 |
@@ -48,6 +47,13 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 ## Decisions
 
 Scope decisions made 2026-11-26 are recorded in [project_plan.md](project_plan.md#scope). Architecture decisions are in [docs/adr/](docs/adr/README.md).
+
+Owner decisions 2026-11-27 (start of Phase 8):
+
+- Start Phase 8 before tagging 1.0.0; one PR with a commit per work item; version stays 1.0.0rc1, changes under "Unreleased" in the change log.
+- No Lighthouse sandbox access: build the adapter and its client-credentials auth from the public VA documentation, tested with synthetic Lighthouse-shaped responses; the live end-to-end run stays open.
+- A resource type a back end does not support is reported with a new data-completeness status `not_supported`; checks that need it are "not performed" (tool contract 0.3.0 to 0.4.0).
+- Autism stub: exclusion on recorded autism codes (F84.0, F84.5, F84.8, F84.9) verified against the FY2027 tabular; placeholder signals reuse verified value sets; ruleset status `experimental`; registered only when enabled by an environment variable. Session moved to the ADHD_MCP environment for ftp.cdc.gov.
 
 Owner decisions 2026-11-27 (start of Phase 7):
 
