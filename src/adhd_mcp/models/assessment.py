@@ -6,7 +6,7 @@ from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from adhd_mcp.models.domain import Recommendation, ResourceRef, RuleTraceEntry
+from adhd_mcp.models.domain import PrivacyNote, Recommendation, ResourceRef, RuleTraceEntry
 
 
 class _Frozen(BaseModel):
@@ -71,6 +71,9 @@ class AssessmentOutput(Recommendation):
         description="Each rule, whether it fired, and the signals it counted"
     )
     ruleset: str = Field(description="Ruleset id, version and status; never clinically validated")
+    privacy: PrivacyNote = Field(
+        description="What the sensitive-data policy withheld or restricted"
+    )
     scorer: ScorerRef | None = None
 
     @model_validator(mode="after")
@@ -94,4 +97,5 @@ class ReferralDraftOutput(_Frozen):
         "null when the assessment does not suggest a referral"
     )
     why_no_draft: str | None = None
+    privacy: PrivacyNote
     notice: str

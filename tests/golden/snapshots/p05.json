@@ -160,6 +160,11 @@
   ],
   "notice": "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment.",
   "patient_id": "p05-patient",
+  "privacy": {
+    "policy": "privacy 0.1.0",
+    "restricted": [],
+    "withheld": []
+  },
   "recommendation": "no_recommendation",
   "recommendation_text": "No referral for formal ADHD screening is suggested from the coded record. Coded data is incomplete, so this does not rule anything out; use clinical judgment.",
   "ruleset": "adhd 1.0.0 (draft)",

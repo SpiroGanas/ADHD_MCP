@@ -436,6 +436,64 @@
       "patient_id": {
         "type": "string"
       },
+      "privacy": {
+        "additionalProperties": false,
+        "description": "What the sensitive-data policy withheld or restricted",
+        "properties": {
+          "policy": {
+            "description": "Policy id and version",
+            "type": "string"
+          },
+          "restricted": {
+            "description": "Records used, but shown only as references and dates (codes appear as 'restricted'), by category",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "description": "Protected category, e.g. substance_use",
+                  "type": "string"
+                },
+                "records": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "category",
+                "records"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "withheld": {
+            "description": "Records removed before evidence assembly, by category; they were not used by any rule",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "description": "Protected category, e.g. substance_use",
+                  "type": "string"
+                },
+                "records": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "category",
+                "records"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "policy"
+        ],
+        "type": "object"
+      },
       "versions": {
         "additionalProperties": false,
         "properties": {
@@ -492,6 +550,7 @@
       "as_of",
       "notice",
       "data_completeness",
+      "privacy",
       "versions",
       "excluded",
       "exclusions_checked",

@@ -13,7 +13,14 @@ from adhd_mcp.models.assessment import ReferralDraftOutput
 from adhd_mcp.models.domain import RecommendationCode, ResourceRef
 from adhd_mcp.orchestration.assess import Assessment
 from adhd_mcp.tools.assessment import ConditionArg, run_assessment
-from adhd_mcp.tools.common import READ_ONLY, AsOfArg, PatientIdArg
+from adhd_mcp.tools.common import (
+    ASSESS_SCOPE,
+    READ_ONLY,
+    AsOfArg,
+    PatientIdArg,
+    privacy_note,
+    scope_check,
+)
 from adhd_mcp.tools.context import ToolContext
 from adhd_mcp.wording import load_wording
 
@@ -86,7 +93,13 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             recommendation=result.recommendation.value,
             draft=draft,
             why_no_draft=why,
+            privacy=privacy_note(context, request),
             notice=wording.standard_notice,
         )
 
-    mcp.tool(draft_referral_proposal, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        draft_referral_proposal,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, ASSESS_SCOPE),
+    )

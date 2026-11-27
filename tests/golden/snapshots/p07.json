@@ -127,6 +127,11 @@
   "notes": [],
   "notice": "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment.",
   "patient_id": "p07-patient",
+  "privacy": {
+    "policy": "privacy 0.1.0",
+    "restricted": [],
+    "withheld": []
+  },
   "recommendation": "insufficient_data",
   "recommendation_text": "Too little data could be read to make a suggestion. Review the record directly.",
   "ruleset": "adhd 1.0.0 (draft)",

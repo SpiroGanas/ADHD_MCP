@@ -4,7 +4,17 @@ from fastmcp import FastMCP
 
 from adhd_mcp.evidence.psychosocial import assemble_psychosocial, load_psychosocial_content
 from adhd_mcp.models.evidence_outputs import PsychosocialOutput
-from adhd_mcp.tools.common import READ_ONLY, AsOfArg, PatientIdArg, output_versions, start_request
+from adhd_mcp.tools.common import (
+    EVIDENCE_SCOPE,
+    READ_ONLY,
+    AsOfArg,
+    PatientIdArg,
+    apply_privacy,
+    output_versions,
+    privacy_note,
+    scope_check,
+    start_request,
+)
 from adhd_mcp.tools.context import ToolContext
 from adhd_mcp.wording import load_wording
 
@@ -30,15 +40,22 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             request.as_of,
             load_psychosocial_content(context.site_codes),
         )
-        return PsychosocialOutput(
+        output = PsychosocialOutput(
             patient_id=request.patient_id,
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=result.data_completeness,
+            privacy=privacy_note(context, request),
             versions=output_versions(context),
             domains=result.domains,
             military=result.military,
             definition_version=result.definition_version,
         )
+        return apply_privacy(request, output)
 
-    mcp.tool(get_psychosocial_context, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        get_psychosocial_context,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, EVIDENCE_SCOPE),
+    )

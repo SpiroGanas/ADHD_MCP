@@ -17,12 +17,16 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from adhd_mcp.audit.records import AuditSink, JsonlAuditSink
 from adhd_mcp.clock import Clock, SystemClock
 from adhd_mcp.conditions.adhd import adhd_plugin
 from adhd_mcp.conditions.base import ConditionRegistry
+from adhd_mcp.config import SmartSettings, load_settings
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.port import FhirReadPort
+from adhd_mcp.fhir.smart import SmartBackendAuth
+from adhd_mcp.privacy import PrivacyPolicy, load_privacy_policy
 from adhd_mcp.terminology.site_codes import SiteCodes, load_site_codes
 
 #: Used for a FHIR server whose local codes have not been mapped.
@@ -42,16 +46,44 @@ class ToolContext:
     clock: Clock
     site_codes: SiteCodes
     conditions: ConditionRegistry = field(default_factory=default_conditions)
+    privacy: PrivacyPolicy = field(default_factory=load_privacy_policy)
+    audit_sink: AuditSink | None = None
+    #: True when callers authenticate (HTTP): each tool then requires its OAuth scope.
+    scopes_required: bool = False
+
+
+def _smart(settings: SmartSettings | None, clock: Clock) -> SmartBackendAuth | None:
+    if settings is None:
+        return None
+    return SmartBackendAuth(
+        token_url=settings.token_url,
+        client_id=settings.client_id,
+        private_key_pem=settings.private_key_file.read_text(encoding="utf-8"),
+        key_id=settings.key_id,
+        scope=settings.scope,
+        clock=clock,
+    )
 
 
 def context_from_environment(env: Mapping[str, str] = os.environ) -> ToolContext:
+    """Build the context from validated settings (``adhd_mcp.config``); raises
+    ``ConfigError`` on a missing or malformed setting."""
+    settings = load_settings(env)
+    clock = SystemClock()
     port: FhirReadPort | None = None
     site = load_site_codes("synthetic")
     if base_url := env.get("ADHD_MCP_FHIR_BASE_URL"):
-        port = HttpFhirAdapter(base_url)
+        port = HttpFhirAdapter(base_url, auth=_smart(settings.smart, clock))
         site = NO_SITE_CODES
     elif fixture_dir := env.get("ADHD_MCP_FIXTURE_DIR"):
         port = FixtureFhirAdapter.from_directory(Path(fixture_dir))
     if site_id := env.get("ADHD_MCP_SITE_CODES"):
         site = load_site_codes(site_id)
-    return ToolContext(port=port, clock=SystemClock(), site_codes=site)
+    return ToolContext(
+        port=port,
+        clock=clock,
+        site_codes=site,
+        privacy=load_privacy_policy(settings.privacy_policy),
+        audit_sink=JsonlAuditSink(settings.audit_file) if settings.audit_file else None,
+        scopes_required=settings.auth is not None,
+    )

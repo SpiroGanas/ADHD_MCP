@@ -144,6 +144,16 @@
   "notes": [],
   "notice": "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment.",
   "patient_id": "p03-patient",
+  "privacy": {
+    "policy": "privacy 0.1.0",
+    "restricted": [
+      {
+        "category": "substance_use",
+        "records": 1
+      }
+    ],
+    "withheld": []
+  },
   "recommendation": "address_safety_gate_first",
   "recommendation_text": "Self-harm signals were found in the record. Follow the safety guidance first; no screening referral is suggested until the signals have been addressed. Other findings are listed for later review.",
   "ruleset": "adhd 1.0.0 (draft)",

@@ -76,6 +76,15 @@ Checked by the Claude Code agent under the project owner's delegation of 2026-11
 | Antidepressants | No list given; build an RxNorm ingredient value set | RxNorm | Verified: 28 ingredients (`med.antidepressant`). Trazodone, doxepin, amitriptyline, selegiline and milnacipran left out (inference, ADR 0009) | NLM RxNav REST API, RxNorm release 02-Nov-2026 (API 3.1.358); agent check 2026-11-27 with `scripts/build_drug_classes.py` |
 | Sedative-hypnotics | No list given; build an RxNorm ingredient value set | RxNorm | Verified: 12 ingredients (`med.sedative_hypnotic`) | NLM RxNav REST API, RxNorm release 02-Nov-2026 (API 3.1.358); agent check 2026-11-27 with `scripts/build_drug_classes.py` |
 
+## Priority 4: sensitive-data policy (Phase 6)
+
+| Item | Value | Source | Status | Checked |
+|---|---|---|---|---|
+| Blood alcohol signal without Y90.0 | Y90.1-Y90.9 exact (`sud.blood_alcohol_level` 0.2.0) | ICD-10-CM | Verified (owner decision to exclude Y90.0, open question 10) | CDC/NCHS ICD-10-CM tabular FY2027; agent check 2026-11-27 |
+| HIV | B20, Z21, R75 (`privacy.hiv`); used only by the privacy policy | ICD-10-CM | Verified | CDC/NCHS ICD-10-CM tabular FY2027; agent check 2026-11-27 |
+| Sickle-cell disorders | D57 whole category, including trait D57.3 (`privacy.sickle_cell`); privacy policy only | ICD-10-CM | Verified (43 codes) | CDC/NCHS ICD-10-CM tabular FY2027; agent check 2026-11-27 |
+| Security labels | v3-ActCode ETH, ETHUD, SUD, OPIOIDUD (substance use), HIV, SCA (`data/privacy.toml`) | HL7 terminology | Verified | terminology.hl7.org CodeSystem-v3-ActCode.json, version 11.0.0; agent check 2026-11-27 |
+
 ## Follow-up verification
 
 | # | Item | Needed by |

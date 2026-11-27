@@ -7,7 +7,17 @@ from adhd_mcp.evidence.medication_timeline import (
     load_medication_content,
 )
 from adhd_mcp.models.evidence_outputs import MedicationTimelineOutput
-from adhd_mcp.tools.common import READ_ONLY, AsOfArg, PatientIdArg, output_versions, start_request
+from adhd_mcp.tools.common import (
+    EVIDENCE_SCOPE,
+    READ_ONLY,
+    AsOfArg,
+    PatientIdArg,
+    apply_privacy,
+    output_versions,
+    privacy_note,
+    scope_check,
+    start_request,
+)
 from adhd_mcp.tools.context import ToolContext
 from adhd_mcp.wording import load_wording
 
@@ -32,11 +42,12 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         result = await assemble_medication_timeline(
             request.records, request.patient_id, request.as_of, load_medication_content()
         )
-        return MedicationTimelineOutput(
+        output = MedicationTimelineOutput(
             patient_id=request.patient_id,
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=result.data_completeness,
+            privacy=privacy_note(context, request),
             versions=output_versions(context),
             exposures=result.exposures,
             prescriptions=result.prescriptions,
@@ -46,5 +57,11 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             definition_version=result.definition_version,
             drug_class_versions=result.drug_class_versions,
         )
+        return apply_privacy(request, output)
 
-    mcp.tool(get_medication_timeline, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        get_medication_timeline,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, EVIDENCE_SCOPE),
+    )

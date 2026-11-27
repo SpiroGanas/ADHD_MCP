@@ -4,7 +4,17 @@ from fastmcp import FastMCP
 
 from adhd_mcp.evidence.screening import assemble_screening_history, load_screening_content
 from adhd_mcp.models.evidence_outputs import ScreeningHistoryOutput
-from adhd_mcp.tools.common import READ_ONLY, AsOfArg, PatientIdArg, output_versions, start_request
+from adhd_mcp.tools.common import (
+    EVIDENCE_SCOPE,
+    READ_ONLY,
+    AsOfArg,
+    PatientIdArg,
+    apply_privacy,
+    output_versions,
+    privacy_note,
+    scope_check,
+    start_request,
+)
 from adhd_mcp.tools.context import ToolContext
 from adhd_mcp.wording import load_wording
 
@@ -32,14 +42,21 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
             request.as_of,
             load_screening_content(context.site_codes),
         )
-        return ScreeningHistoryOutput(
+        output = ScreeningHistoryOutput(
             patient_id=request.patient_id,
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=result.data_completeness,
+            privacy=privacy_note(context, request),
             versions=output_versions(context),
             entries=result.entries,
             instruments_checked=result.instruments_checked,
         )
+        return apply_privacy(request, output)
 
-    mcp.tool(get_screening_history, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        get_screening_history,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, EVIDENCE_SCOPE),
+    )

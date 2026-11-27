@@ -42,7 +42,9 @@ def test_adapters_expose_no_write_methods() -> None:
 #: The only POST allowed anywhere: the SMART backend-services token request, which goes to
 #: the OAuth token endpoint, never to the FHIR server (behaviour: tests/unit/fhir/test_smart.py).
 #: Adding an entry here needs the project owner's review.
-ALLOWED_WRITES = {("fhir/smart.py", "response = await self._client.post(self._token_url, data=form)")}
+ALLOWED_WRITES = {
+    ("fhir/smart.py", "response = await self._client.post(self._token_url, data=form)"),
+}
 
 
 def test_no_source_file_issues_an_http_write() -> None:

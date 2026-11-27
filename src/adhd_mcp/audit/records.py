@@ -1,0 +1,61 @@
+"""The audit record and its sinks."""
+
+import json
+import threading
+from datetime import datetime
+from pathlib import Path
+from typing import Literal, Protocol
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from adhd_mcp.models.domain import ResourceRef
+
+
+class AuditRecord(BaseModel):
+    """One tool call. References and hashes only: no clinical values, no free text."""
+
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    record_id: str
+    trace_id: str
+    time: datetime
+    caller: str = Field(description="Token subject and client id, or 'local' over stdio")
+    tool: str
+    outcome: Literal["success", "error"]
+    error_code: str | None = None
+    server_version: str
+    tool_contract_version: str
+    ruleset: str | None
+    scorer: str | None = None
+    privacy_policy: str | None = None
+    patient: ResourceRef | None
+    resources_read: list[ResourceRef]
+    recommendation: str | None = None
+    output_sha256: str | None = None
+
+
+class AuditSink(Protocol):
+    def write(self, record: AuditRecord) -> None: ...
+
+
+class MemoryAuditSink:
+    """Keeps records in memory (tests)."""
+
+    def __init__(self) -> None:
+        self.records: list[AuditRecord] = []
+
+    def write(self, record: AuditRecord) -> None:
+        self.records.append(record)
+
+
+class JsonlAuditSink:
+    """Appends one JSON line per record to a file. Never rewrites or truncates it."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+        self._lock = threading.Lock()
+
+    def write(self, record: AuditRecord) -> None:
+        line = json.dumps(record.model_dump(mode="json"), sort_keys=True) + "\n"
+        with self._lock, self.path.open("a", encoding="utf-8") as f:
+            f.write(line)

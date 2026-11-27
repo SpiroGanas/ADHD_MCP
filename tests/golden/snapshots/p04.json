@@ -155,6 +155,16 @@
   "notes": [],
   "notice": "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment.",
   "patient_id": "p04-patient",
+  "privacy": {
+    "policy": "privacy 0.1.0",
+    "restricted": [
+      {
+        "category": "substance_use",
+        "records": 1
+      }
+    ],
+    "withheld": []
+  },
   "recommendation": "already_in_care",
   "recommendation_text": "An ADHD code, referral, evaluation or care plan is already recorded, so no new referral is suggested.",
   "ruleset": "adhd 1.0.0 (draft)",

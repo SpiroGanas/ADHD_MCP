@@ -2,7 +2,7 @@
 
 How ADHD_MCP is put together. This is a design document that changes as phases complete; costly decisions are recorded in [adr/](adr/README.md).
 
-**Built so far (Phases 1 to 5):** `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
+**Built so far (Phases 1 to 6):** audit records, trace propagation, the sensitive-data policy, OAuth over streamable HTTP, SMART backend services and validated configuration ([ADR 0011](adr/0011-audit-tracing-and-privacy.md), [ADR 0012](adr/0012-authentication.md), [threat model](security/threat_model.md)); also `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
 
 ## Purpose and boundary
 
@@ -71,7 +71,9 @@ src/adhd_mcp/
   orchestration/    assess: safety gate, exclusions, evidence, rules, precedence
   resources/  prompts/   MCP resources (ruleset, catalog, value sets, drug classes,
                     instruments, intended use) and two clinician prompts
-  privacy/  audit/                                             planned
+  privacy/          sensitive-data policy: classifying port, ledger, output redaction
+  audit/            audit record and sinks, middleware, resource collector, trace context
+  config.py         settings from the environment, validated at startup
 tests/
   unit/  contract/  tools/  property/  adapters/  integration/  (unit/evidence: assemblers)
   golden/           per-persona expectations and full-output snapshots
@@ -229,7 +231,12 @@ Three independent version lines, all reported in every output and audit record:
 
 ## Security and privacy
 
-Built in Phase 6; summarized here so earlier phases do not design against it.
+Built in Phase 6. Per request the port chain is: FHIR source, then `AuditingPort` (notes every resource read), then `PrivacyPort` (applies the policy), then for assessments `RequestCachedPort`.
+
+- **Audit**: one record per tool call from `AuditMiddleware` (success or failure; references with versions, caller, versions, recommendation, output sha256). Sinks: JSON Lines file (`ADHD_MCP_AUDIT_FILE`, required for HTTP) or memory.
+- **Tracing**: the trace id comes from the request's `_meta.traceparent` (W3C) or is new; the HTTP adapter sends `traceparent` on every FHIR request.
+- **Sensitive data**: `data/privacy.toml`; categories substance use, HIV and sickle-cell disease by verified value sets and HL7 security labels; actions allow, cite (default: codes shown as `restricted`) or withhold; every output has a `privacy` section.
+- **Authentication**: OAuth resource server over HTTP (`RemoteAuthProvider`, `JWTVerifier`); scopes `adhd.evidence.read` and `adhd.referral.assess`; SMART backend services toward FHIR.
 
 - The server is an OAuth resource server toward MCP clients and a SMART on FHIR client toward the FHIR server. It never forwards a caller's token.
 - Local use over stdio; hosted use over HTTP with authentication.

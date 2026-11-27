@@ -9,6 +9,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from adhd_mcp.models.domain import (
     DataCompleteness,
     ExclusionCheck,
+    PrivacyNote,
     ResourceRef,
     SafetyGateResult,
     Versions,
@@ -59,6 +60,9 @@ class EvidenceOutput(BaseModel):
     data_completeness: list[DataCompleteness] = Field(
         description="Each data category read: available, empty, incomplete or failed. An "
         "empty record is not a clean record."
+    )
+    privacy: PrivacyNote = Field(
+        description="What the sensitive-data policy withheld or restricted"
     )
     versions: Versions
 

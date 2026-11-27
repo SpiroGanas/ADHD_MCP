@@ -1,23 +1,25 @@
 """The ``assess_referral_need`` tool: a thin wrapper over the orchestration."""
 
-from dataclasses import replace
 from datetime import date
 from typing import Annotated
 
 from fastmcp import FastMCP
 from pydantic import Field
 
-from adhd_mcp.fhir.request_cache import RequestCachedPort
 from adhd_mcp.models.assessment import AssessmentOutput
 from adhd_mcp.models.domain import RecommendationCode
 from adhd_mcp.orchestration.assess import Assessment, assess
 from adhd_mcp.tools.common import (
+    ASSESS_SCOPE,
     READ_ONLY,
     AsOfArg,
     ErrorCode,
     PatientIdArg,
     PatientRequest,
+    apply_privacy,
     output_versions,
+    privacy_note,
+    scope_check,
     start_request,
     tool_error,
 )
@@ -63,7 +65,7 @@ def build_output(
             "scorer": f"{a.scorer.id} {a.scorer.version}" if a.scorer else None,
         }
     )
-    return AssessmentOutput(
+    output = AssessmentOutput(
         safety_gate=a.gate,
         recommendation=code,
         condition_to_screen=plugin.title,
@@ -81,8 +83,10 @@ def build_output(
         excluded=a.exclusions.excluded,
         signals_checked=a.findings,
         ruleset=plugin.ruleset.label,
+        privacy=privacy_note(context, request),
         scorer=a.scorer,
     )
+    return apply_privacy(request, output)
 
 
 async def run_assessment(
@@ -91,8 +95,7 @@ async def run_assessment(
     if condition not in context.conditions.ids():
         raise tool_error(ErrorCode.INVALID_INPUT, f"unknown condition {condition!r}")
     # One request-scoped cache: every assembler reads through it, so no query repeats.
-    cached = replace(context, port=RequestCachedPort(context.port) if context.port else None)
-    request = await start_request(cached, patient_id, as_of)
+    request = await start_request(context, patient_id, as_of, cached=True)
     plugin = context.conditions.get(condition)
     result = await assess(
         plugin, request.records, request.patient_id, request.as_of, context.site_codes
@@ -107,4 +110,9 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         request, result = await run_assessment(context, patient_id, as_of, condition)
         return build_output(context, request, condition, result)
 
-    mcp.tool(assess_referral_need, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        assess_referral_need,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, ASSESS_SCOPE),
+    )
