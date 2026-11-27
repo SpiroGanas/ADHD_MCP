@@ -114,7 +114,9 @@ def test_recommendation_is_never_a_diagnosis() -> None:
         condition_to_screen="adult ADHD",
         safety_gate=clear_gate(),
         basis=[evidence()],
-        exclusions_checked=[ExclusionCheck(check="existing ADHD diagnosis", found=False)],
+        exclusions_checked=[
+            ExclusionCheck(check="adhd_diagnosis_code", outcome=CheckOutcome.NOT_FOUND)
+        ],
         data_completeness=[DataCompleteness(category="Condition", status=DataStatus.AVAILABLE)],
         versions=Versions(server="0.1.0", tool_contract="0.1.0", ruleset="1.0.0"),
     )
@@ -135,7 +137,7 @@ def test_recommendation_vocabulary_is_fixed() -> None:
 
 def test_exclusion_found_requires_references() -> None:
     with pytest.raises(ValidationError, match="references"):
-        ExclusionCheck(check="existing ADHD diagnosis", found=True)
+        ExclusionCheck(check="adhd_diagnosis_code", outcome=CheckOutcome.FOUND)
 
 
 def gate(status: SafetyGateStatus) -> SafetyGateResult:
@@ -276,3 +278,11 @@ def test_incomplete_data_status_exists() -> None:
         category="Flag", status=DataStatus.INCOMPLETE, records=2, warnings=["suppressed"]
     )
     assert note.status == "incomplete"
+
+
+def test_exclusion_not_performed_or_failed_must_say_why() -> None:
+    for outcome in (CheckOutcome.NOT_PERFORMED, CheckOutcome.FAILED):
+        with pytest.raises(ValidationError, match="reason"):
+            ExclusionCheck(check="adhd_care_plan", outcome=outcome)
+    check = ExclusionCheck(check="adhd_care_plan", outcome=CheckOutcome.FAILED, reason="r")
+    assert check.found is False

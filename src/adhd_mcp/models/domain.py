@@ -88,6 +88,26 @@ class SafetyCheck(_Frozen):
         return self
 
 
+class ExclusionCheck(_Frozen):
+    check: str = Field(min_length=1, description="What was looked for")
+    description: str | None = None
+    outcome: CheckOutcome
+    reason: str | None = Field(default=None, description="Why not performed or failed")
+    references: list[ResourceRef] = Field(default_factory=list)
+
+    @property
+    def found(self) -> bool:
+        return self.outcome is CheckOutcome.FOUND
+
+    @model_validator(mode="after")
+    def _consistent(self) -> Self:
+        if self.found and not self.references:
+            raise ValueError("a found exclusion must cite references")
+        if self.outcome in {CheckOutcome.NOT_PERFORMED, CheckOutcome.FAILED} and not self.reason:
+            raise ValueError("a check not performed or failed must give a reason")
+        return self
+
+
 class SafetyGateResult(_Frozen):
     """The gate's status agrees with its checks (owner decision 2026-11-27):
 
@@ -137,18 +157,6 @@ class RecommendationCode(StrEnum):
     ADDRESS_SAFETY_GATE_FIRST = "address_safety_gate_first"
     ALREADY_IN_CARE = "already_in_care"
     INSUFFICIENT_DATA = "insufficient_data"
-
-
-class ExclusionCheck(_Frozen):
-    check: str = Field(min_length=1, description="What was looked for")
-    found: bool
-    references: list[ResourceRef] = Field(default_factory=list)
-
-    @model_validator(mode="after")
-    def _found_needs_references(self) -> Self:
-        if self.found and not self.references:
-            raise ValueError("a found exclusion must cite references")
-        return self
 
 
 class DataStatus(StrEnum):

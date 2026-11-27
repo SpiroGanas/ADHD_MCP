@@ -5,7 +5,13 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from adhd_mcp.models.domain import DataCompleteness, ResourceRef, SafetyGateResult, Versions
+from adhd_mcp.models.domain import (
+    DataCompleteness,
+    ExclusionCheck,
+    ResourceRef,
+    SafetyGateResult,
+    Versions,
+)
 
 
 class _Frozen(BaseModel):
@@ -100,3 +106,34 @@ class ScreeningEntry(_Frozen):
 class ScreeningHistoryOutput(EvidenceOutput):
     entries: list[ScreeningEntry] = Field(description="Timeline, oldest first; undated last")
     instruments_checked: list[str]
+
+
+class CareItem(_Frozen):
+    """An ADHD referral, evaluation or care plan found in the record."""
+
+    kind: Literal["service_request", "procedure", "care_plan"]
+    status: str | None
+    date: date | None
+    excludes: bool = Field(description="Whether this item makes the patient already in care")
+    why: str = Field(description="Why it does or does not exclude")
+    references: list[ResourceRef] = Field(min_length=1)
+
+
+class NarcolepsyFinding(_Frozen):
+    """Reported separately; never an exclusion and never an ADHD signal."""
+
+    condition_references: list[ResourceRef] = Field(min_length=1)
+    medication_for_narcolepsy: bool = Field(
+        description="A medication request or statement gives narcolepsy as its reason"
+    )
+    medication_references: list[ResourceRef]
+
+
+class ExistingCareOutput(EvidenceOutput):
+    excluded: bool | None = Field(
+        description="True if already in ADHD care; null if a check failed and none was found"
+    )
+    exclusions_checked: list[ExclusionCheck]
+    care_items: list[CareItem]
+    narcolepsy: NarcolepsyFinding | None
+    definition_version: str

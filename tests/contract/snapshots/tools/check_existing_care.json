@@ -1,0 +1,493 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Check whether a patient is already in ADHD care, so a referral is not duplicated: an ADHD code (F90) on a Condition or as a medication reason; an ADHD referral, evaluation or care plan that is open or was completed within 365 days. Older, revoked or cancelled items are listed but do not count. Medication ordered for narcolepsy is reported separately and is never an exclusion. Returns excluded (true, false, or null when a check failed), each check with its outcome and resources, and the care items found. Read-only. An ADHD code in the record is a prior entry, not a diagnosis by this tool.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "check_existing_care",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "description": "The date the record was read as of",
+        "format": "date",
+        "type": "string"
+      },
+      "care_items": {
+        "items": {
+          "additionalProperties": false,
+          "description": "An ADHD referral, evaluation or care plan found in the record.",
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "excludes": {
+              "description": "Whether this item makes the patient already in care",
+              "type": "boolean"
+            },
+            "kind": {
+              "enum": [
+                "service_request",
+                "procedure",
+                "care_plan"
+              ],
+              "type": "string"
+            },
+            "references": {
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "minItems": 1,
+              "type": "array"
+            },
+            "status": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "why": {
+              "description": "Why it does or does not exclude",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "status",
+            "date",
+            "excludes",
+            "why",
+            "references"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "data_completeness": {
+        "description": "Each data category read: available, empty, incomplete or failed. An empty record is not a clean record.",
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "definition_version": {
+        "type": "string"
+      },
+      "excluded": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "True if already in ADHD care; null if a check failed and none was found"
+      },
+      "exclusions_checked": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "check": {
+              "description": "What was looked for",
+              "minLength": 1,
+              "type": "string"
+            },
+            "description": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "outcome": {
+              "enum": [
+                "found",
+                "not_found",
+                "not_performed",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Why not performed or failed"
+            },
+            "references": {
+              "items": {
+                "additionalProperties": false,
+                "description": "A pointer to the FHIR resource a fact came from.",
+                "properties": {
+                  "id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "resource_type": {
+                    "enum": [
+                      "Patient",
+                      "Condition",
+                      "Observation",
+                      "QuestionnaireResponse",
+                      "MedicationRequest",
+                      "MedicationDispense",
+                      "MedicationStatement",
+                      "Medication",
+                      "Encounter",
+                      "Procedure",
+                      "ServiceRequest",
+                      "CarePlan",
+                      "Flag"
+                    ],
+                    "type": "string"
+                  },
+                  "version": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "meta.versionId when the server has one"
+                  }
+                },
+                "required": [
+                  "resource_type",
+                  "id"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "check",
+            "outcome"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "description": "Always false: these results are never a diagnosis",
+        "type": "boolean"
+      },
+      "narcolepsy": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "description": "Reported separately; never an exclusion and never an ADHD signal.",
+            "properties": {
+              "condition_references": {
+                "items": {
+                  "additionalProperties": false,
+                  "description": "A pointer to the FHIR resource a fact came from.",
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "resource_type": {
+                      "enum": [
+                        "Patient",
+                        "Condition",
+                        "Observation",
+                        "QuestionnaireResponse",
+                        "MedicationRequest",
+                        "MedicationDispense",
+                        "MedicationStatement",
+                        "Medication",
+                        "Encounter",
+                        "Procedure",
+                        "ServiceRequest",
+                        "CarePlan",
+                        "Flag"
+                      ],
+                      "type": "string"
+                    },
+                    "version": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "meta.versionId when the server has one"
+                    }
+                  },
+                  "required": [
+                    "resource_type",
+                    "id"
+                  ],
+                  "type": "object"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "medication_for_narcolepsy": {
+                "description": "A medication request or statement gives narcolepsy as its reason",
+                "type": "boolean"
+              },
+              "medication_references": {
+                "items": {
+                  "additionalProperties": false,
+                  "description": "A pointer to the FHIR resource a fact came from.",
+                  "properties": {
+                    "id": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "resource_type": {
+                      "enum": [
+                        "Patient",
+                        "Condition",
+                        "Observation",
+                        "QuestionnaireResponse",
+                        "MedicationRequest",
+                        "MedicationDispense",
+                        "MedicationStatement",
+                        "Medication",
+                        "Encounter",
+                        "Procedure",
+                        "ServiceRequest",
+                        "CarePlan",
+                        "Flag"
+                      ],
+                      "type": "string"
+                    },
+                    "version": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "description": "meta.versionId when the server has one"
+                    }
+                  },
+                  "required": [
+                    "resource_type",
+                    "id"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "condition_references",
+              "medication_for_narcolepsy",
+              "medication_references"
+            ],
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "notice": {
+        "description": "Standard notice on how to read these results",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "notice",
+      "data_completeness",
+      "versions",
+      "excluded",
+      "exclusions_checked",
+      "care_items",
+      "narcolepsy",
+      "definition_version"
+    ],
+    "type": "object"
+  },
+  "title": "Check Existing Care"
+}
