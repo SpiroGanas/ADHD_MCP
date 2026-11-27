@@ -28,7 +28,7 @@
             "type": "null"
           }
         ],
-        "description": "Version of the active referral ruleset; null until a ruleset is released."
+        "description": "Active referral ruleset: id, version and status (draft until the project owner approves it). No ruleset is clinically validated."
       },
       "server_name": {
         "type": "string"

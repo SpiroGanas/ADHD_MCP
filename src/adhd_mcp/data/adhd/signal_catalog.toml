@@ -1,0 +1,215 @@
+# ADHD referral signal catalog (Phase 4, item 4): the input contract of the ADHD ruleset.
+# Every signal names its weight class, how it is found, the window it is looked for in
+# (days before the as-of date, inclusive), the tool that supplies it, and its evidence.
+# Weights and windows are the owner-approved defaults of 2026-11-27. They are a starting
+# heuristic from the literature, NOT a validated rule. Changing anything here is a clinical
+# content change and needs a new catalog version.
+#
+# weight: high | modifier | note   (a note never counts toward a recommendation)
+# source:
+#   condition      a code in value_sets on a Condition current within the window
+#                  (from get_mh_problem_list)
+#   psychosocial   a finding in the named domain of get_psychosocial_context
+#   events         at least min_count events of the named kind in the window
+#                  (from get_utilization_summary)
+#   distinct_agents at least min_count distinct ingredients of drug_class with exposure in
+#                  the window (from get_medication_timeline)
+# protected: the sensitive-data category of the signal, if any (Phase 6 privacy policy).
+
+id = "adhd.signal_catalog"
+version = "1.0.0"
+condition = "adhd"
+reviewed_by_owner = false
+
+[[signals]]
+id = "stimulant_related_disorder"
+title = "Stimulant-related disorder"
+weight = "high"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["sud.stimulant"]
+window_days = 1095
+protected = "substance_use"
+evidence = "Research report, ADHD indicator table: F15 among the strongest predictors of a later ADHD diagnosis (Hamed 2026). F15 also holds caffeine disorders (owner decision 2026-11-27)."
+inference = false
+
+[[signals]]
+id = "alcohol_involvement"
+title = "Alcohol involvement"
+weight = "high"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["sud.alcohol", "sud.blood_alcohol_level", "sud.alcohol_in_blood"]
+window_days = 1095
+protected = "substance_use"
+evidence = "Research report, ADHD indicator table: Y90.3 a top predictor (Hamed 2026). AUDIT-C is not used: its LOINC code and cutoffs are unverified (F2)."
+inference = false
+
+[[signals]]
+id = "crash_as_driver"
+title = "Motor-vehicle crash as driver"
+weight = "high"
+source = "events"
+tool = "get_utilization_summary"
+event = "crash_as_driver"
+min_count = 1
+window_days = 1095
+evidence = "Research report, ADHD indicator table: crash OR about 1.45 in adults with ADHD (secondary). Skews male."
+inference = false
+
+[[signals]]
+id = "repeated_accidental_injury"
+title = "Two or more accidental injury visits"
+weight = "high"
+source = "events"
+tool = "get_utilization_summary"
+event = "injury_visit"
+min_count = 2
+window_days = 730
+evidence = "Research report, ADHD indicator table: accidents lead excess deaths in ADHD (Dalsgaard 2015). The count of two in 730 days is inference. Skews male."
+inference = true
+
+[[signals]]
+id = "tbi_overlap"
+title = "Traumatic brain injury (ADHD-like deficits; consider neuropsychological evaluation)"
+weight = "note"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["injury.tbi", "injury.history_tbi"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: TBI mimics ADHD; route to neuropsychological evaluation. Owner decision 2026-11-27: a note only, not counted."
+inference = false
+
+[[signals]]
+id = "other_substance_use"
+title = "Other substance use disorder"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["sud.other"]
+window_days = 1095
+protected = "substance_use"
+evidence = "Research report, ADHD indicator table: moderate; ASRS validated in SUD patients."
+inference = false
+
+[[signals]]
+id = "ptsd"
+title = "Post-traumatic stress disorder"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.ptsd"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: pre-deployment ADHD predicted PTSD, AOR 2.13 (Howlett 2018)."
+inference = false
+
+[[signals]]
+id = "intermittent_explosive_disorder"
+title = "Intermittent explosive disorder"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.intermittent_explosive_disorder"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: IED clusters with ADHD; attempt OR about 3.7 in soldiers (Nock 2014)."
+inference = false
+
+[[signals]]
+id = "depression_or_anxiety"
+title = "Depression or generalized anxiety"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.depression", "mh.generalized_anxiety"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: modifier, stronger in women; women are often first labeled with depression or anxiety."
+inference = false
+
+[[signals]]
+id = "multiple_antidepressants"
+title = "Three or more distinct antidepressants"
+weight = "modifier"
+source = "distinct_agents"
+tool = "get_medication_timeline"
+drug_class = "med.antidepressant"
+min_count = 3
+window_days = 1095
+evidence = "Research report, ADHD indicator table: many antidepressant switches; described as an untested inference. Threshold of three is inference."
+inference = true
+
+[[signals]]
+id = "borderline_personality"
+title = "Borderline personality disorder"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["mh.borderline_personality"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: ADHD-BPD comorbidity 18-34% in adults."
+inference = false
+
+[[signals]]
+id = "insomnia"
+title = "Chronic insomnia or delayed sleep phase"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["sleep.insomnia_delayed_phase"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: insomnia in about 67% of people with ADHD (secondary)."
+inference = false
+
+[[signals]]
+id = "attention_symptoms"
+title = "Attention or executive-function symptom code"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["symptom.attention_executive"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: modifier; unvalidated."
+inference = true
+
+[[signals]]
+id = "legal_problems"
+title = "Legal problems"
+weight = "modifier"
+source = "psychosocial"
+tool = "get_psychosocial_context"
+domain = "legal"
+window_days = 1095
+evidence = "Research report, ADHD indicator table: modifier; medication associated with about 13% less criminality."
+inference = false
+
+[[signals]]
+id = "education_occupation_problems"
+title = "Education or employment problems"
+weight = "modifier"
+source = "psychosocial"
+tool = "get_psychosocial_context"
+domain = "education_occupation"
+window_days = 1095
+evidence = "Research report, ADHD indicator table: modifier; inference."
+inference = true
+
+[[signals]]
+id = "housing_problems"
+title = "Homelessness or housing instability"
+weight = "modifier"
+source = "psychosocial"
+tool = "get_psychosocial_context"
+domain = "housing"
+window_days = 1095
+evidence = "Research report, ADHD indicator table: modifier; inference."
+inference = true
+
+[[signals]]
+id = "family_history"
+title = "Family history of mental or behavioral disorder"
+weight = "modifier"
+source = "condition"
+tool = "get_mh_problem_list"
+value_sets = ["family.mental_behavioral_history"]
+window_days = 1095
+evidence = "Research report, ADHD indicator table: modifier; Z81.8 is not ADHD-specific and the mapping is inference."
+inference = true

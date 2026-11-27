@@ -1,15 +1,103 @@
 id = "sud.blood_alcohol_level"
-version = "0.1.0"
-title = "Blood alcohol level (Y90)"
-description = "Y90.0 (under 20 mg/100 ml) is effectively negative; whether to exclude it is an open question."
+version = "0.2.0"
+title = "Blood alcohol level of 20 mg/100 ml or more, or present (Y90.1-Y90.9)"
+description = "Y90.0 (under 20 mg/100 ml) is excluded: owner decision 2026-11-27 (open question 10)."
 
 [[entries]]
 system = "http://hl7.org/fhir/sid/icd-10-cm"
-match = "prefix"
-code = "Y90"
-display = "Evidence of alcohol involvement determined by blood alcohol level"
+match = "exact"
+code = "Y90.1"
+display = "Blood alcohol level of 20-39 mg/100 ml"
 verified = true
-source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.2"
+display = "Blood alcohol level of 40-59 mg/100 ml"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.3"
+display = "Blood alcohol level of 60-79 mg/100 ml"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.4"
+display = "Blood alcohol level of 80-99 mg/100 ml"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.5"
+display = "Blood alcohol level of 100-119 mg/100 ml"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.6"
+display = "Blood alcohol level of 120-199 mg/100 ml"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.7"
+display = "Blood alcohol level of 200-239 mg/100 ml"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.8"
+display = "Blood alcohol level of 240 mg/100 ml or more"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "exact"
+code = "Y90.9"
+display = "Presence of alcohol in blood, level not specified"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
 source_version = "FY2027 (effective 2026-10-01)"
 checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

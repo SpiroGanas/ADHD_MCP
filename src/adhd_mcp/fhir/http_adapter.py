@@ -11,7 +11,10 @@
 * A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
   raises ``FhirRequestError``. Error messages never include response bodies.
 
-Unauthenticated at this stage; SMART backend-services credentials arrive in Phase 6.
+* With ``auth`` (SMART backend services) every request carries the server's own bearer
+  token; after a 401 the token is renewed once. A caller's MCP token is never forwarded.
+* Inside a traced tool call every request carries a W3C ``traceparent`` with the call's
+  trace id (ADR 0011).
 """
 
 import asyncio
@@ -23,6 +26,7 @@ from typing import Any, Self
 
 import httpx2
 
+from adhd_mcp.audit.trace import outgoing_traceparent
 from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
 from adhd_mcp.fhir.port import (
     WARNING_SEVERITIES,
@@ -33,6 +37,7 @@ from adhd_mcp.fhir.port import (
     validate_patient_id,
 )
 from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES
+from adhd_mcp.fhir.smart import SmartBackendAuth
 
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
 _NOT_FOUND_STATUSES = frozenset({404, 410})
@@ -57,10 +62,17 @@ class HttpFhirAdapter:
         page_size: int = 100,
         max_pages: int = 1000,
         sleep: Sleep = asyncio.sleep,
+        auth: SmartBackendAuth | None = None,
     ) -> None:
         url = httpx2.URL(base_url.rstrip("/"))
         if url.scheme not in {"http", "https"} or not url.host:
             raise ValueError("FHIR base URL must be an absolute http or https URL")
+        if (
+            auth is not None
+            and url.scheme != "https"
+            and url.host not in {"localhost", "127.0.0.1"}
+        ):
+            raise ValueError("an authenticated FHIR base URL must use https")
         self._base = url
         self._client = httpx2.AsyncClient(
             transport=transport,
@@ -74,6 +86,7 @@ class HttpFhirAdapter:
         self._page_size = page_size
         self._max_pages = max_pages
         self._sleep = sleep
+        self._auth = auth
 
     async def __aenter__(self) -> Self:
         return self
@@ -109,14 +122,19 @@ class HttpFhirAdapter:
     async def _get(self, url: httpx2.URL, label: str, params: dict[str, str] | None = None) -> Any:
         """GET with retries; returns parsed JSON. ``label`` names the request in errors."""
         status: int | None = None
+        renewed = False
         for attempt in range(1, self._max_attempts + 1):
             response: httpx2.Response | None = None
             try:
-                response = await self._client.get(url, params=params)
+                response = await self._client.get(url, params=params, headers=await self._headers())
             except httpx2.TransportError:
                 status = None
             else:
                 status = response.status_code
+                if status == 401 and self._auth is not None and not renewed:
+                    self._auth.invalidate()
+                    renewed = True
+                    continue
                 if status in _NOT_FOUND_STATUSES:
                     raise ResourceNotFoundError(f"{label}: not found (HTTP {status})")
                 if status < 300:
@@ -138,6 +156,14 @@ class HttpFhirAdapter:
             status=status,
             transient=True,
         )
+
+    async def _headers(self) -> dict[str, str]:
+        headers = {}
+        if self._auth is not None:
+            headers["Authorization"] = f"Bearer {await self._auth.access_token()}"
+        if (traceparent := outgoing_traceparent()) is not None:
+            headers["traceparent"] = traceparent
+        return headers
 
     async def read_patient(self, patient_id: str) -> RawResource:
         validate_patient_id(patient_id)

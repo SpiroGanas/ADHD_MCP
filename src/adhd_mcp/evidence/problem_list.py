@@ -123,24 +123,28 @@ def _with_order(entries: list[ProblemEntry], firsts: dict[str, date | None]) -> 
     ]
 
 
-async def assemble_problem_list(
-    records: PatientRecords, patient_id: str, as_of: date, content: ProblemListContent
-) -> ProblemListResult:
-    read = await read_category(records.conditions(patient_id))
-    notes = [completeness("Condition", read)]
-    # A condition first known after the as-of date did not exist yet.
-    conditions = [
-        c for c in (read.records if read else ()) if (d := _first_date(c)) is None or d <= as_of
-    ]
+def conditions_as_of(conditions: Sequence[ConditionRecord], as_of: date) -> list[ConditionRecord]:
+    """Conditions first known on or before the as-of date (undated ones are kept)."""
+    return [c for c in conditions if (d := _first_date(c)) is None or d <= as_of]
 
+
+def group_conditions(
+    conditions: Sequence[ConditionRecord],
+    families: tuple[ValueSet, ...],
+    fallback: ValueSet | None = None,
+) -> list[ProblemFamily]:
+    """Group conditions into families: one entry per code citing every Condition, families
+    in the given order, entries by onset order. The fallback family takes codes it matches
+    that no other family matches."""
+    every = (*families, fallback) if fallback is not None else families
     # code -> (coding, conditions); a family keeps the codes it matches
     by_code: dict[tuple[str | None, str], tuple[Coding, list[ConditionRecord]]] = {}
     family_codes: dict[str, list[tuple[str | None, str]]] = {}
     for c in conditions:
         for coding in c.codes:
-            matched = [vs.id for vs in content.families if vs.matches(coding)]
-            if not matched and content.fallback.matches(coding):
-                matched = [content.fallback.id]
+            matched = [vs.id for vs in families if vs.matches(coding)]
+            if not matched and fallback is not None and fallback.matches(coding):
+                matched = [fallback.id]
             if not matched:
                 continue
             key = (coding.system, coding.code)
@@ -152,18 +156,26 @@ async def assemble_problem_list(
     firsts = {
         code: _min([_first_date(c) for c in found]) for (_, code), (_, found) in by_code.items()
     }
-    families = []
-    for vs in (*content.families, content.fallback):
+    grouped = []
+    for vs in every:
         keys = family_codes.get(vs.id)
         if not keys:
             continue
-        entries = _with_order(
-            [_entry(*by_code[k], (*content.families, content.fallback)) for k in keys], firsts
-        )
+        entries = _with_order([_entry(*by_code[k], every) for k in keys], firsts)
         entries.sort(key=lambda e: (e.onset_order is None, e.onset_order or 0, e.code.code))
-        families.append(ProblemFamily(family=vs.id, title=vs.title, entries=entries))
+        grouped.append(ProblemFamily(family=vs.id, title=vs.title, entries=entries))
+    return grouped
+
+
+async def assemble_problem_list(
+    records: PatientRecords, patient_id: str, as_of: date, content: ProblemListContent
+) -> ProblemListResult:
+    read = await read_category(records.conditions(patient_id))
+    notes = [completeness("Condition", read)]
+    # A condition first known after the as-of date did not exist yet.
+    conditions = conditions_as_of(read.records if read else (), as_of)
     return ProblemListResult(
-        families=families,
+        families=group_conditions(conditions, content.families, content.fallback),
         families_checked=[vs.id for vs in (*content.families, content.fallback)],
         data_completeness=notes,
         definition_version=content.definition.version,

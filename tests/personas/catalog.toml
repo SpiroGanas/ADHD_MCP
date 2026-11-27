@@ -10,7 +10,10 @@
 #   "clear_limited_data" then means an empty record.
 # safety_gate_found: check ids expected to find a signal (positive gates only).
 # existing_care: none | excluded_adhd_diagnosis           (Phase 3)
-# recommendation: pending until the Phase 5 ruleset       (Phase 5)
+# recommendation: consider_referral_for_formal_screening | no_recommendation |
+#   address_safety_gate_first | already_in_care | insufficient_data   (Phase 5, ADHD ruleset 1.0.0)
+# signals: ADHD catalog signals expected present as of the catalog date (Phase 5).
+# rules_fired: ruleset rules expected to fire (empty when none fires).
 
 as_of = "2026-06-15"
 
@@ -21,8 +24,10 @@ narrative = "Man in his thirties with a stimulant abuse code, an alcohol abuse c
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
-recommendation = "pending"
-notes = "Expected to trigger a referral suggestion once the Phase 5 ruleset exists."
+recommendation = "consider_referral_for_formal_screening"
+notes = "Both rules fire: four high-weight classes and two modifiers."
+signals = ["alcohol_involvement", "crash_as_driver", "education_occupation_problems", "insomnia", "repeated_accidental_injury", "stimulant_related_disorder"]
+rules_fired = ["high_with_modifiers", "two_high_classes"]
 
 [[personas]]
 id = "p02"
@@ -31,8 +36,10 @@ narrative = "Woman in her late twenties with recurrent depression since 2018, ge
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
-recommendation = "pending"
-notes = "Tests the questionnaire form of PHQ-9 and the under-flagging risk for women."
+recommendation = "no_recommendation"
+notes = "Tests the questionnaire form of PHQ-9 and the under-flagging risk for women. Ruleset 1.0 does not recommend: three modifiers and no high-weight signal; only two antidepressants have exposure within 1095 days. A known limitation recorded in the rule card."
+signals = ["attention_symptoms", "depression_or_anxiety", "insomnia"]
+rules_fired = []
 
 [[personas]]
 id = "p03"
@@ -45,6 +52,8 @@ safety_gate_found_all_checks_active = ["suicidal_ideation_code", "psychiatric_di
 existing_care = "none"
 recommendation = "address_safety_gate_first"
 notes = "The positive gate must come first and withhold any ADHD referral suggestion."
+signals = ["stimulant_related_disorder"]
+rules_fired = []
 
 [[personas]]
 id = "p04"
@@ -54,6 +63,8 @@ safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "excluded_adhd_diagnosis"
 recommendation = "already_in_care"
+signals = ["alcohol_involvement"]
+rules_fired = []
 
 [[personas]]
 id = "p05"
@@ -62,8 +73,10 @@ narrative = "Man in his late thirties with a concussion in 2024, personal histor
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
-recommendation = "pending"
-notes = "Phase 5 adds a note suggesting neuropsychological evaluation for TBI overlap."
+recommendation = "no_recommendation"
+notes = "No recommendation, with the TBI note suggesting neuropsychological evaluation. The 2024-05-11 injury visit is outside 730 days."
+signals = ["attention_symptoms", "insomnia", "tbi_overlap"]
+rules_fired = []
 
 [[personas]]
 id = "p06"
@@ -72,8 +85,10 @@ narrative = "Woman in her thirties with narcolepsy without cataplexy, filling am
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
-recommendation = "pending"
+recommendation = "no_recommendation"
 notes = "Stimulant use for narcolepsy is a separate finding, never an ADHD stimulant signal."
+signals = []
+rules_fired = []
 
 [[personas]]
 id = "p07"
@@ -83,6 +98,8 @@ safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear_limited_data"
 existing_care = "none"
 recommendation = "insufficient_data"
+signals = []
+rules_fired = []
 
 [[personas]]
 id = "p08"
@@ -91,8 +108,10 @@ narrative = "Woman in her forties with one primary care visit and a hypertension
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
-recommendation = "pending"
+recommendation = "no_recommendation"
 notes = "Phase 3 defines limited data as an empty record, so once every check is active this sparse record gets a plain clear gate (the 2026-11-26 draft expected clear_limited_data)."
+signals = []
+rules_fired = []
 
 [[personas]]
 id = "p09"
@@ -101,8 +120,10 @@ narrative = "Man in his forties with PTSD coded at two encounters, a stimulant a
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
-recommendation = "pending"
+recommendation = "no_recommendation"
 notes = "Entered-in-error items and the refuted ADHD code must not count; the old revoked referral does not exclude."
+signals = ["ptsd"]
+rules_fired = []
 
 [[personas]]
 id = "p10"
@@ -112,3 +133,53 @@ safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "no_recommendation"
+signals = []
+rules_fired = []
+
+[[personas]]
+id = "p11"
+title = "Two high-weight classes"
+narrative = "Man in his late twenties with a crash as car driver treated in the emergency department in 2024 and a stimulant dependence code since early 2025. No modifiers."
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
+existing_care = "none"
+recommendation = "consider_referral_for_formal_screening"
+signals = ["crash_as_driver", "stimulant_related_disorder"]
+rules_fired = ["two_high_classes"]
+notes = "Triggers the second rule only."
+
+[[personas]]
+id = "p12"
+title = "Narrow miss: one high-weight signal, one modifier"
+narrative = "Woman in her late thirties with an alcohol dependence code (2025) and PTSD (2024)."
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
+existing_care = "none"
+recommendation = "no_recommendation"
+signals = ["alcohol_involvement", "ptsd"]
+rules_fired = []
+notes = "One more modifier would trigger the first rule."
+
+[[personas]]
+id = "p13"
+title = "Narrow miss: crash one day outside the window"
+narrative = "Man in his early forties with a crash as car driver on 2023-06-15 (1096 days before the as-of date), an alcohol abuse code (2025) and a legal problems code (2025)."
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
+existing_care = "none"
+recommendation = "no_recommendation"
+signals = ["alcohol_involvement", "legal_problems"]
+rules_fired = []
+notes = "Had the crash been one day later, two high-weight classes would trigger the second rule."
+
+[[personas]]
+id = "p14"
+title = "Female presentation that triggers"
+narrative = "Woman in her early thirties with a blood alcohol code at an emergency visit (2025), borderline personality disorder, intermittent explosive disorder, cannabis dependence, housing instability, family history of a mental disorder, and four different antidepressants since 2023."
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
+existing_care = "none"
+recommendation = "consider_referral_for_formal_screening"
+signals = ["alcohol_involvement", "borderline_personality", "family_history", "housing_problems", "intermittent_explosive_disorder", "multiple_antidepressants", "other_substance_use"]
+rules_fired = ["high_with_modifiers"]
+notes = "Covers the modifiers no other persona has."

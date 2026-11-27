@@ -1,8 +1,10 @@
 # Families reported by get_mh_problem_list, in display order. Each family is a value set.
 # A code is listed under every family it matches; the fallback family lists chapter 5 codes
 # that match no other family. Self-harm codes are reported by check_safety_gate instead.
+# Blood alcohol codes (Y90.1-Y90.9, R78.0) are not chapter 5 codes but are part of the
+# alcohol involvement signal (signal catalog), so they are listed here (0.2.0).
 id = "problem_list"
-version = "0.1.0"
+version = "0.2.0"
 fallback = "mh.mental_behavioral_chapter"
 families = [
     "care.adhd_diagnosis",
@@ -13,6 +15,8 @@ families = [
     "mh.borderline_personality",
     "mh.intermittent_explosive_disorder",
     "sud.alcohol",
+    "sud.blood_alcohol_level",
+    "sud.alcohol_in_blood",
     "sud.stimulant",
     "sud.other",
     "sleep.insomnia_delayed_phase",

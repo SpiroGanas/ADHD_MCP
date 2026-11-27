@@ -24,7 +24,13 @@ PATIENT_TOOLS = [
     "get_mh_problem_list",
     "get_screening_history",
     "check_existing_care",
+    "get_medication_timeline",
+    "get_utilization_summary",
+    "get_psychosocial_context",
+    "assess_referral_need",
 ]
+#: Tools that return a recommendation carry the standard notice instead of the evidence one.
+RECOMMENDATION_TOOLS = {"assess_referral_need"}
 
 
 async def call(client: Client, tool: str, args: dict[str, Any]) -> Any:  # type: ignore[type-arg]
@@ -76,10 +82,12 @@ async def test_output_carries_the_shared_fields(
     assert out["patient_id"] == "p01-patient"
     assert out["as_of"] == "2026-06-15"
     assert out["is_diagnosis"] is False
-    assert out["notice"] == load_wording().evidence_notice
+    wording = load_wording()
+    expected = wording.standard_notice if tool in RECOMMENDATION_TOOLS else wording.evidence_notice
+    assert out["notice"] == expected
     assert out["data_completeness"]
     assert out["versions"]["tool_contract"] == versions.TOOL_CONTRACT_VERSION
-    assert out["versions"]["site_codes"] == "synthetic 0.1.0"
+    assert out["versions"]["site_codes"] == "synthetic 0.2.0"
 
 
 @pytest.mark.parametrize("tool", PATIENT_TOOLS)

@@ -5,10 +5,14 @@ from fastmcp import FastMCP
 from adhd_mcp.evidence.safety_gate import assess_safety_gate, load_gate_content
 from adhd_mcp.models.evidence_outputs import SafetyGateOutput
 from adhd_mcp.tools.common import (
+    EVIDENCE_SCOPE,
     READ_ONLY,
     AsOfArg,
     PatientIdArg,
+    apply_privacy,
     output_versions,
+    privacy_note,
+    scope_check,
     start_request,
 )
 from adhd_mcp.tools.context import ToolContext
@@ -37,16 +41,23 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         request = await start_request(context, patient_id, as_of)
         content = load_gate_content(context.site_codes, strict=True)
         gate, notes = await assess_safety_gate(
-            request.records, request.patient_id, request.as_of, content
+            request.gate_records, request.patient_id, request.as_of, content
         )
-        return SafetyGateOutput(
+        output = SafetyGateOutput(
             patient_id=request.patient_id,
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=notes,
+            privacy=privacy_note(context, request),
             versions=output_versions(context),
             safety_gate=gate,
             gate_definition_version=content.definition.version,
         )
+        return apply_privacy(request, output)
 
-    mcp.tool(check_safety_gate, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        check_safety_gate,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, EVIDENCE_SCOPE),
+    )

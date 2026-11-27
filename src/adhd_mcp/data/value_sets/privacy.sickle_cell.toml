@@ -1,0 +1,15 @@
+id = "privacy.sickle_cell"
+version = "0.1.0"
+title = "Sickle-cell disorders (protected category)"
+description = "Used only by the sensitive-data policy (38 U.S.C. 7332), never by a rule. The whole category, including sickle-cell trait (D57.3), is protected: over-protection is the safer error."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "prefix"
+code = "D57"
+display = "Sickle-cell disorders"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

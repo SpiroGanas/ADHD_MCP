@@ -5,10 +5,11 @@ from importlib.metadata import version
 SERVER_NAME = "adhd-mcp"
 
 #: Changes when a tool's name, inputs or output schema changes.
-TOOL_CONTRACT_VERSION = "0.2.0"
+TOOL_CONTRACT_VERSION = "0.3.0"
 
-#: No ruleset is active until Phase 5; reported as null until then.
-ACTIVE_RULESET_VERSION: str | None = None
+#: The active referral ruleset: id, version and status. "draft" until the project owner
+#: approves it for release (a test keeps this equal to the loaded ruleset).
+ACTIVE_RULESET_VERSION: str | None = "adhd 1.0.0 (draft)"
 
 
 def server_version() -> str:

@@ -11,20 +11,24 @@ A data category that fails to load after the Patient was read is not an error: t
 reports it as ``failed`` in its data-completeness note, distinct from ``empty``.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastmcp.exceptions import ToolError
-from pydantic import Field
+from fastmcp.server.auth import AuthCheck, require_scopes
+from pydantic import BaseModel, Field
 
 from adhd_mcp import versions
+from adhd_mcp.audit.middleware import AuditingPort
 from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
-from adhd_mcp.fhir.port import validate_patient_id
+from adhd_mcp.fhir.port import FhirReadPort, validate_patient_id
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.fhir.records import PatientRecord
-from adhd_mcp.models.domain import Versions
+from adhd_mcp.fhir.request_cache import RequestCachedPort
+from adhd_mcp.models.domain import PrivacyNote, Versions
+from adhd_mcp.privacy import PrivacyLedger, PrivacyPort, redact_output
 from adhd_mcp.tools.context import ToolContext
 
 PatientIdArg = Annotated[
@@ -38,6 +42,18 @@ AsOfArg = Annotated[
         "ignored. Defaults to today. Must not be in the future."
     ),
 ]
+
+#: OAuth scopes (Phase 6). Evidence tools need the first; tools that produce a recommendation
+#: or a draft referral need the second.
+EVIDENCE_SCOPE = "adhd.evidence.read"
+ASSESS_SCOPE = "adhd.referral.assess"
+SCOPES = (EVIDENCE_SCOPE, ASSESS_SCOPE)
+
+
+def scope_check(context: "ToolContext", scope: str) -> AuthCheck | None:
+    """The tool's scope requirement, when callers authenticate; none over stdio."""
+    return require_scopes(scope) if context.scopes_required else None
+
 
 #: Tool annotations shared by every tool: read-only, idempotent, reads a closed source.
 READ_ONLY = {"readOnlyHint": True, "idempotentHint": True, "openWorldHint": False}
@@ -60,10 +76,30 @@ class PatientRequest:
     as_of: date
     patient: PatientRecord
     records: PatientRecords
+    #: Unfiltered reads for the safety gate only (see ``request_ports``).
+    gate_records: PatientRecords
+    ledger: PrivacyLedger = field(default_factory=PrivacyLedger)
+
+
+def request_ports(
+    context: ToolContext, ledger: PrivacyLedger, *, cached: bool = False
+) -> tuple[FhirReadPort, FhirReadPort]:
+    """The ports one request reads through: (evidence, safety gate).
+
+    Both start from the source, audited, then (for multi-assembler tools) a request-scoped
+    cache, so no query repeats. Evidence then passes through the privacy policy. The safety
+    gate does not: a self-harm signal must never be hidden from it by a withhold policy,
+    and its output carries only signal names and references, never codes.
+    """
+    assert context.port is not None  # noqa: S101 - checked by start_request
+    base: FhirReadPort = AuditingPort(context.port)
+    if cached:
+        base = RequestCachedPort(base)
+    return PrivacyPort(base, context.privacy, ledger), base
 
 
 async def start_request(
-    context: ToolContext, patient_id: str, as_of: date | None
+    context: ToolContext, patient_id: str, as_of: date | None, *, cached: bool = False
 ) -> PatientRequest:
     """Validate the arguments and read the Patient, or raise a tool error."""
     if context.port is None:
@@ -76,14 +112,41 @@ async def start_request(
     as_of = as_of or today
     if as_of > today:
         raise tool_error(ErrorCode.INVALID_INPUT, "as_of must not be in the future")
-    records = PatientRecords(context.port)
+    ledger = PrivacyLedger()
+    evidence_port, gate_port = request_ports(context, ledger, cached=cached)
+    records = PatientRecords(evidence_port)
     try:
         patient = await records.patient(patient_id)
     except ResourceNotFoundError as exc:
         raise tool_error(ErrorCode.PATIENT_NOT_FOUND, f"no Patient {patient_id}") from exc
     except FhirRequestError as exc:
         raise tool_error(ErrorCode.FHIR_UNAVAILABLE, "the FHIR server could not be read") from exc
-    return PatientRequest(patient_id=patient_id, as_of=as_of, patient=patient, records=records)
+    return PatientRequest(
+        patient_id=patient_id,
+        as_of=as_of,
+        patient=patient,
+        records=records,
+        gate_records=PatientRecords(gate_port),
+        ledger=ledger,
+    )
+
+
+def privacy_note(context: ToolContext, request: PatientRequest) -> PrivacyNote:
+    return request.ledger.note(context.privacy)
+
+
+def apply_privacy[M: BaseModel](request: PatientRequest, output: M) -> M:
+    """Replace codes resting on restricted resources (policy "cite") with "restricted"."""
+    ledger = request.ledger
+    if not ledger.restricted_refs and not ledger.withheld_types:
+        return output
+    data: Any = redact_output(output.model_dump(mode="json"), ledger.restricted_refs)
+    # A category that lost records to a withhold policy is reported as withheld, never as
+    # complete (an empty or partial record must not look clean).
+    for note in data.get("data_completeness") or []:
+        if note["category"] in ledger.withheld_types and note["status"] in {"available", "empty"}:
+            note["status"] = "withheld"
+    return type(output).model_validate(data)
 
 
 def output_versions(context: ToolContext) -> Versions:

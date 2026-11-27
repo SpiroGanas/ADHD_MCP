@@ -1,0 +1,24 @@
+# Psychosocial domains reported by get_psychosocial_context, in output order. Each domain is a
+# list of value sets matched against Condition codes and against the coded values of
+# social-history Observations. Changing anything here is a clinical content change.
+id = "psychosocial"
+version = "0.1.0"
+
+# Military separation date: an Observation the site maps (data/site_codes/), whose value is
+# a date. A missing date is reported as unknown, never defaulted.
+military_separation_concept = "military_separation_date"
+
+[[domains]]
+id = "housing"
+title = "Homelessness or housing instability"
+value_sets = ["psychosocial.homelessness", "psychosocial.housing_instability"]
+
+[[domains]]
+id = "legal"
+title = "Legal problems"
+value_sets = ["psychosocial.legal_problems"]
+
+[[domains]]
+id = "education_occupation"
+title = "Education and employment problems"
+value_sets = ["psychosocial.education_occupation"]

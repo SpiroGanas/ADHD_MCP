@@ -4,7 +4,7 @@ Clinical safety, privacy, security and project risks. Review at the end of every
 
 **Scales.** Likelihood and impact: Low, Medium, High. Status: Open, Mitigated, Accepted, Closed.
 
-**Last reviewed:** 2026-11-27, end of Phase 3 (after the clinical safety review of that pull request)
+**Last reviewed:** 2026-11-27, end of Phase 6 (with the [threat model](../security/threat_model.md))
 
 ## Clinical safety
 
@@ -26,19 +26,21 @@ Clinical safety, privacy, security and project risks. Review at the end of every
 | ID | Risk | L | I | Mitigation | Phase | Status |
 |---|---|---|---|---|---|---|
 | P1 | Real patient data is committed to the repository | L | H | Synthetic-only rule; contributor guide; CI checks. *Phase 1-2:* CI guard requires the HTEST tag, synthetic identifiers and family name on every Patient and blocks SSN-shaped numbers; the persona loader writes only to loopback hosts | 1 | Mitigated |
-| P2 | Clinical content leaks into logs, audit records or error messages | M | H | References and hashes only; canary-value test | 6 | Open |
-| P3 | Specially protected data (substance use and similar) is disclosed beyond what is permitted | M | H | Configurable sensitive-data policy; disclosure of withheld categories; legal review before real use | 6, 8 | Open |
+| P2 | Clinical content leaks into logs, audit records or error messages | M | H | References and hashes only; canary-value test. *Phase 6:* audit records hold references, versions, outcome codes and an output hash; a canary persona (free text, values, name, codes) is run through every tool, successful and failed, and never appears in the audit file or in any log record (threat T8) | 6 | Mitigated |
+| P3 | Specially protected data (substance use and similar) is disclosed beyond what is permitted | M | H | Configurable sensitive-data policy; disclosure of withheld categories; legal review before real use. *Phase 6:* substance use, HIV and sickle-cell categories by verified ICD-10-CM value sets and HL7 security labels; default "cite" shows references, dates and the signal or family a record belongs to, never its code; "withhold" removes records before evidence assembly (never from the safety gate) and marks the category `withheld`; HIV and sickle-cell categories are never named, as no output uses them; every output has a `privacy` section (ADR 0011, amended after the safety review). Residual: legal review of the default and of label usage at a real site (Phase 8) | 6, 8 | Open |
+| P5 | The development audit file can be edited or deleted by anyone with file access | M | M | The server only appends; tamper evidence and retention belong to the site's audit store (FHIR AuditEvent sink, Phase 8). Accepted for synthetic development | 6, 8 | Accepted |
 | P4 | Clinical content is sent to a language model outside the authorized boundary | M | H | Deployment guide; the server itself calls no external model in version 1.0 | 6, 8 | Open |
 
 ## Security
 
 | ID | Risk | L | I | Mitigation | Phase | Status |
 |---|---|---|---|---|---|---|
-| S1 | Prompt injection through text in FHIR records or tool descriptions | M | H | Record text treated as data and delimited; injection twin-persona test; contract snapshots pin descriptions. *Phase 2:* records drop free text, but coding `display` strings from the record are kept and must be treated as untrusted and never logged. *Phase 3:* no tool output carries a record's display text: problem list labels come from value sets, screening answer labels from instrument data, instrument code labels are omitted; record status and server issue codes are restricted to token patterns | 5, 6 | Open |
-| S2 | A caller's token is forwarded to the FHIR server (confused deputy) | L | H | Server uses its own credentials; test asserts no passthrough | 6 | Open |
-| S3 | An unauthenticated or over-scoped caller reads patient data | M | H | OAuth with audience checks and per-tool scopes; rejection tests | 6 | Open |
+| S1 | Prompt injection through text in FHIR records or tool descriptions | M | H | Record text treated as data and delimited; injection twin-persona test; contract snapshots pin descriptions. *Phase 6:* a poisoned twin of three personas (text in every free-text field) gives byte-identical output from every tool; prompts carry only a validated patient id. *Phase 2:* records drop free text, but coding `display` strings from the record are kept and must be treated as untrusted and never logged. *Phase 3:* no tool output carries a record's display text: problem list labels come from value sets, screening answer labels from instrument data, instrument code labels are omitted; record status and server issue codes are restricted to token patterns | 5, 6 | Open |
+| S2 | A caller's token is forwarded to the FHIR server (confused deputy) | L | H | Server uses its own credentials; test asserts no passthrough. *Phase 6:* SMART backend services with the server's own key; an HTTP test checks the caller's token never appears in FHIR requests (ADR 0012) | 6 | Mitigated |
+| S3 | An unauthenticated or over-scoped caller reads patient data | M | H | OAuth with audience checks and per-tool scopes; rejection tests. *Phase 6:* missing, malformed, expired, wrong-audience, wrong-issuer and wrong-key tokens get 401; insufficient scope is refused; HTTP will not start without auth except on 127.0.0.1 | 6 | Mitigated |
 | S4 | A tool is changed to write to the record | L | H | Port has no write operation; test asserts no write requests; ADR 0002. *Phase 2:* port has only `read_patient` and `search`; every request in the shared suite is a GET; structural tests block write methods and HTTP write calls in `src/`; next links are pinned to the configured origin and base path | 2 | Mitigated |
-| S5 | Secrets committed or printed | L | H | Secret scanning in CI; configuration validation that never echoes secrets. *Phase 1:* gitleaks runs on every pull request | 1, 6 | Open |
+| S5 | Secrets committed or printed | L | H | Secret scanning in CI; configuration validation that never echoes secrets. *Phase 1:* gitleaks runs on every pull request. *Phase 6:* configuration errors name variables only (tested); keys are read from files | 1, 6 | Mitigated |
+| S6 | Denial of service through many expensive calls | M | M | Per-request cache, timeouts, bounded retries and paging; rate limiting left to the hosting gateway (threat T12). Accepted for 1.0 | 6, 8 | Accepted |
 
 ## Project
 

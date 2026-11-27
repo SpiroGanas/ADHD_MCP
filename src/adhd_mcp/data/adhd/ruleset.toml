@@ -1,0 +1,32 @@
+# ADHD referral ruleset (Phase 5). A ruleset is versioned data: rules, the signal catalog it
+# reads, exclusions and citations. It is NOT a validated rule: the starting heuristic from the
+# research report, with windows and weights approved by the project owner on 2026-11-27.
+# Once released (status = "released") a ruleset is immutable: any change makes a new version,
+# and data/released_rulesets.toml pins the released file's hash.
+id = "adhd"
+version = "1.0.0"
+status = "draft"
+effective_date = "2026-11-27"
+catalog = "adhd.signal_catalog"
+catalog_version = "1.0.0"
+validated = false
+
+# A recommendation is withheld when any of these exclusions applies.
+exclusions = ["existing_adhd_care"]
+
+citations = [
+  "Research report (research/veteran_self_harm_risk_screening.md), ADHD section: refer when one high-weight signal co-occurs with two or more modifiers, or when two or more high-weight classes appear within about three years, then calibrate against chart-reviewed cases.",
+  "Owner decision 2026-11-27: every signal is looked for within 1095 days of the as-of date (repeated injuries within 730 days); TBI is a note only.",
+]
+
+[[rules]]
+id = "high_with_modifiers"
+description = "At least one high-weight signal with two or more modifiers"
+min_high = 1
+min_modifiers = 2
+
+[[rules]]
+id = "two_high_classes"
+description = "Two or more high-weight signal classes"
+min_high = 2
+min_modifiers = 0

@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "fastmcp": {
+      "tags": []
+    }
+  },
+  "arguments": [
+    {
+      "name": "patient_id",
+      "required": true
+    }
+  ],
+  "description": "Summarize which checks an assessment ran, which could not run, and which data was missing or incomplete.",
+  "name": "summarize_checks",
+  "title": "Summarize what was checked and what was missing"
+}

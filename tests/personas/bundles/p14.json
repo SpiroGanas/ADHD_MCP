@@ -1,0 +1,624 @@
+{
+  "resourceType": "Bundle",
+  "id": "p14-bundle",
+  "meta": {
+    "tag": [
+      {
+        "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+        "code": "HTEST"
+      }
+    ]
+  },
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "p14-patient",
+        "meta": {
+          "tag": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
+              "code": "HTEST"
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "urn:adhd-mcp:synthetic-id",
+            "value": "SYN-0014"
+          }
+        ],
+        "name": [
+          {
+            "family": "Synthetic",
+            "given": [
+              "Persona14"
+            ]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1993-12-01"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Encounter",
+        "id": "p14-enc-1",
+        "status": "finished",
+        "class": {
+          "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+          "code": "EMER"
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "period": {
+          "start": "2025-12-20T01:00:00Z",
+          "end": "2025-12-20T06:00:00Z"
+        },
+        "reasonCode": [
+          {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/sid/icd-10-cm",
+                "code": "Y90.2",
+                "display": "Blood alcohol level of 40-59 mg/100 ml"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p14-cond-1",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "encounter-diagnosis"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "Y90.2",
+              "display": "Blood alcohol level of 40-59 mg/100 ml"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "encounter": {
+          "reference": "Encounter/p14-enc-1"
+        },
+        "recordedDate": "2025-12-20"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p14-cond-2",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F60.3",
+              "display": "Borderline personality disorder"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "onsetDateTime": "2021-05",
+        "recordedDate": "2021-05-20"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p14-cond-3",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F63.81",
+              "display": "Intermittent explosive disorder"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "recordedDate": "2024-07-15"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p14-cond-4",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "F12.20",
+              "display": "Cannabis dependence, uncomplicated"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "recordedDate": "2024-03-03"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p14-cond-5",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "Z59.811",
+              "display": "Housing instability, housed, with risk of homelessness"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "recordedDate": "2025-11-05"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "p14-cond-6",
+        "clinicalStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+              "code": "active"
+            }
+          ]
+        },
+        "verificationStatus": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+              "code": "confirmed"
+            }
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                "code": "problem-list-item"
+              }
+            ]
+          }
+        ],
+        "code": {
+          "coding": [
+            {
+              "system": "http://hl7.org/fhir/sid/icd-10-cm",
+              "code": "Z81.8",
+              "display": "Family history of other mental and behavioral disorders"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "recordedDate": "2020-01-10"
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "p14-medreq-1",
+        "status": "completed",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "36437",
+              "display": "sertraline"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authoredOn": "2023-09-01",
+        "dispenseRequest": {
+          "expectedSupplyDuration": {
+            "value": 90,
+            "unit": "days",
+            "system": "http://unitsofmeasure.org",
+            "code": "d"
+          }
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Medication",
+        "id": "p14-med-1",
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "36437",
+              "display": "sertraline"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "p14-meddisp-1",
+        "status": "completed",
+        "medicationReference": {
+          "reference": "Medication/p14-med-1"
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/p14-medreq-1"
+          }
+        ],
+        "whenHandedOver": "2023-09-01",
+        "daysSupply": {
+          "value": 90,
+          "unit": "days",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "p14-medreq-2",
+        "status": "completed",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "321988",
+              "display": "escitalopram"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authoredOn": "2024-03-01",
+        "dispenseRequest": {
+          "expectedSupplyDuration": {
+            "value": 90,
+            "unit": "days",
+            "system": "http://unitsofmeasure.org",
+            "code": "d"
+          }
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Medication",
+        "id": "p14-med-2",
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "321988",
+              "display": "escitalopram"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "p14-meddisp-2",
+        "status": "completed",
+        "medicationReference": {
+          "reference": "Medication/p14-med-2"
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/p14-medreq-2"
+          }
+        ],
+        "whenHandedOver": "2024-03-01",
+        "daysSupply": {
+          "value": 90,
+          "unit": "days",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "p14-medreq-3",
+        "status": "completed",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "42347",
+              "display": "bupropion"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authoredOn": "2024-10-01",
+        "dispenseRequest": {
+          "expectedSupplyDuration": {
+            "value": 90,
+            "unit": "days",
+            "system": "http://unitsofmeasure.org",
+            "code": "d"
+          }
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Medication",
+        "id": "p14-med-3",
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "42347",
+              "display": "bupropion"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "p14-meddisp-3",
+        "status": "completed",
+        "medicationReference": {
+          "reference": "Medication/p14-med-3"
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/p14-medreq-3"
+          }
+        ],
+        "whenHandedOver": "2024-10-01",
+        "daysSupply": {
+          "value": 90,
+          "unit": "days",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "p14-medreq-4",
+        "status": "completed",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "72625",
+              "display": "duloxetine"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authoredOn": "2025-06-01",
+        "dispenseRequest": {
+          "expectedSupplyDuration": {
+            "value": 90,
+            "unit": "days",
+            "system": "http://unitsofmeasure.org",
+            "code": "d"
+          }
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Medication",
+        "id": "p14-med-4",
+        "code": {
+          "coding": [
+            {
+              "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+              "code": "72625",
+              "display": "duloxetine"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "p14-meddisp-4",
+        "status": "completed",
+        "medicationReference": {
+          "reference": "Medication/p14-med-4"
+        },
+        "subject": {
+          "reference": "Patient/p14-patient"
+        },
+        "authorizingPrescription": [
+          {
+            "reference": "MedicationRequest/p14-medreq-4"
+          }
+        ],
+        "whenHandedOver": "2025-06-01",
+        "daysSupply": {
+          "value": 90,
+          "unit": "days",
+          "system": "http://unitsofmeasure.org",
+          "code": "d"
+        }
+      }
+    }
+  ]
+}

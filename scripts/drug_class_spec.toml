@@ -1,0 +1,48 @@
+# Hand-curated drug classes (ADR 0009). Each class lists RxNorm ingredient names (TTY IN).
+# scripts/build_drug_classes.py looks each name up in RxNav, checks it is an active
+# ingredient, expands it to the product concepts that contain it, and writes
+# src/adhd_mcp/data/drug_classes/<id>.toml. Changing this list is a clinical content change.
+#
+# Curation notes (inference, for owner review; see ADR 0009):
+# * Guanfacine and clonidine are left out of the non-stimulant ADHD class: at ingredient
+#   level they are mostly prescribed for hypertension.
+# * Trazodone, doxepin, amitriptyline and selegiline are left out of antidepressants: they
+#   are often prescribed for insomnia, pain or Parkinson disease, which would inflate the
+#   distinct-antidepressant count. Milnacipran (fibromyalgia) is left out for the same reason.
+# * Modafinil and armodafinil are wakefulness agents, not ADHD medications.
+
+[[classes]]
+id = "med.adhd_stimulant"
+title = "Stimulant medications used for ADHD"
+ingredients = [
+  "amphetamine", "dextroamphetamine", "lisdexamfetamine", "methamphetamine",
+  "methylphenidate", "dexmethylphenidate", "serdexmethylphenidate",
+]
+
+[[classes]]
+id = "med.adhd_nonstimulant"
+title = "Non-stimulant medications approved for ADHD"
+ingredients = ["atomoxetine", "viloxazine"]
+
+[[classes]]
+id = "med.antidepressant"
+title = "Antidepressants (for the distinct-agent count)"
+ingredients = [
+  "citalopram", "escitalopram", "fluoxetine", "fluvoxamine", "paroxetine", "sertraline",
+  "vilazodone", "vortioxetine",
+  "venlafaxine", "desvenlafaxine", "duloxetine", "levomilnacipran",
+  "bupropion", "mirtazapine", "nefazodone",
+  "nortriptyline", "imipramine", "desipramine", "clomipramine", "protriptyline",
+  "trimipramine", "amoxapine",
+  "phenelzine", "tranylcypromine", "isocarboxazid",
+  "esketamine", "zuranolone", "gepirone",
+]
+
+[[classes]]
+id = "med.sedative_hypnotic"
+title = "Sedative-hypnotics prescribed for sleep"
+ingredients = [
+  "zolpidem", "zaleplon", "eszopiclone",
+  "temazepam", "triazolam", "flurazepam", "estazolam", "quazepam",
+  "suvorexant", "lemborexant", "daridorexant", "ramelteon",
+]

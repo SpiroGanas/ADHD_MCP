@@ -1,6 +1,7 @@
 import pytest
 from fastmcp import Client
 
+from adhd_mcp.rules.ruleset import load_ruleset
 from adhd_mcp.wording import load_wording
 
 pytestmark = pytest.mark.anyio
@@ -15,7 +16,10 @@ async def test_returns_versions_and_intended_use(mcp_client: Client) -> None:  #
     assert out["server_name"] == "adhd-mcp"
     assert out["server_version"] == "0.1.0"
     assert out["tool_contract_version"]
-    assert out["ruleset_version"] is None
+    # Phase 5: the active ruleset is reported and matches the loaded one (draft until approved).
+    assert (
+        out["ruleset_version"] == load_ruleset("adhd_mcp.data.adhd").label == "adhd 1.0.0 (draft)"
+    )
     assert out["intended_use"] == load_wording().standard_notice
     assert "not a diagnosis" in out["intended_use"]
 

@@ -7,9 +7,11 @@ name = "adhd-mcp"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cryptography" },
     { name = "fastmcp" },
     { name = "httpx2" },
     { name = "pydantic" },
+    { name = "pyjwt" },
 ]
 
 [package.dev-dependencies]
@@ -25,9 +27,11 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography", specifier = "==50.0.2" },
     { name = "fastmcp", specifier = "==4.2.6" },
     { name = "httpx2", specifier = "==2.16.2" },
     { name = "pydantic", specifier = "==2.14.4" },
+    { name = "pyjwt", specifier = "==2.15.1" },
 ]
 
 [package.metadata.requires-dev]

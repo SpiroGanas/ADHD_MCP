@@ -1,0 +1,90 @@
+{
+  "resources": [
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "RxNorm drug classes (ADR 0009): ingredients with provenance and the number of product codes each covers.",
+      "mimeType": "application/json",
+      "name": "drug_classes",
+      "title": "Drug classes",
+      "uri": "adhd-mcp://drug-classes"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Instrument names, codes and cutoffs with verification status. No item text is included (some instruments are copyrighted).",
+      "mimeType": "application/json",
+      "name": "instruments",
+      "title": "Screening instrument metadata",
+      "uri": "adhd-mcp://instruments"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "What this server is for and not for. It never diagnoses.",
+      "mimeType": "text/markdown",
+      "name": "intended_use",
+      "title": "Intended use statement",
+      "uri": "adhd-mcp://intended-use"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Ruleset adhd 1.0.0 (draft): rules, exclusions and citations. Not clinically validated.",
+      "mimeType": "application/json",
+      "name": "adhd_ruleset",
+      "title": "Active ADHD referral ruleset",
+      "uri": "adhd-mcp://rulesets/adhd"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Signal catalog adhd.signal_catalog 1.0.0: each signal's weight, definition, window, supplying tool and evidence.",
+      "mimeType": "application/json",
+      "name": "adhd_signal_catalog",
+      "title": "ADHD signal catalog",
+      "uri": "adhd-mcp://signal-catalogs/adhd"
+    },
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "Every packaged value set: id, version and title.",
+      "mimeType": "application/json",
+      "name": "value_sets",
+      "title": "Value set index",
+      "uri": "adhd-mcp://value-sets"
+    }
+  ],
+  "templates": [
+    {
+      "_meta": {
+        "fastmcp": {
+          "tags": []
+        }
+      },
+      "description": "One value set with every entry and its verification provenance.",
+      "mimeType": "application/json",
+      "name": "value_set",
+      "title": "Value set",
+      "uriTemplate": "adhd-mcp://value-sets/{value_set_id}"
+    }
+  ]
+}

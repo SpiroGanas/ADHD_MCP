@@ -55,3 +55,10 @@ def test_representative_codes(
         assert value_set.matches(Coding(system=ICD10CM, code=code)), code
     for code in not_matching:
         assert value_set.matches(Coding(system=ICD10CM, code=code)) is None, code
+
+
+def test_blood_alcohol_signal_excludes_y90_0() -> None:
+    vs = load_value_set("sud.blood_alcohol_level")
+    assert vs.matches(Coding(system=ICD10CM, code="Y90.0")) is None
+    for digit in range(1, 10):
+        assert vs.matches(Coding(system=ICD10CM, code=f"Y90.{digit}")) is not None

@@ -4,7 +4,17 @@ from fastmcp import FastMCP
 
 from adhd_mcp.evidence.problem_list import assemble_problem_list, load_problem_list_content
 from adhd_mcp.models.evidence_outputs import ProblemListOutput
-from adhd_mcp.tools.common import READ_ONLY, AsOfArg, PatientIdArg, output_versions, start_request
+from adhd_mcp.tools.common import (
+    EVIDENCE_SCOPE,
+    READ_ONLY,
+    AsOfArg,
+    PatientIdArg,
+    apply_privacy,
+    output_versions,
+    privacy_note,
+    scope_check,
+    start_request,
+)
 from adhd_mcp.tools.context import ToolContext
 from adhd_mcp.wording import load_wording
 
@@ -29,15 +39,22 @@ def register(mcp: FastMCP, context: ToolContext) -> None:
         result = await assemble_problem_list(
             request.records, request.patient_id, request.as_of, load_problem_list_content()
         )
-        return ProblemListOutput(
+        output = ProblemListOutput(
             patient_id=request.patient_id,
             as_of=request.as_of,
             notice=load_wording().evidence_notice,
             data_completeness=result.data_completeness,
+            privacy=privacy_note(context, request),
             versions=output_versions(context),
             families=result.families,
             families_checked=result.families_checked,
             definition_version=result.definition_version,
         )
+        return apply_privacy(request, output)
 
-    mcp.tool(get_mh_problem_list, description=DESCRIPTION, annotations=READ_ONLY)
+    mcp.tool(
+        get_mh_problem_list,
+        description=DESCRIPTION,
+        annotations=READ_ONLY,
+        auth=scope_check(context, EVIDENCE_SCOPE),
+    )

@@ -1,0 +1,160 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Draft a referral for formal adult ADHD screening from an assessment, for a clinician to review. Runs assess_referral_need; only when it suggests a referral, returns a FHIR R4 ServiceRequest with status 'draft' and intent 'proposal' that cites the evidence (reasonReference for conditions and observations, supportingInfo for visits and medications). Otherwise the draft is null and the reason is given. The draft is returned only: it has no id, is never stored and is never sent to the health record. Not a diagnosis and not an order.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "condition": {
+        "default": "adhd",
+        "description": "Condition to assess. Only 'adhd' in this version.",
+        "type": "string"
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "draft_referral_proposal",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "format": "date",
+        "type": "string"
+      },
+      "draft": {
+        "anyOf": [
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "A FHIR R4 ServiceRequest with intent 'proposal' and status 'draft', or null when the assessment does not suggest a referral"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "type": "boolean"
+      },
+      "notice": {
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "privacy": {
+        "additionalProperties": false,
+        "description": "What the sensitive-data policy did. Always present, so a withheld category is never\nsilent.",
+        "properties": {
+          "policy": {
+            "description": "Policy id and version",
+            "type": "string"
+          },
+          "restricted": {
+            "description": "Records used, but shown only as references and dates (codes appear as 'restricted'), by category",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "description": "Protected category, e.g. substance_use",
+                  "type": "string"
+                },
+                "records": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "category",
+                "records"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "withheld": {
+            "description": "Records removed before evidence assembly, by category; they were not used by any rule",
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "category": {
+                  "description": "Protected category, e.g. substance_use",
+                  "type": "string"
+                },
+                "records": {
+                  "minimum": 1,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "category",
+                "records"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "policy"
+        ],
+        "type": "object"
+      },
+      "recommendation": {
+        "type": "string"
+      },
+      "stored": {
+        "const": false,
+        "default": false,
+        "description": "Always false: the draft is returned only, never stored",
+        "type": "boolean"
+      },
+      "why_no_draft": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "recommendation",
+      "draft",
+      "privacy",
+      "notice"
+    ],
+    "type": "object"
+  },
+  "title": "Draft Referral Proposal"
+}

@@ -182,6 +182,28 @@ class DataCompleteness(_Frozen):
     )
 
 
+class PrivacyCount(_Frozen):
+    category: str = Field(description="Protected category, e.g. substance_use")
+    records: int = Field(ge=1)
+
+
+class PrivacyNote(_Frozen):
+    """What the sensitive-data policy did. Always present, so a withheld category is never
+    silent."""
+
+    policy: str = Field(description="Policy id and version")
+    withheld: list[PrivacyCount] = Field(
+        default_factory=list,
+        description="Records removed before evidence assembly, by category; they were not "
+        "used by any rule",
+    )
+    restricted: list[PrivacyCount] = Field(
+        default_factory=list,
+        description="Records used, but shown only as references and dates (codes appear as "
+        "'restricted'), by category",
+    )
+
+
 class RuleTraceEntry(_Frozen):
     rule_id: str
     fired: bool

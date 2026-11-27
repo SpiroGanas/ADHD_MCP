@@ -213,7 +213,13 @@ class PersonaBuilder:
         return self._add(resource)
 
     def medication_dispense(
-        self, request_id: str, rxnorm: str, display: str, handed_over: str, *, days: int = 30
+        self,
+        request_id: str | None,
+        rxnorm: str,
+        display: str,
+        handed_over: str,
+        *,
+        days: int | None = 30,
     ) -> str:
         medication_id = self._add(
             {
@@ -222,23 +228,46 @@ class PersonaBuilder:
                 "code": concept(coding(RXNORM, rxnorm, display)),
             }
         )
-        return self._add(
-            {
-                "resourceType": "MedicationDispense",
-                "id": self._id("meddisp"),
-                "status": "completed",
-                "medicationReference": {"reference": f"Medication/{medication_id}"},
-                "subject": self.subject,
-                "authorizingPrescription": [{"reference": f"MedicationRequest/{request_id}"}],
-                "whenHandedOver": handed_over,
-                "daysSupply": {
-                    "value": days,
-                    "unit": "days",
-                    "system": "http://unitsofmeasure.org",
-                    "code": "d",
-                },
+        resource: Resource = {
+            "resourceType": "MedicationDispense",
+            "id": self._id("meddisp"),
+            "status": "completed",
+            "medicationReference": {"reference": f"Medication/{medication_id}"},
+            "subject": self.subject,
+        }
+        if request_id is not None:
+            resource["authorizingPrescription"] = [{"reference": f"MedicationRequest/{request_id}"}]
+        resource["whenHandedOver"] = handed_over
+        if days is not None:
+            resource["daysSupply"] = {
+                "value": days,
+                "unit": "days",
+                "system": "http://unitsofmeasure.org",
+                "code": "d",
             }
-        )
+        return self._add(resource)
+
+    def medication_statement(
+        self,
+        rxnorm: str,
+        display: str,
+        start: str,
+        end: str | None = None,
+        *,
+        status: str = "active",
+        reason: tuple[str, str] | None = None,
+    ) -> str:
+        resource: Resource = {
+            "resourceType": "MedicationStatement",
+            "id": self._id("medstmt"),
+            "status": status,
+            "medicationCodeableConcept": concept(coding(RXNORM, rxnorm, display)),
+            "subject": self.subject,
+            "effectivePeriod": {"start": start, **({"end": end} if end else {})},
+        }
+        if reason:
+            resource["reasonCode"] = [concept(coding(ICD10CM, *reason))]
+        return self._add(resource)
 
     def service_request(self, code: str, authored: str, *, status: str, reason: str) -> str:
         return self._add(

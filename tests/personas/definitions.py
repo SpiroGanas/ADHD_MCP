@@ -251,6 +251,95 @@ def p10() -> PersonaBuilder:
     return p
 
 
+def p11() -> PersonaBuilder:
+    """Two high-weight classes and no modifiers: stimulant dependence and a crash as driver."""
+    p = PersonaBuilder("p11", gender="male", birth_date="1995-08-21")
+    visit = p.encounter("EMER", "2024-08-10T18:00:00Z", "2024-08-10T23:00:00Z")
+    p.condition(
+        "V43.52XA",
+        "Car driver injured in collision with car in traffic accident",
+        recorded="2024-08-10",
+        encounter=visit,
+        category="encounter-diagnosis",
+    )
+    p.condition(
+        "S80.01XA",
+        "Contusion of right knee",
+        recorded="2024-08-10",
+        encounter=visit,
+        category="encounter-diagnosis",
+    )
+    p.condition(
+        "F15.20",
+        "Other stimulant dependence, uncomplicated",
+        onset="2025-01",
+        recorded="2025-02-01",
+    )
+    return p
+
+
+def p12() -> PersonaBuilder:
+    """Narrow miss: one high-weight signal (alcohol) with only one modifier (PTSD)."""
+    p = PersonaBuilder("p12", gender="female", birth_date="1988-02-14")
+    p.condition("F10.20", "Alcohol dependence, uncomplicated", recorded="2025-04-01")
+    p.condition("F43.10", "Post-traumatic stress disorder, unspecified", recorded="2024-01-10")
+    p.encounter("AMB", "2025-04-01T09:00:00Z", "2025-04-01T09:40:00Z")
+    return p
+
+
+def p13() -> PersonaBuilder:
+    """Window miss: the crash as driver is one day outside the 1095-day window."""
+    p = PersonaBuilder("p13", gender="male", birth_date="1984-10-03")
+    visit = p.encounter("EMER", "2023-06-15T20:00:00Z", "2023-06-16T01:00:00Z")
+    p.condition(
+        "V43.52XA",
+        "Car driver injured in collision with car in traffic accident",
+        recorded="2023-06-15",
+        encounter=visit,
+        category="encounter-diagnosis",
+    )
+    p.condition("F10.10", "Alcohol abuse, uncomplicated", recorded="2025-09-01")
+    p.condition("Z65.3", "Problems related to other legal circumstances", recorded="2025-10-01")
+    return p
+
+
+def p14() -> PersonaBuilder:
+    """Female presentation that triggers: alcohol involvement with many modifiers."""
+    p = PersonaBuilder("p14", gender="female", birth_date="1993-12-01")
+    visit = p.encounter(
+        "EMER",
+        "2025-12-20T01:00:00Z",
+        "2025-12-20T06:00:00Z",
+        reasons=(("Y90.2", "Blood alcohol level of 40-59 mg/100 ml"),),
+    )
+    p.condition(
+        "Y90.2",
+        "Blood alcohol level of 40-59 mg/100 ml",
+        recorded="2025-12-20",
+        encounter=visit,
+        category="encounter-diagnosis",
+    )
+    p.condition("F60.3", "Borderline personality disorder", onset="2021-05", recorded="2021-05-20")
+    p.condition("F63.81", "Intermittent explosive disorder", recorded="2024-07-15")
+    p.condition("F12.20", "Cannabis dependence, uncomplicated", recorded="2024-03-03")
+    p.condition(
+        "Z59.811", "Housing instability, housed, with risk of homelessness", recorded="2025-11-05"
+    )
+    p.condition(
+        "Z81.8", "Family history of other mental and behavioral disorders", recorded="2020-01-10"
+    )
+    drugs = [
+        ("36437", "sertraline", "2023-09-01"),
+        ("321988", "escitalopram", "2024-03-01"),
+        ("42347", "bupropion", "2024-10-01"),
+        ("72625", "duloxetine", "2025-06-01"),
+    ]
+    for code, name, when in drugs:
+        request = p.medication_request(code, name, when, days=90)
+        p.medication_dispense(request, code, name, when, days=90)
+    return p
+
+
 PERSONAS: dict[str, Callable[[], PersonaBuilder]] = {
     "p01": p01,
     "p02": p02,
@@ -262,6 +351,10 @@ PERSONAS: dict[str, Callable[[], PersonaBuilder]] = {
     "p08": p08,
     "p09": p09,
     "p10": p10,
+    "p11": p11,
+    "p12": p12,
+    "p13": p13,
+    "p14": p14,
 }
 
 

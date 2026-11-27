@@ -1,0 +1,47 @@
+# Specially protected data categories (38 U.S.C. 7332; 42 CFR Part 2) and the default policy.
+# A resource belongs to a category if it carries one of the category's security labels
+# (meta.security) or a code in one of its value sets. Actions:
+#   allow     shown and used as usual
+#   cite      used by the rules; outputs show only references, dates and the signal or
+#             family it belongs to, never the code (owner decision 2026-11-27: the default)
+#   withhold  removed before evidence assembly; outputs say how many records were withheld
+# Changing anything here is a policy change. A site may supply its own file
+# (ADHD_MCP_PRIVACY_POLICY).
+id = "privacy"
+version = "0.2.0"
+
+[actions]
+substance_use = "cite"
+hiv = "cite"
+sickle_cell = "cite"
+
+# Security label codes verified against HL7 terminology v3-ActCode 11.0.0
+# (terminology.hl7.org CodeSystem-v3-ActCode.json, checked 2026-11-27 by the Claude Code agent).
+[[categories]]
+id = "substance_use"
+title = "Substance use"
+# Substance-use signals feed the ADHD rules and the problem list, so outputs name it.
+disclose = true
+value_sets = ["sud.alcohol", "sud.blood_alcohol_level", "sud.alcohol_in_blood", "sud.stimulant", "sud.other"]
+labels = [
+  { system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "ETH" },
+  { system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "ETHUD" },
+  { system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "SUD" },
+  { system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "OPIOIDUD" },
+]
+
+[[categories]]
+id = "hiv"
+title = "HIV"
+# No output or rule uses HIV data: outputs never name the category, so a count cannot
+# reveal that such a record exists.
+disclose = false
+value_sets = ["privacy.hiv"]
+labels = [{ system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "HIV" }]
+
+[[categories]]
+id = "sickle_cell"
+title = "Sickle-cell disease"
+disclose = false
+value_sets = ["privacy.sickle_cell"]
+labels = [{ system = "http://terminology.hl7.org/CodeSystem/v3-ActCode", code = "SCA" }]

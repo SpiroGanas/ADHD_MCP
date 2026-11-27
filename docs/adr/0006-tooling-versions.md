@@ -22,6 +22,8 @@ Findings on 2026-11-26:
 | MCP framework | FastMCP | 4.2.6 |
 | Typed models | Pydantic v2 | 2.14.4 |
 | HTTP client (FHIR adapter) | httpx2, already required by the MCP SDK; declared directly so the adapter does not rely on a transitive dependency | 2.16.2 |
+| JWT signing (SMART backend services) | PyJWT, already required by FastMCP; declared directly (owner approval 2026-11-27) | 2.15.1 |
+| Cryptography (RSA/EC keys for JWT) | cryptography, already required by FastMCP; declared directly (owner approval 2026-11-27) | 50.0.2 |
 | Package and environment manager | uv, with a committed `uv.lock` | uv 0.11 |
 | Build backend | hatchling | from lock |
 | Test runner | pytest, pytest-cov, anyio's pytest plugin, Hypothesis | 9.2.0, 7.1.0, 4.16.0, 6.170.17 |
