@@ -21,7 +21,7 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- Nothing is being built. The peer review pull request (this branch) waits for the owner.
+- Nothing is being built. The peer review pull request [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) is open and waits for the owner.
 
 ## Next steps
 
@@ -108,3 +108,4 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
 | [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Merged |
 | [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Merged |
+| [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) | Peer review 01: findings only, no code changes | Open |
