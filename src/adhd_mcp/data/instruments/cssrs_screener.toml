@@ -17,4 +17,31 @@ system = "http://loinc.org"
 code = "93374-7"
 display = "Suicide risk level"
 verified = false
-note = "Answer list LL465-6: Low LA9194-7, Moderate LA6751-7, High LA9193-9. Confirmed only through search-index summaries of loinc.org. Which risk levels make the gate positive (research: moderate or high) is defined in Phase 3."
+note = "Answer list LL465-6 (answers below). Confirmed only through search-index summaries of loinc.org."
+
+[[answers]]
+for_code = "93374-7"
+system = "http://loinc.org"
+code = "LA9194-7"
+display = "Low"
+positive = false
+verified = false
+note = "LOINC answer list LL465-6, confirmed only through search-index summaries of loinc.org. Moderate or high makes the safety gate positive (research report, safety gate table)."
+
+[[answers]]
+for_code = "93374-7"
+system = "http://loinc.org"
+code = "LA6751-7"
+display = "Moderate"
+positive = true
+verified = false
+note = "LOINC answer list LL465-6, confirmed only through search-index summaries of loinc.org. Moderate or high makes the safety gate positive (research report, safety gate table)."
+
+[[answers]]
+for_code = "93374-7"
+system = "http://loinc.org"
+code = "LA9193-9"
+display = "High"
+positive = true
+verified = false
+note = "LOINC answer list LL465-6, confirmed only through search-index summaries of loinc.org. Moderate or high makes the safety gate positive (research report, safety gate table)."

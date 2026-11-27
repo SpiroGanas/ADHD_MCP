@@ -89,3 +89,23 @@ def test_strict_loading_refuses_every_packaged_instrument_while_unverified() -> 
         if instrument.unverified():
             with pytest.raises(UnverifiedContentError):
                 load_instrument(instrument_id, strict=True)
+
+
+def test_cssrs_positive_risk_levels_are_moderate_and_high() -> None:
+    cssrs = load_instrument("cssrs_screener", strict=False)
+    positive = {a.code for a in cssrs.answers if a.positive}
+    assert positive == {"LA6751-7", "LA9193-9"}
+    assert {a.code for a in cssrs.answers if not a.positive} == {"LA9194-7"}
+    assert "LA9193-9" in cssrs.unverified()
+
+
+def test_an_answer_must_belong_to_an_instrument_code(tmp_path: Path) -> None:
+    path = tmp_path / "x.toml"
+    path.write_text(
+        'id = "x"\nversion = "1"\ntitle = "t"\n'
+        '[[codes]]\nrole = "risk_level"\nsystem = "s"\ncode = "c"\nverified = false\n'
+        '[[answers]]\nfor_code = "other"\nsystem = "s"\ncode = "a"\npositive = true\n'
+        "verified = false\n"
+    )
+    with pytest.raises(ValueError, match="other"):
+        load_instrument_file(path, strict=False)

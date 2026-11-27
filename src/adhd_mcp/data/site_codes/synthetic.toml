@@ -1,0 +1,95 @@
+# Site code mapping for the project's synthetic test site. Every code here belongs to a
+# code system the project defines for synthetic data, so entries are verified by
+# construction. A real site supplies its own file with its local codes (Phase 8).
+id = "synthetic"
+version = "0.1.0"
+title = "Synthetic test site"
+description = "Local codes used by the synthetic personas. Not for use with real data."
+
+[concepts.psychiatric_inpatient_encounter]
+title = "Psychiatric inpatient stay"
+
+[[concepts.psychiatric_inpatient_encounter.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "psychiatric-inpatient"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.psychiatric_residential_encounter]
+title = "Psychiatric or substance use residential stay"
+
+[[concepts.psychiatric_residential_encounter.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "psychiatric-residential"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.high_risk_flag]
+title = "High risk for suicide flag"
+
+[[concepts.high_risk_flag.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "high-risk-for-suicide"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.adhd_evaluation_request]
+title = "Referral for ADHD evaluation"
+
+[[concepts.adhd_evaluation_request.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "adhd-evaluation-referral"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.adhd_evaluation_procedure]
+title = "ADHD evaluation"
+
+[[concepts.adhd_evaluation_procedure.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "adhd-evaluation"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[concepts.adhd_care_plan]
+title = "ADHD care plan"
+
+[[concepts.adhd_care_plan.entries]]
+system = "urn:adhd-mcp:synthetic-local-code"
+match = "exact"
+code = "adhd-care-plan"
+verified = true
+source = "The project's own synthetic code system, defined in tests/personas/builder.py (SYNTHETIC_LOCAL)"
+source_version = "0.1.0"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, under the project owner's decision of 2026-11-27"
+
+[[questionnaires]]
+url = "urn:adhd-mcp:synthetic-questionnaire:phq-9"
+instrument = "phq9"
+total = "total"
+verified = true
+source = "The project's synthetic PHQ-9 questionnaire (tests/personas/definitions.py, PHQ9_QUESTIONNAIRE)"
+
+[questionnaires.items]
+"9" = "9"

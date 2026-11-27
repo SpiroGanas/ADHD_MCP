@@ -239,6 +239,7 @@ def _medication(raw: Raw, medications: Mapping[str, Raw]) -> MedicationRecord:
         date=when,
         days_supply=days_supply,
         quantity=quantity,
+        reason_codes=_concepts(raw.get("reasonCode")),
     )
 
 

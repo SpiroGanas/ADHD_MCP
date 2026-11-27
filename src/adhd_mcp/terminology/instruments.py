@@ -40,6 +40,16 @@ class InstrumentCode(_Verifiable):
     display: str | None = None
 
 
+class InstrumentAnswer(_Verifiable):
+    """A coded answer to one of the instrument's codes, e.g. a C-SSRS risk level."""
+
+    for_code: str = Field(description="The instrument code this answers")
+    system: str
+    code: str = Field(min_length=1)
+    display: str | None = None
+    positive: bool = Field(description="Whether this answer counts as a positive screen")
+
+
 class Cutoff(_Verifiable):
     id: str
     code: str = Field(description="The instrument code the cutoff applies to")
@@ -60,6 +70,7 @@ class Instrument(BaseModel):
     licensing_note: str | None = None
     codes: tuple[InstrumentCode, ...] = ()
     cutoffs: tuple[Cutoff, ...] = ()
+    answers: tuple[InstrumentAnswer, ...] = ()
 
     @model_validator(mode="after")
     def _cutoffs_reference_codes(self) -> Self:
@@ -67,6 +78,11 @@ class Instrument(BaseModel):
         for cutoff in self.cutoffs:
             if known and cutoff.code not in known:
                 raise ValueError(f"cutoff {cutoff.id}: {cutoff.code} is not a code of {self.id}")
+        for answer in self.answers:
+            if answer.for_code not in known:
+                raise ValueError(
+                    f"answer {answer.code}: {answer.for_code} is not a code of {self.id}"
+                )
         return self
 
     def code_for(self, role: str, item: str | None = None) -> tuple[str, str]:
@@ -82,9 +98,11 @@ class Instrument(BaseModel):
         raise LookupError(f"{self.id} has no cutoff {cutoff_id!r} for sex {sex!r}")
 
     def unverified(self) -> list[str]:
-        return [c.code for c in self.codes if not c.verified] + [
-            c.id for c in self.cutoffs if not c.verified
-        ]
+        return (
+            [c.code for c in self.codes if not c.verified]
+            + [c.id for c in self.cutoffs if not c.verified]
+            + [a.code for a in self.answers if not a.verified]
+        )
 
 
 def _parse(text: str, *, name: str, strict: bool) -> Instrument:

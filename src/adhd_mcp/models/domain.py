@@ -64,16 +64,70 @@ class SafetyGateStatus(StrEnum):
     DATA_UNAVAILABLE = "data_unavailable"
 
 
+class CheckOutcome(StrEnum):
+    FOUND = "found"
+    NOT_FOUND = "not_found"
+    NOT_PERFORMED = "not_performed"
+    FAILED = "failed"
+
+
+class SafetyCheck(_Frozen):
+    """One safety-gate check and what came of it."""
+
+    id: str = Field(min_length=1)
+    description: str
+    outcome: CheckOutcome
+    reason: str | None = Field(
+        default=None, description="Why the check was not performed or failed"
+    )
+
+    @model_validator(mode="after")
+    def _reason_when_not_run(self) -> Self:
+        if self.outcome in {CheckOutcome.NOT_PERFORMED, CheckOutcome.FAILED} and not self.reason:
+            raise ValueError("a check not performed or failed must give a reason")
+        return self
+
+
 class SafetyGateResult(_Frozen):
+    """The gate's status agrees with its checks (owner decision 2026-11-27):
+
+    * positive if and only if a check found a signal;
+    * otherwise data_unavailable if a check failed;
+    * otherwise clear only if every check ran; clear_limited_data is used when a check
+      was not performed or the record holds too little data.
+    """
+
     status: SafetyGateStatus
-    checks_performed: list[str] = Field(min_length=1)
-    evidence: list[EvidenceItem] = Field(default_factory=list)
+    checks: list[SafetyCheck] = Field(min_length=1)
+    evidence: list[EvidenceItem] = Field(
+        default_factory=list, description="Signals that make the gate positive"
+    )
+    history: list[EvidenceItem] = Field(
+        default_factory=list,
+        description="Older self-harm signals, outside the look-back window; listed for the "
+        "clinician, they do not make the gate positive",
+    )
     guidance: str | None = Field(default=None, description="Fixed guidance text when positive")
 
     @model_validator(mode="after")
-    def _positive_needs_evidence(self) -> Self:
-        if self.status is SafetyGateStatus.POSITIVE and not self.evidence:
+    def _consistent(self) -> Self:
+        ids = [c.id for c in self.checks]
+        if len(ids) != len(set(ids)):
+            raise ValueError("check ids must be unique")
+        outcomes = {c.outcome for c in self.checks}
+        positive = self.status is SafetyGateStatus.POSITIVE
+        if positive != (CheckOutcome.FOUND in outcomes):
+            raise ValueError("the gate is positive if and only if a check found a signal")
+        if positive and not self.evidence:
             raise ValueError("a positive safety gate must cite evidence")
+        if positive != (self.guidance is not None):
+            raise ValueError("guidance is given exactly when the gate is positive")
+        if not positive:
+            failed = CheckOutcome.FAILED in outcomes
+            if failed != (self.status is SafetyGateStatus.DATA_UNAVAILABLE):
+                raise ValueError("data_unavailable is used exactly when a check failed")
+            if self.status is SafetyGateStatus.CLEAR and outcomes != {CheckOutcome.NOT_FOUND}:
+                raise ValueError("clear requires every check to have run")
         return self
 
 
@@ -100,13 +154,24 @@ class ExclusionCheck(_Frozen):
 class DataStatus(StrEnum):
     AVAILABLE = "available"
     EMPTY = "empty"
+    INCOMPLETE = "incomplete"
     WITHHELD = "withheld"
     FAILED = "failed"
 
 
 class DataCompleteness(_Frozen):
-    category: str = Field(min_length=1)
+    """Whether one data category could be read, so an empty record is never mistaken
+    for a clean one."""
+
+    category: str = Field(min_length=1, description="A FHIR resource type")
     status: DataStatus
+    records: int = Field(default=0, description="Records read")
+    skipped: int = Field(
+        default=0, description="Resources not used: entered in error, refuted or malformed"
+    )
+    warnings: list[str] = Field(
+        default_factory=list, description="Server warning codes, e.g. incomplete, suppressed"
+    )
 
 
 class RuleTraceEntry(_Frozen):
