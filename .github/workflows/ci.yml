@@ -64,6 +64,28 @@ jobs:
         env:
           ADHD_MCP_TEST_FHIR_URL: http://localhost:8080/fhir
 
+  container:
+    name: Container image (build and smoke test; not published)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -t adhd-mcp:ci .
+      - name: Smoke test with the sample data
+        run: |
+          docker run --rm --entrypoint python -e ADHD_MCP_FIXTURE_DIR=/app/sample-data adhd-mcp:ci -c '
+          import asyncio
+          from fastmcp import Client
+          from adhd_mcp.server import create_server
+          from adhd_mcp.tools.context import context_from_environment
+          async def main():
+              async with Client(create_server(context_from_environment())) as c:
+                  r = await c.call_tool("assess_referral_need", {"patient_id": "p01-patient", "as_of": "2026-06-15"})
+                  assert r.structured_content["recommendation"] == "consider_referral_for_formal_screening"
+                  print("container smoke test passed")
+          asyncio.run(main())
+          '
+
   secret-scan:
     name: Secret scan
     runs-on: ubuntu-latest

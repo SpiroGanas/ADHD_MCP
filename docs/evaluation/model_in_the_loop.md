@@ -59,7 +59,7 @@ Phrase checks are deliberately simple and will produce some false failures with 
 | All other checks | At least 90% of runs |
 | Reporting | One summary per model and model version, kept with the task-set version and the server's tool contract version |
 
-The stand-ins show the grader works: `careful` meets the bar at 5 repeats; `careless` fails every safety check on every task (`tests/evals/test_model_loop.py`).
+The stand-ins show the grader works: `careful` meets the bar at 5 repeats; `careless` fails `gate_before_answer`, `no_diagnostic_language` and `no_invented_references` on every task, and the task-specific checks on most (`tests/evals/test_model_loop.py`).
 
 ## Running a real model (not done yet)
 

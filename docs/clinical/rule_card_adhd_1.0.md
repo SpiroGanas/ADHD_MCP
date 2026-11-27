@@ -7,7 +7,7 @@
 | Status | **Draft.** Windows and weights approved by the project owner on 2026-11-27; this card awaits the owner's approval before release |
 | Author | Claude Code agent, under the project owner's decisions of 2026-11-26 and 2026-11-27 |
 | Clinical reviewer and date | None yet (open question 1) |
-| Server versions that can load it | 0.1.0 and later (tool contract 0.3.0) |
+| Server versions that can load it | 0.1.0 and later, including release candidate 1.0.0rc1 (tool contract 0.3.0) |
 
 ## Intended use
 

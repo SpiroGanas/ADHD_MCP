@@ -9,6 +9,8 @@ Hand-built synthetic patients that act as the specification for every rule (see 
 | `builder.py` | Helpers that produce FHIR R4 resources with unique ids (`p01-cond-1`) |
 | `bundles/*.json` | Generated FHIR R4 collection bundles, committed |
 
+The personas specify behaviour one case at a time. For evaluation, a larger labelled cohort (184 patients built from 23 archetypes) is generated in memory by [tests/evals/cohort.py](../evals/cohort.py); see [docs/evaluation/](../../docs/evaluation/README.md).
+
 ## Use
 
 Load everything in one step:

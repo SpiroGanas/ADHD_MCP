@@ -1,6 +1,6 @@
 # Bulk synthetic population
 
-A seeded generator makes a larger synthetic population for volume and performance tests (Phase 2, item 7). It is for volume only: the hand-built [personas](../../tests/personas/README.md) carry the clinical meaning.
+A seeded generator makes a larger synthetic population for volume and performance tests (Phase 2, item 7). It is for volume only: the hand-built [personas](../../tests/personas/README.md) carry the clinical meaning, and the labelled evaluation cohort (Phase 7, [tests/evals/cohort.py](../../tests/evals/cohort.py)) carries intended outcomes for evaluation.
 
 ## Generate
 

@@ -39,22 +39,28 @@ LIMITATIONS = [
 ]
 
 
-def _content_files() -> list[Traversable]:
-    data = files("adhd_mcp.data")
-    chosen = [data / "adhd" / "ruleset.toml", data / "adhd" / "signal_catalog.toml"]
-    for folder in ("value_sets", "drug_classes"):
-        chosen += sorted(
-            (f for f in (data / folder).iterdir() if f.name.endswith(".toml")),
-            key=lambda f: f.name,
-        )
-    return chosen
+def _content_files() -> list[tuple[str, Traversable]]:
+    """Every TOML file under the packaged data: ruleset, catalog, value sets, drug classes,
+    instruments, site codes, evidence-tool definitions, safety gate, privacy and wording. Any
+    of them can change an assessment."""
+    found: list[tuple[str, Traversable]] = []
+
+    def walk(folder: Traversable, prefix: str) -> None:
+        for item in folder.iterdir():
+            if item.is_dir():
+                walk(item, f"{prefix}{item.name}/")
+            elif item.name.endswith(".toml"):
+                found.append((f"{prefix}{item.name}", item))
+
+    walk(files("adhd_mcp.data"), "")
+    return sorted(found, key=lambda pair: pair[0])
 
 
 def content_fingerprint() -> str:
-    """sha256 over the ruleset, the signal catalog, the value sets and the drug classes."""
+    """sha256 over every packaged clinical data file (by path and content)."""
     digest = hashlib.sha256()
-    for f in _content_files():
-        digest.update(f.name.encode() + b"\0" + f.read_bytes() + b"\0")
+    for path, f in _content_files():
+        digest.update(path.encode() + b"\0" + f.read_bytes() + b"\0")
     return digest.hexdigest()
 
 

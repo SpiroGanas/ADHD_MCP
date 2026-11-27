@@ -10,7 +10,7 @@ from typing import Any
 
 from adhd_mcp.conditions.adhd import adhd_plugin
 from tests.evals.cohort import build_cohort
-from tests.evals.report import identity, render_markdown, report_paths
+from tests.evals.report import _content_files, identity, render_markdown, report_paths
 
 JSON_PATH, MD_PATH = report_paths(adhd_plugin().ruleset.version)
 
@@ -46,3 +46,22 @@ def test_every_patient_agreed_when_the_report_was_made() -> None:
     agreement = committed()["agreement"]
     assert agreement["mismatches"] == []
     assert agreement["agree"] == agreement["patients"]
+
+
+def test_the_fingerprint_covers_every_clinical_data_file() -> None:
+    paths = {path for path, _ in _content_files()}
+    for expected in (
+        "adhd/ruleset.toml",
+        "adhd/signal_catalog.toml",
+        "medication_timeline.toml",
+        "utilization.toml",
+        "safety_gate.toml",
+        "existing_care.toml",
+        "privacy.toml",
+        "wording.toml",
+        "site_codes/synthetic.toml",
+        "value_sets/sud.alcohol.toml",
+        "drug_classes/med.antidepressant.toml",
+        "instruments/phq9.toml",
+    ):
+        assert expected in paths

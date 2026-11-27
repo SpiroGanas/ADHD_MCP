@@ -2,7 +2,7 @@
 
 How ADHD_MCP is put together. This is a design document that changes as phases complete; costly decisions are recorded in [adr/](adr/README.md).
 
-**Built so far (Phases 1 to 6):** audit records, trace propagation, the sensitive-data policy, OAuth over streamable HTTP, SMART backend services and validated configuration ([ADR 0011](adr/0011-audit-tracing-and-privacy.md), [ADR 0012](adr/0012-authentication.md), [threat model](security/threat_model.md)); also `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
+**Built so far (Phases 1 to 7):** the Phase 7 evaluation and hardening: a labelled synthetic cohort and evaluation harness, a model-in-the-loop harness, fault injection, a benchmark, packaging and a release check ([Implemented: evaluation and release](#implemented-evaluation-and-release)); before that, audit records, trace propagation, the sensitive-data policy, OAuth over streamable HTTP, SMART backend services and validated configuration ([ADR 0011](adr/0011-audit-tracing-and-privacy.md), [ADR 0012](adr/0012-authentication.md), [threat model](security/threat_model.md)); also `assess_referral_need` and `draft_referral_proposal`, the rules engine with the ADHD ruleset 1.0.0 (draft) and condition plugin, MCP resources and prompts ([ADR 0010](adr/0010-rulesets-engine-and-plugins.md), [rule card](clinical/rule_card_adhd_1.0.md)); also the FastMCP server with `get_server_info` and seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); the ADHD signal catalog; a per-request FHIR cache; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
 
 ## Purpose and boundary
 
@@ -77,10 +77,12 @@ src/adhd_mcp/
 tests/
   unit/  contract/  tools/  property/  adapters/  integration/  (unit/evidence: assemblers)
   golden/           per-persona expectations and full-output snapshots
-  evals/                                                       planned
+  evals/            labelled cohort, ruleset evaluation harness and report, model-in-the-loop
+                    tasks, runner and grader
   helpers/          wording assertion, fake FHIR server, failing adapter
   personas/         synthetic FHIR bundles, catalog and builder
-scripts/            check, synthetic-data guard, persona build and load, population generator
+scripts/            check, synthetic-data guard, persona build and load, population generator,
+                    evaluation, benchmark, tool reference, release check
 docs/
 ```
 
@@ -128,7 +130,7 @@ docs/
 
 | Tool | Behaviour |
 |---|---|
-| `check_safety_gate` | Eleven checks, each found, not found, not performed (with reason) or failed. Status: positive if any check found a current signal; else data_unavailable if one failed; else clear_limited_data if one was not performed, the record is empty or the server warned; else clear. 365-day look-back; undated items count; older items are listed as history. Rule card: [rule_card_safety_gate.md](clinical/rule_card_safety_gate.md) |
+| `check_safety_gate` | Eleven checks, each found, not found, not performed (with reason) or failed. Status: positive if any check found a current signal; else data_unavailable if one failed (its data could not be read, or was read only in part); else clear_limited_data if one was not performed or the record is empty; else clear. 365-day look-back; undated items count; older items are listed as history. Rule card: [rule_card_safety_gate.md](clinical/rule_card_safety_gate.md) |
 | `get_mh_problem_list` | ICD-10-CM codes grouped into families (value sets), one entry per code citing every Condition; first onset and recorded dates; status of the latest record; onset order with shared ranks for equal dates; other chapter 5 codes in a fallback family |
 | `get_screening_history` | One timeline from observation panels, components and mapped questionnaire responses. Instruments are recognised by code even while unverified (`code_verified`); a cutoff is applied, and its threshold shown, only when code and cutoff are verified. Phase 5 rules must not use entries with `code_verified = false`. Unknown survey instruments are listed, not scored. No item text is returned |
 | `get_medication_timeline` | Drug classes from curated RxNorm ingredient lists expanded to products ([ADR 0009](adr/0009-rxnorm-drug-classes.md)). Exposure periods from dispenses and statements (from orders only when the record has no dispensing data); overlapping fills merge, gaps over 30 days split, a missing supply is assumed 30 days and flagged; each order's fill status; distinct agents per class; narcolepsy-reason use marked. Definition `data/medication_timeline.toml` |
@@ -215,7 +217,7 @@ Every code, window and cutoff lives in versioned data and must be verified befor
 
 ## Versioning
 
-Three independent version lines, all reported in every output and audit record:
+Three independent version lines, all reported in every output and audit record. When each changes, what a release must contain, and the release check: [ADR 0013](adr/0013-versioning-and-release.md).
 
 | Line | Changes when |
 |---|---|
@@ -244,6 +246,17 @@ Built in Phase 6. Per request the port chain is: FHIR source, then `AuditingPort
 - Specially protected data (for example substance use under 38 U.S.C. 7332 and 42 CFR Part 2) passes through a configurable policy: allow, cite existence and date only, or withhold.
 - Audit records and logs contain references and hashes only.
 
+## Implemented: evaluation and release
+
+Phase 7. Evaluation code lives under `tests/evals/` because it is test tooling: it never ships in the package.
+
+- **Labelled cohort** (`tests/evals/cohort.py`): 23 hand-written archetypes, each built for both sexes and four age bands (184 patients), with intended outcomes, a research profile and a presentation style.
+- **Ruleset evaluation** (`tests/evals/harness.py`, `report.py`, `scripts/evaluate_ruleset.py`): runs the cohort through the same code path as `assess_referral_need`; agreement, drivers, rates by sex and age band, threshold variants and sex-balance options. The report in `docs/evaluation/` carries fingerprints of the clinical content and the cohort; a test fails when it is stale.
+- **Model in the loop** (`tests/evals/model_loop.py`, `model_tasks.toml`): a provider-neutral `ModelDriver`, an in-memory MCP client runner and a transcript grader; scripted stand-ins only so far.
+- **Robustness**: fault injection through the HTTP adapter and the whole assessment (`tests/tools/test_fault_injection.py`).
+- **Performance**: `scripts/benchmark.py`; a FHIR request budget (unit test) and a latency target against local HAPI (integration test). See [evaluation/performance.md](evaluation/performance.md).
+- **Release**: wheel and sdist via `uv build`; a `Dockerfile` built and smoke-tested in CI; `scripts/release_check.py` (change log, rule card, evaluation report, contract snapshots, tool reference, README); the tool reference `docs/reference/tools.md` generated from the contract snapshots.
+
 ## Open design questions
 
-Tracked in [status.md](../status.md) and resolved through ADRs: FHIR modeling library; source of RxNorm drug-class membership; default sensitive-data policy; audit storage format.
+None at the architecture level. Open questions for the project owner are tracked in [status.md](../status.md); settled ones are in the ADRs.

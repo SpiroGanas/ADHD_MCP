@@ -1,6 +1,6 @@
 [project]
 name = "adhd-mcp"
-version = "0.1.0"
+version = "1.0.0rc1"
 description = "MCP server that suggests when a clinician might consider referral for formal adult ADHD screening. Decision support only; never a diagnosis."
 readme = "README.md"
 license = "MIT"
@@ -33,6 +33,11 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/adhd_mcp"]
+
+# The source distribution carries the package only: no tests (they hold deliberately bad
+# example text for the model-in-the-loop grader), research or agent configuration.
+[tool.hatch.build.targets.sdist]
+include = ["/src/adhd_mcp", "/README.md", "/LICENSE", "/CHANGELOG.md", "/pyproject.toml"]
 
 [tool.uv]
 default-groups = ["dev"]
