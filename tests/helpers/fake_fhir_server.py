@@ -69,12 +69,13 @@ class FakeFhirServer:
         date_param = DATE_SEARCH[resource_type][0]
         since = params.get(date_param)
         updated = params.get("_lastUpdated")
-        results = await self.store.search(
+        found = await self.store.search(
             resource_type,
             params["patient"],
             since=date.fromisoformat(since.removeprefix("ge")) if since else None,
             updated_since=datetime.fromisoformat(updated.removeprefix("ge")) if updated else None,
         )
+        results = found.resources
         count = int(params.get("_count", self.page_size))
         offset = int(params.get("_offset", 0))
         page = results[offset : offset + count]

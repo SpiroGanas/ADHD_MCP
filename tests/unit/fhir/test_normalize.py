@@ -373,3 +373,19 @@ def test_unsupported_value_types_are_flagged_not_lost(element: dict[str, Any]) -
     record = normalize({"resourceType": "Observation", "id": "o5", "status": "final", **element})
     assert isinstance(record, ObservationRecord)
     assert record.value == Value(unsupported=True)
+
+
+@pytest.mark.parametrize("kind", ["MedicationRequest", "MedicationStatement"])
+def test_medication_reason_codes_are_kept(kind: str) -> None:
+    record = normalize(
+        {
+            "resourceType": kind,
+            "id": "m1",
+            "status": "active",
+            "medicationCodeableConcept": {"coding": [{"system": RXNORM, "code": "725"}]},
+            "reasonCode": [{"coding": [{"system": ICD10CM, "code": "G47.419"}], "text": "x"}],
+            "subject": {"reference": "Patient/p"},
+        }
+    )
+    assert isinstance(record, MedicationRecord)
+    assert record.reason_codes == (Coding(system=ICD10CM, code="G47.419"),)

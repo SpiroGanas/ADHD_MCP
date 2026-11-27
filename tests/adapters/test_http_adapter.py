@@ -7,7 +7,7 @@ import pytest
 from adhd_mcp.fhir.errors import FhirRequestError, ResourceNotFoundError
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.normalize import normalize_many
-from adhd_mcp.fhir.port import SEARCHABLE_TYPES
+from adhd_mcp.fhir.port import SEARCHABLE_TYPES, SearchWarning
 from adhd_mcp.fhir.records import SkipReason
 from tests.adapters.shared_suite import SharedAdapterSuite, bundle_ids
 from tests.helpers.fake_fhir_server import BASE, FakeFhirServer
@@ -55,7 +55,7 @@ class TestHttpAdapterAgainstStub(SharedAdapterSuite):
 
 async def test_follows_paging_to_the_end(adapter: HttpFhirAdapter, server: FakeFhirServer) -> None:
     found = await adapter.search("Condition", "p01-patient")
-    assert {r["id"] for r in found} == bundle_ids("p01", "Condition")
+    assert {r["id"] for r in found.resources} == bundle_ids("p01", "Condition")
     assert len(server.requests) == 5  # 10 conditions, 2 per page
 
 
@@ -161,20 +161,56 @@ async def test_invalid_json_is_a_failure(adapter: HttpFhirAdapter, server: FakeF
         await adapter.read_patient("p01-patient")
 
 
-async def test_operation_outcome_entries_are_ignored(
+async def test_operation_outcome_issues_become_warnings_without_their_text(
     adapter: HttpFhirAdapter, server: FakeFhirServer
 ) -> None:
+    outcome = {
+        "resourceType": "OperationOutcome",
+        "issue": [
+            {"severity": "warning", "code": "incomplete", "diagnostics": "synthetic detail text"},
+            {"severity": "information", "code": "informational"},
+        ],
+    }
     bundle = {
         "resourceType": "Bundle",
         "type": "searchset",
         "entry": [
-            {"resource": {"resourceType": "OperationOutcome"}, "search": {"mode": "outcome"}},
+            {"resource": outcome, "search": {"mode": "outcome"}},
             {"resource": {"resourceType": "Condition", "id": "c1"}, "search": {"mode": "match"}},
         ],
     }
     server.fail_next = [httpx2.Response(200, json=bundle)]
     found = await adapter.search("Condition", "p01-patient")
-    assert [r["id"] for r in found] == ["c1"]
+    assert [r["id"] for r in found.resources] == ["c1"]
+    assert found.warnings == (SearchWarning(severity="warning", code="incomplete"),)
+    assert "synthetic detail" not in repr(found)
+
+
+async def test_warnings_from_every_page_are_collected(
+    adapter: HttpFhirAdapter, server: FakeFhirServer
+) -> None:
+    def page(issue_code: str, next_url: str | None) -> httpx2.Response:
+        return httpx2.Response(
+            200,
+            json={
+                "resourceType": "Bundle",
+                "type": "searchset",
+                "link": [{"relation": "next", "url": next_url}] if next_url else [],
+                "entry": [
+                    {
+                        "resource": {
+                            "resourceType": "OperationOutcome",
+                            "issue": [{"severity": "error", "code": issue_code}],
+                        }
+                    }
+                ],
+            },
+        )
+
+    server.fail_next = [page("too-costly", f"{BASE}/Condition?page=2"), page("suppressed", None)]
+    found = await adapter.search("Condition", "p01-patient")
+    assert found.resources == []
+    assert [w.code for w in found.warnings] == ["too-costly", "suppressed"]
 
 
 def test_base_url_must_be_http_or_https() -> None:
@@ -196,8 +232,8 @@ async def test_resources_without_an_id_are_passed_on_to_be_reported(
     }
     server.fail_next = [httpx2.Response(200, json=bundle)]
     found = await adapter.search("Condition", "p01-patient")
-    assert len(found) == 3
-    skipped = normalize_many(found).skipped
+    assert len(found.resources) == 3
+    skipped = normalize_many(found.resources).skipped
     assert [s.reason for s in skipped] == [SkipReason.NO_ID, SkipReason.NO_ID]
 
 
@@ -223,3 +259,16 @@ async def test_stops_a_paging_loop(server: FakeFhirServer, sleeps: Sleeps) -> No
         with pytest.raises(FhirRequestError, match="pages"):
             await adapter.search("Condition", "p01-patient")
     assert len(server.requests) == 5
+
+
+async def test_an_issue_code_that_is_not_a_fhir_token_is_not_passed_through(
+    adapter: HttpFhirAdapter, server: FakeFhirServer
+) -> None:
+    outcome = {
+        "resourceType": "OperationOutcome",
+        "issue": [{"severity": "warning", "code": "Synthetic free text from a server"}],
+    }
+    bundle = {"resourceType": "Bundle", "type": "searchset", "entry": [{"resource": outcome}]}
+    server.fail_next = [httpx2.Response(200, json=bundle)]
+    found = await adapter.search("Condition", "p01-patient")
+    assert found.warnings == (SearchWarning(severity="warning", code="unknown"),)

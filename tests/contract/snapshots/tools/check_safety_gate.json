@@ -1,0 +1,442 @@
+{
+  "annotations": {
+    "idempotentHint": true,
+    "openWorldHint": false,
+    "readOnlyHint": true
+  },
+  "description": "Check a patient's FHIR record for self-harm signals that must be addressed before any screening referral: suicidal ideation, suicide attempt and self-harm codes (including intentional and undetermined-intent poisoning), history of suicidal behavior, PHQ-9 item 9, C-SSRS risk level, psychiatric inpatient or residential discharge within 365 days (90 days is highest priority) and active high-risk flags. Call it first, before any other assessment. Returns positive, clear, clear_limited_data or data_unavailable, every check with its outcome (found, not found, not performed, failed), and the FHIR resources behind each signal. A positive result carries fixed guidance on suicide risk evaluation and lethal-means counseling. Read-only. It reports what the record contains; it does not assess suicide risk and is not a diagnosis. clear_limited_data means some checks could not run or the record is empty, so absence of signals is not reassurance.",
+  "inputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "anyOf": [
+          {
+            "format": "date",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "description": "Read the record as of this date (YYYY-MM-DD); data dated later is ignored. Defaults to today. Must not be in the future."
+      },
+      "patient_id": {
+        "description": "FHIR id of the Patient resource: 1 to 64 letters, digits, '-' or '.'",
+        "type": "string"
+      }
+    },
+    "required": [
+      "patient_id"
+    ],
+    "type": "object"
+  },
+  "name": "check_safety_gate",
+  "outputSchema": {
+    "additionalProperties": false,
+    "properties": {
+      "as_of": {
+        "description": "The date the record was read as of",
+        "format": "date",
+        "type": "string"
+      },
+      "data_completeness": {
+        "description": "Each data category read: available, empty, incomplete or failed. An empty record is not a clean record.",
+        "items": {
+          "additionalProperties": false,
+          "description": "Whether one data category could be read, so an empty record is never mistaken\nfor a clean one.",
+          "properties": {
+            "category": {
+              "description": "A FHIR resource type",
+              "minLength": 1,
+              "type": "string"
+            },
+            "records": {
+              "default": 0,
+              "description": "Records read",
+              "type": "integer"
+            },
+            "skipped": {
+              "default": 0,
+              "description": "Resources not used: entered in error, refuted or malformed",
+              "type": "integer"
+            },
+            "status": {
+              "enum": [
+                "available",
+                "empty",
+                "incomplete",
+                "withheld",
+                "failed"
+              ],
+              "type": "string"
+            },
+            "warnings": {
+              "description": "Server warning codes, e.g. incomplete, suppressed",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "category",
+            "status"
+          ],
+          "type": "object"
+        },
+        "type": "array"
+      },
+      "gate_definition_version": {
+        "description": "Version of the safety gate definition",
+        "type": "string"
+      },
+      "is_diagnosis": {
+        "const": false,
+        "default": false,
+        "description": "Always false: these results are never a diagnosis",
+        "type": "boolean"
+      },
+      "notice": {
+        "description": "Standard notice on how to read these results",
+        "type": "string"
+      },
+      "patient_id": {
+        "type": "string"
+      },
+      "safety_gate": {
+        "additionalProperties": false,
+        "description": "The gate's status agrees with its checks (owner decision 2026-11-27):\n\n* positive if and only if a check found a signal;\n* otherwise data_unavailable if a check failed;\n* otherwise clear only if every check ran; clear_limited_data is used when a check\n  was not performed or the record holds too little data.",
+        "properties": {
+          "checks": {
+            "items": {
+              "additionalProperties": false,
+              "description": "One safety-gate check and what came of it.",
+              "properties": {
+                "description": {
+                  "type": "string"
+                },
+                "id": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "outcome": {
+                  "enum": [
+                    "found",
+                    "not_found",
+                    "not_performed",
+                    "failed"
+                  ],
+                  "type": "string"
+                },
+                "reason": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Why the check was not performed or failed"
+                }
+              },
+              "required": [
+                "id",
+                "description",
+                "outcome"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "evidence": {
+            "description": "Signals that make the gate positive",
+            "items": {
+              "additionalProperties": false,
+              "description": "One named signal and the FHIR resources it was found in.",
+              "properties": {
+                "date": {
+                  "anyOf": [
+                    {
+                      "format": "date",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Clinically relevant date, if known"
+                },
+                "references": {
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "A pointer to the FHIR resource a fact came from.",
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "resource_type": {
+                        "enum": [
+                          "Patient",
+                          "Condition",
+                          "Observation",
+                          "QuestionnaireResponse",
+                          "MedicationRequest",
+                          "MedicationDispense",
+                          "MedicationStatement",
+                          "Medication",
+                          "Encounter",
+                          "Procedure",
+                          "ServiceRequest",
+                          "CarePlan",
+                          "Flag"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "description": "meta.versionId when the server has one"
+                      }
+                    },
+                    "required": [
+                      "resource_type",
+                      "id"
+                    ],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "signal": {
+                  "description": "Signal name from the signal catalog",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "weight_class": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "high",
+                        "modifier"
+                      ],
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Rule weight; null for safety-gate and context items"
+                }
+              },
+              "required": [
+                "signal",
+                "references"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "guidance": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Fixed guidance text when positive"
+          },
+          "history": {
+            "description": "Older self-harm signals, outside the look-back window; listed for the clinician, they do not make the gate positive",
+            "items": {
+              "additionalProperties": false,
+              "description": "One named signal and the FHIR resources it was found in.",
+              "properties": {
+                "date": {
+                  "anyOf": [
+                    {
+                      "format": "date",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Clinically relevant date, if known"
+                },
+                "references": {
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "A pointer to the FHIR resource a fact came from.",
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "resource_type": {
+                        "enum": [
+                          "Patient",
+                          "Condition",
+                          "Observation",
+                          "QuestionnaireResponse",
+                          "MedicationRequest",
+                          "MedicationDispense",
+                          "MedicationStatement",
+                          "Medication",
+                          "Encounter",
+                          "Procedure",
+                          "ServiceRequest",
+                          "CarePlan",
+                          "Flag"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "description": "meta.versionId when the server has one"
+                      }
+                    },
+                    "required": [
+                      "resource_type",
+                      "id"
+                    ],
+                    "type": "object"
+                  },
+                  "minItems": 1,
+                  "type": "array"
+                },
+                "signal": {
+                  "description": "Signal name from the signal catalog",
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "weight_class": {
+                  "anyOf": [
+                    {
+                      "enum": [
+                        "high",
+                        "modifier"
+                      ],
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "description": "Rule weight; null for safety-gate and context items"
+                }
+              },
+              "required": [
+                "signal",
+                "references"
+              ],
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "positive",
+              "clear",
+              "clear_limited_data",
+              "data_unavailable"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "checks"
+        ],
+        "type": "object"
+      },
+      "versions": {
+        "additionalProperties": false,
+        "properties": {
+          "ruleset": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scorer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "server": {
+            "type": "string"
+          },
+          "site_codes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Local code mapping in use: id and version"
+          },
+          "tool_contract": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "server",
+          "tool_contract"
+        ],
+        "type": "object"
+      }
+    },
+    "required": [
+      "patient_id",
+      "as_of",
+      "notice",
+      "data_completeness",
+      "versions",
+      "safety_gate",
+      "gate_definition_version"
+    ],
+    "type": "object"
+  },
+  "title": "Check Safety Gate"
+}

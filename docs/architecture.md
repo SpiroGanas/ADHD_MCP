@@ -2,7 +2,7 @@
 
 How ADHD_MCP is put together. This is a design document that changes as phases complete; costly decisions are recorded in [adr/](adr/README.md).
 
-**Built so far (Phases 1 and 2):** the FastMCP server with `get_server_info`; shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets and instrument definitions; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology).
+**Built so far (Phases 1 to 3):** the FastMCP server with `get_server_info` and four evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`); shared domain models; the diagnostic-wording guard; the FHIR access layer (read-only port, fixture and HTTP adapters, normalization, typed record reader); the terminology store with value sets, instrument definitions and per-site local code mapping; the evidence layer; the persona catalog. See [Implemented: FHIR access and terminology](#implemented-fhir-access-and-terminology) and [Implemented: evidence tools](#implemented-evidence-tools).
 
 ## Purpose and boundary
 
@@ -58,18 +58,20 @@ src/adhd_mcp/
   server.py         FastMCP application assembly
   versions.py       server, tool-contract and ruleset version lines
   clock.py          injected clock (the only place the real clock is read)
-  tools/            thin tool wrappers, one per tool
+  tools/            thin tool wrappers, one per tool; shared context, arguments and errors
   wording/          approved wording and the diagnostic-language guard
   fhir/             port, fixture and HTTP adapters, search semantics, normalization, reader
-  terminology/      value set and instrument loading and matching
+  terminology/      value set, instrument and site code loading and matching
+  evidence/         one assembler per evidence tool, plus shared windows and completeness
   models/           shared typed models and output schemas
-  data/             wording, code systems, value sets, instruments (rulesets later)
+  data/             wording, code systems, value sets, instruments, site codes,
+                    safety gate, problem list and existing care definitions (rulesets later)
   resources/  prompts/  orchestration/  rules/  conditions/adhd/
-  evidence/  privacy/  audit/                                  planned
+  privacy/  audit/                                             planned
 tests/
-  unit/  contract/  tools/  property/  adapters/  integration/
+  unit/  contract/  tools/  property/  adapters/  integration/  (unit/evidence: assemblers)
   golden/  evals/                                              planned
-  helpers/          wording assertion, fake FHIR server
+  helpers/          wording assertion, fake FHIR server, failing adapter
   personas/         synthetic FHIR bundles, catalog and builder
 scripts/            check, synthetic-data guard, persona build and load, population generator
 docs/
@@ -78,7 +80,8 @@ docs/
 ## Implemented: FHIR access and terminology
 
 ```
- FhirReadPort (read_patient, search)       no write method (standing invariant 4)
+ FhirReadPort (read_patient, search -> SearchResult(resources, warnings))
+                                           no write method (standing invariant 4)
    |-- FixtureFhirAdapter                   in-memory resources or bundle files
    |-- HttpFhirAdapter                      GET only; paging, retries, origin-pinned next links
           |
@@ -89,9 +92,37 @@ docs/
  PatientRecords  ->  ReadResult(records, skipped), optionally filtered by a ValueSet
 ```
 
+- **Search warnings**: a server's OperationOutcome issues of severity warning or worse come back as `SearchWarning` (severity and issue code only; diagnostic text is dropped). Tools report the category as `incomplete`.
 - **Search semantics** (`fhir/search.py`) are shared by every adapter: `since` is FHIR `ge` on each type's clinical date; `updated_since` is `_lastUpdated`; medication searches include referenced `Medication` resources. Both adapters pass one shared behavioural suite (`tests/adapters/shared_suite.py`), and the HTTP adapter also passes it against a live HAPI FHIR server in CI.
 - **Normalization** rules are in [ADR 0007](adr/0007-fhir-modeling.md). Records keep the resource id and version for evidence; they keep no names, identifiers or free text.
 - **Terminology**: value sets (`data/value_sets/`) and instruments (`data/instruments/`) are TOML with per-entry verification provenance. ICD-10-CM `prefix` entries match at the category boundary (`F15` matches `F15.10`, not `F150`); `regex` entries cover families defined by character position, such as the intent character of poisoning codes. Strict loading refuses anything unverified (standing invariant 6).
+
+## Implemented: evidence tools
+
+```
+ tool wrapper (tools/*.py)        validate patient id and as-of date, read the Patient
+   |                              errors: invalid_input | patient_not_found | fhir_unavailable | not_configured
+   v
+ assembler (evidence/*.py)        read only the categories it needs, in parallel;
+   |                              a failed category becomes "failed", never an error
+   v
+ output (models/evidence_outputs.py)
+   patient_id, as_of, is_diagnosis=false, notice, data_completeness[], versions, + tool fields
+```
+
+- **Context** (`tools/context.py`): the FHIR port, the clock and the site code mapping are injected into `create_server`. As a process the server reads `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_FIXTURE_DIR`, and `ADHD_MCP_SITE_CODES` (default `synthetic` for fixtures, no mapping for a FHIR server). Outputs report the mapping in `versions.site_codes` ([ADR 0008](adr/0008-site-codes-and-search-warnings.md)).
+- **As-of date**: every tool reads the record as of a date (default today, never the future); items dated later are ignored. Look-back windows are inclusive at both ends.
+- **Data completeness**: every category read is reported as `available`, `empty`, `incomplete` (server warnings, or resources that could not be read) or `failed`, with record and skipped counts, so an empty record is never mistaken for a clean one.
+- **Record text**: no output carries display text from the record. Labels come from value sets or instrument data, or are omitted.
+- **Site codes** (`data/site_codes/`): local codes with no standard (psychiatric inpatient and residential encounters, high-risk flags, ADHD referrals, evaluations and care plans, screening questionnaires). A concept a site does not map leaves the dependent check "not performed". Only the synthetic site exists.
+- **Clinical definitions are data**: `data/safety_gate.toml`, `data/problem_list.toml`, `data/existing_care.toml`, each versioned and reported in outputs.
+
+| Tool | Behaviour |
+|---|---|
+| `check_safety_gate` | Eleven checks, each found, not found, not performed (with reason) or failed. Status: positive if any check found a current signal; else data_unavailable if one failed; else clear_limited_data if one was not performed, the record is empty or the server warned; else clear. 365-day look-back; undated items count; older items are listed as history. Rule card: [rule_card_safety_gate.md](clinical/rule_card_safety_gate.md) |
+| `get_mh_problem_list` | ICD-10-CM codes grouped into families (value sets), one entry per code citing every Condition; first onset and recorded dates; status of the latest record; onset order with shared ranks for equal dates; other chapter 5 codes in a fallback family |
+| `get_screening_history` | One timeline from observation panels, components and mapped questionnaire responses. Instruments are recognised by code even while unverified (`code_verified`); a cutoff is applied, and its threshold shown, only when code and cutoff are verified. Phase 5 rules must not use entries with `code_verified = false`. Unknown survey instruments are listed, not scored. No item text is returned |
+| `check_existing_care` | Excluded if an ADHD code is recorded, or an ADHD referral, evaluation or care plan is open or was completed within 365 days (dated by completion where known, by authored date for requests). `excluded` is false only if every check ran on complete data; otherwise null. Medication for narcolepsy is a separate finding |
 
 ## Request flow for `assess_referral_need`
 

@@ -5,6 +5,7 @@ There is deliberately no create, update, delete, transaction or operation method
 """
 
 import re
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, Literal, Protocol, get_args
 
@@ -24,6 +25,28 @@ SearchType = Literal[
     "Flag",
 ]
 SEARCHABLE_TYPES: tuple[SearchType, ...] = get_args(SearchType)
+
+#: OperationOutcome issue severities kept as warnings; "information" issues are not problems.
+WARNING_SEVERITIES = frozenset({"fatal", "error", "warning"})
+
+
+@dataclass(frozen=True)
+class SearchWarning:
+    """An OperationOutcome issue returned with a search, for example ``incomplete``,
+    ``suppressed`` or ``too-costly``. Only the severity and issue code are kept; the
+    server's diagnostic text is dropped (it may hold clinical content)."""
+
+    severity: str
+    code: str
+
+
+@dataclass(frozen=True)
+class SearchResult:
+    """Resources found, plus any warnings the server returned with them."""
+
+    resources: list[RawResource]
+    warnings: tuple[SearchWarning, ...] = field(default=())
+
 
 _FHIR_ID = re.compile(r"[A-Za-z0-9\-.]{1,64}")
 
@@ -47,12 +70,14 @@ class FhirReadPort(Protocol):
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
-    ) -> list[RawResource]:
+    ) -> SearchResult:
         """All resources of one type for a patient, following every page.
 
         ``since`` keeps resources whose clinical date ends on or after that day
         (see ``adhd_mcp.fhir.search``). ``updated_since`` filters on ``meta.lastUpdated``.
         Medication searches also return the ``Medication`` resources they reference.
-        Raises ``FhirRequestError`` when the request fails; an empty list means none found.
+        Warnings mean the server may have returned less than everything (truncated,
+        suppressed or withheld results); callers must disclose them.
+        Raises ``FhirRequestError`` when the request fails; no resources means none found.
         """
         ...

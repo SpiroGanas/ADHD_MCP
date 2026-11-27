@@ -3,11 +3,9 @@
 Run: docker compose up -d fhir && uv run pytest -m integration
 """
 
-import os
 from collections.abc import AsyncIterator
 
 import pytest
-from scripts.load_personas import load
 
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.normalize import normalize_many
@@ -15,14 +13,6 @@ from tests.adapters.shared_suite import SharedAdapterSuite
 from tests.personas import persona_ids
 
 pytestmark = pytest.mark.integration
-
-FHIR_URL = os.environ.get("ADHD_MCP_TEST_FHIR_URL", "http://localhost:8080/fhir")
-
-
-@pytest.fixture(scope="session")
-def loaded_server() -> str:
-    load(FHIR_URL)
-    return FHIR_URL
 
 
 @pytest.fixture
@@ -39,5 +29,5 @@ class TestHttpAdapterAgainstLiveServer(SharedAdapterSuite):
 async def test_live_resources_normalize_like_the_fixtures(adapter: HttpFhirAdapter) -> None:
     for persona_id in persona_ids():
         conditions = await adapter.search("Condition", f"{persona_id}-patient")
-        result = normalize_many(conditions)
+        result = normalize_many(conditions.resources)
         assert all(s.reason.value == "excluded_status" for s in result.skipped), persona_id

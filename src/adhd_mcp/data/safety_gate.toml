@@ -1,0 +1,71 @@
+# Safety gate definition. Changing anything here is a clinical content change: it needs the
+# project owner's approval and a rule card update (docs/clinical/rule_card_safety_gate.md).
+# Codes live in the value sets and instruments named here; local codes in data/site_codes/.
+id = "safety_gate"
+version = "0.1.0"
+
+# Owner decision 2026-11-27 (open question 2): coded self-harm signals and screening
+# results count if dated within this many days of the as-of date, inclusive. Undated items
+# count. Older items are listed as history and do not make the gate positive.
+lookback_days = 365
+
+[[condition_checks]]
+id = "suicidal_ideation_code"
+description = "Suicidal ideation code (ICD-10-CM R45.851)"
+value_sets = ["safety.suicidal_ideation"]
+
+[[condition_checks]]
+id = "suicide_attempt_code"
+description = "Suicide attempt or intentional self-harm code (T14.91, X71-X83)"
+value_sets = ["safety.suicide_attempt", "safety.intentional_self_harm_external_cause"]
+
+[[condition_checks]]
+id = "intentional_self_poisoning_code"
+description = "Poisoning by intentional self-harm code (T36-T65, intent character 2)"
+value_sets = ["safety.intentional_self_poisoning"]
+
+[[condition_checks]]
+id = "undetermined_intent_poisoning_code"
+description = "Poisoning of undetermined intent code (T36-T65, intent character 4)"
+value_sets = ["safety.undetermined_intent_poisoning"]
+
+[[condition_checks]]
+# Owner decision 2026-11-27 (open question 8); not in the research report.
+id = "self_harm_asphyxiation_code"
+description = "Asphyxiation by intentional self-harm code (T71.1x2, T71.2x2)"
+value_sets = ["safety.self_harm_asphyxiation"]
+
+[[condition_checks]]
+id = "nonsuicidal_self_harm_code"
+description = "Non-suicidal self-harm code (R45.88)"
+value_sets = ["safety.nonsuicidal_self_harm"]
+
+[[condition_checks]]
+id = "self_harm_history_code"
+description = "Personal history of suicidal behavior or self-harm code (Z91.51, Z91.52)"
+value_sets = ["safety.history_suicidal_behavior", "safety.history_nonsuicidal_self_harm"]
+
+[discharge]
+id = "psychiatric_discharge"
+description = "Psychiatric inpatient or residential discharge within 365 days (within 90 days is highest priority)"
+# Research report, safety gate table (Britton 2017; Luxton 2013).
+recent_days = 90
+lookback_days = 365
+concepts = ["psychiatric_inpatient_encounter", "psychiatric_residential_encounter"]
+
+[phq9_item9]
+id = "phq9_item9"
+description = "PHQ-9 item 9 at or above the cutoff within 365 days"
+instrument = "phq9"
+item = "9"
+cutoff = "item9_positive"
+
+[cssrs]
+id = "cssrs_risk_level"
+description = "C-SSRS screener risk level moderate or high within 365 days"
+instrument = "cssrs_screener"
+
+[flag]
+id = "high_risk_flag"
+description = "Active high-risk-for-suicide flag"
+concept = "high_risk_flag"

@@ -5,12 +5,11 @@ every persona in ``tests/personas``.
 """
 
 from datetime import UTC, date, datetime
-from typing import Any
 
 import pytest
 
 from adhd_mcp.fhir.errors import ResourceNotFoundError
-from adhd_mcp.fhir.port import SEARCHABLE_TYPES, FhirReadPort, SearchType
+from adhd_mcp.fhir.port import SEARCHABLE_TYPES, FhirReadPort, SearchResult, SearchType
 from tests.personas import load_bundle, persona_ids
 
 
@@ -22,9 +21,11 @@ def bundle_ids(persona_id: str, resource_type: str) -> set[str]:
     }
 
 
-def ids(resources: list[dict[str, Any]], resource_type: str | None = None) -> set[str]:
+def ids(result: SearchResult, resource_type: str | None = None) -> set[str]:
     return {
-        r["id"] for r in resources if resource_type is None or r["resourceType"] == resource_type
+        r["id"]
+        for r in result.resources
+        if resource_type is None or r["resourceType"] == resource_type
     }
 
 
@@ -67,7 +68,7 @@ class SharedAdapterSuite:
         self, adapter: FhirReadPort
     ) -> None:
         found = await adapter.search("Condition", "p02-patient")
-        assert {r["resourceType"] for r in found} == {"Condition"}
+        assert {r["resourceType"] for r in found.resources} == {"Condition"}
 
     async def test_since_filters_on_the_clinical_date_inclusive(
         self, adapter: FhirReadPort
@@ -88,7 +89,9 @@ class SharedAdapterSuite:
     async def test_since_on_observations(self, adapter: FhirReadPort) -> None:
         found = await adapter.search("Observation", "p10-patient", since=date(2026, 1, 1))
         assert ids(found) == {"p10-obs-1", "p10-obs-2"}
-        assert await adapter.search("Observation", "p10-patient", since=date(2026, 5, 1)) == []
+        assert (
+            await adapter.search("Observation", "p10-patient", since=date(2026, 5, 1))
+        ).resources == []
 
     async def test_since_on_medication_dispenses_keeps_medications(
         self, adapter: FhirReadPort
@@ -103,8 +106,14 @@ class SharedAdapterSuite:
         assert ids(await adapter.search("Condition", "p01-patient", updated_since=past)) == (
             bundle_ids("p01", "Condition")
         )
-        assert await adapter.search("Condition", "p01-patient", updated_since=future) == []
+        assert (
+            await adapter.search("Condition", "p01-patient", updated_since=future)
+        ).resources == []
 
     async def test_empty_record_returns_nothing(self, adapter: FhirReadPort) -> None:
         for resource_type in SEARCHABLE_TYPES:
-            assert await adapter.search(resource_type, "p07-patient") == []
+            assert await adapter.search(resource_type, "p07-patient") == SearchResult(resources=[])
+
+    async def test_persona_searches_carry_no_warnings(self, adapter: FhirReadPort) -> None:
+        for resource_type in SEARCHABLE_TYPES:
+            assert (await adapter.search(resource_type, "p01-patient")).warnings == ()

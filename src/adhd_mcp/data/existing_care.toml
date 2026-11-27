@@ -1,0 +1,21 @@
+# Exclusions checked by check_existing_care. Changing anything here is a clinical content
+# change. Local codes for referrals, evaluations and care plans are in data/site_codes/.
+id = "existing_care"
+version = "0.1.0"
+
+# Any recorded ADHD code (any clinical status; refuted and entered-in-error never count),
+# on a Condition or as a medication's reason, means the patient is already in care.
+diagnosis_value_set = "care.adhd_diagnosis"
+
+# A ServiceRequest counts as an ADHD referral or evaluation if the site maps its code as one,
+# or its reason is an ADHD or attention-symptom code.
+referral_reason_value_sets = ["care.adhd_diagnosis", "symptom.attention_executive"]
+
+# Owner decision 2026-11-27: an open referral, evaluation or care plan excludes; a completed
+# one excludes for this many days after its date; revoked or older ones are reported only.
+# "in-progress" is the open status of a Procedure.
+open_statuses = ["draft", "active", "on-hold", "in-progress"]
+completed_window_days = 365
+
+# Reported separately, never as an exclusion.
+narcolepsy_value_set = "care.narcolepsy"

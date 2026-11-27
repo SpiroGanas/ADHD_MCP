@@ -52,4 +52,4 @@ async def test_population_loads_into_the_fixture_adapter(tmp_path: Path) -> None
     adapter = FixtureFhirAdapter.from_directory(tmp_path)
     patient = await adapter.read_patient("g00001-patient")
     assert patient["resourceType"] == "Patient"
-    assert await adapter.search("Encounter", "g00001-patient")
+    assert (await adapter.search("Encounter", "g00001-patient")).resources

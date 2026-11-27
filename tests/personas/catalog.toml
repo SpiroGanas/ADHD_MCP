@@ -3,6 +3,12 @@
 # decides it has not been built yet. All personas are synthetic.
 #
 # safety_gate: positive | clear | clear_limited_data      (Phase 3)
+#   The expected gate with the content that is active today. LOINC codes are unverified
+#   (follow-up F2), so the PHQ-9 item 9 and C-SSRS checks are not performed and no gate can
+#   be plain "clear" yet (owner decision 2026-11-27).
+# safety_gate_all_checks_active: the expected gate once every check's content is verified.
+#   "clear_limited_data" then means an empty record.
+# safety_gate_found: check ids expected to find a signal (positive gates only).
 # existing_care: none | excluded_adhd_diagnosis           (Phase 3)
 # recommendation: pending until the Phase 5 ruleset       (Phase 5)
 
@@ -12,7 +18,8 @@ as_of = "2026-06-15"
 id = "p01"
 title = "Clear ADHD-signal case"
 narrative = "Man in his thirties with a stimulant abuse code, an alcohol abuse code, three emergency visits for accidental injuries in two years (one as a car driver in a traffic crash), insomnia and unemployment. PHQ-9 item 9 is 0. No ADHD code."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "pending"
 notes = "Expected to trigger a referral suggestion once the Phase 5 ruleset exists."
@@ -21,7 +28,8 @@ notes = "Expected to trigger a referral suggestion once the Phase 5 ruleset exis
 id = "p02"
 title = "Female presentation with depression and anxiety"
 narrative = "Woman in her late twenties with recurrent depression since 2018, generalized anxiety, insomnia, an attention and concentration deficit code, and five different antidepressants over six years. PHQ-9 recorded as a QuestionnaireResponse (item 9 is 0). AUDIT-C 3 (at the female cutoff in the research)."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "pending"
 notes = "Tests the questionnaire form of PHQ-9 and the under-flagging risk for women."
@@ -31,6 +39,9 @@ id = "p03"
 title = "Safety gate case"
 narrative = "Man in his forties discharged from a psychiatric inpatient stay 66 days before the as-of date, admitted for suicidal ideation; PHQ-9 item 9 of 2 and a high C-SSRS risk level in May 2026; a high-risk flag. Also a stimulant dependence code."
 safety_gate = "positive"
+safety_gate_all_checks_active = "positive"
+safety_gate_found = ["suicidal_ideation_code", "psychiatric_discharge", "high_risk_flag"]
+safety_gate_found_all_checks_active = ["suicidal_ideation_code", "psychiatric_discharge", "phq9_item9", "cssrs_risk_level", "high_risk_flag"]
 existing_care = "none"
 recommendation = "address_safety_gate_first"
 notes = "The positive gate must come first and withhold any ADHD referral suggestion."
@@ -39,7 +50,8 @@ notes = "The positive gate must come first and withhold any ADHD referral sugges
 id = "p04"
 title = "Already diagnosed"
 narrative = "Man in his thirties with an ADHD code since 2021 and current methylphenidate fills; also an older alcohol abuse code."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "excluded_adhd_diagnosis"
 recommendation = "already_in_care"
 
@@ -47,7 +59,8 @@ recommendation = "already_in_care"
 id = "p05"
 title = "TBI look-alike"
 narrative = "Man in his late thirties with a concussion in 2024, personal history of TBI, attention complaints and insomnia."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "pending"
 notes = "Phase 5 adds a note suggesting neuropsychological evaluation for TBI overlap."
@@ -56,7 +69,8 @@ notes = "Phase 5 adds a note suggesting neuropsychological evaluation for TBI ov
 id = "p06"
 title = "Narcolepsy stimulant case"
 narrative = "Woman in her thirties with narcolepsy without cataplexy, filling amphetamine monthly with narcolepsy as the reason."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "pending"
 notes = "Stimulant use for narcolepsy is a separate finding, never an ADHD stimulant signal."
@@ -66,6 +80,7 @@ id = "p07"
 title = "Empty record"
 narrative = "A patient resource and nothing else; birth year only, gender unknown."
 safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear_limited_data"
 existing_care = "none"
 recommendation = "insufficient_data"
 
@@ -74,14 +89,17 @@ id = "p08"
 title = "Sparse record"
 narrative = "Woman in her forties with one primary care visit and a hypertension code."
 safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "pending"
+notes = "Phase 3 defines limited data as an empty record, so once every check is active this sparse record gets a plain clear gate (the 2026-11-26 draft expected clear_limited_data)."
 
 [[personas]]
 id = "p09"
 title = "Conflicting data"
 narrative = "Man in his forties with PTSD coded at two encounters, a stimulant abuse code entered in error, an ADHD code that was refuted, a resolved depression code, a PHQ-9 total entered in error beside a corrected one, and an ADHD evaluation referral revoked in 2019."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "pending"
 notes = "Entered-in-error items and the refuted ADHD code must not count; the old revoked referral does not exclude."
@@ -90,6 +108,7 @@ notes = "Entered-in-error items and the refuted ADHD code must not count; the ol
 id = "p10"
 title = "Healthy control"
 narrative = "Woman in her forties with three annual visits, PHQ-2 of 0 and AUDIT-C of 1."
-safety_gate = "clear"
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
 existing_care = "none"
 recommendation = "no_recommendation"

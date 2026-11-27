@@ -1,7 +1,7 @@
 id = "injury.injury_codes"
 version = "0.1.0"
 title = "Injury codes (S00-T34, excluding suicide attempt)"
-description = "Injuries proper: S00-S99, T07, T14 except T14.91 (suicide attempt), T15-T34. Accidental intent comes from the external cause value set. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+description = "Injuries proper: S00-S99, T07, T14 except T14.91 (suicide attempt), T15-T34. Accidental intent comes from the external cause value set."
 
 [[entries]]
 system = "http://hl7.org/fhir/sid/icd-10-cm"
@@ -9,9 +9,9 @@ match = "prefix"
 code = "S00"
 display = "Superficial injury of head"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -20,9 +20,9 @@ match = "prefix"
 code = "S01"
 display = "Open wound of head"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -31,9 +31,9 @@ match = "prefix"
 code = "S02"
 display = "Fracture of skull and facial bones"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -42,9 +42,9 @@ match = "prefix"
 code = "S03"
 display = "Dislocation and sprain of joints and ligaments of head"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -53,9 +53,9 @@ match = "prefix"
 code = "S04"
 display = "Injury of cranial nerve"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -64,9 +64,9 @@ match = "prefix"
 code = "S05"
 display = "Injury of eye and orbit"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -75,9 +75,9 @@ match = "prefix"
 code = "S06"
 display = "Intracranial injury"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -86,9 +86,9 @@ match = "prefix"
 code = "S07"
 display = "Crushing injury of head"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -97,9 +97,9 @@ match = "prefix"
 code = "S08"
 display = "Avulsion and traumatic amputation of part of head"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -108,9 +108,9 @@ match = "prefix"
 code = "S09"
 display = "Other and unspecified injuries of head"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -119,9 +119,9 @@ match = "prefix"
 code = "S10"
 display = "Superficial injury of neck"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -130,9 +130,9 @@ match = "prefix"
 code = "S11"
 display = "Open wound of neck"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -141,9 +141,9 @@ match = "prefix"
 code = "S12"
 display = "Fracture of cervical vertebra and other parts of neck"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -152,9 +152,9 @@ match = "prefix"
 code = "S13"
 display = "Dislocation and sprain of joints and ligaments at neck level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -163,9 +163,9 @@ match = "prefix"
 code = "S14"
 display = "Injury of nerves and spinal cord at neck level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -174,9 +174,9 @@ match = "prefix"
 code = "S15"
 display = "Injury of blood vessels at neck level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -185,9 +185,9 @@ match = "prefix"
 code = "S16"
 display = "Injury of muscle, fascia and tendon at neck level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -196,9 +196,9 @@ match = "prefix"
 code = "S17"
 display = "Crushing injury of neck"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -207,9 +207,9 @@ match = "prefix"
 code = "S19"
 display = "Other specified and unspecified injuries of neck"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -218,9 +218,9 @@ match = "prefix"
 code = "S20"
 display = "Superficial injury of thorax"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -229,9 +229,9 @@ match = "prefix"
 code = "S21"
 display = "Open wound of thorax"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -240,9 +240,9 @@ match = "prefix"
 code = "S22"
 display = "Fracture of rib(s), sternum and thoracic spine"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -251,9 +251,9 @@ match = "prefix"
 code = "S23"
 display = "Dislocation and sprain of joints and ligaments of thorax"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -262,9 +262,9 @@ match = "prefix"
 code = "S24"
 display = "Injury of nerves and spinal cord at thorax level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -273,9 +273,9 @@ match = "prefix"
 code = "S25"
 display = "Injury of blood vessels of thorax"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -284,9 +284,9 @@ match = "prefix"
 code = "S26"
 display = "Injury of heart"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -295,9 +295,9 @@ match = "prefix"
 code = "S27"
 display = "Injury of other and unspecified intrathoracic organs"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -306,9 +306,9 @@ match = "prefix"
 code = "S28"
 display = "Crushing injury of thorax, and traumatic amputation of part of thorax"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -317,9 +317,9 @@ match = "prefix"
 code = "S29"
 display = "Other and unspecified injuries of thorax"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -328,9 +328,9 @@ match = "prefix"
 code = "S30"
 display = "Superficial injury of abdomen, lower back, pelvis and external genitals"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -339,9 +339,9 @@ match = "prefix"
 code = "S31"
 display = "Open wound of abdomen, lower back, pelvis and external genitals"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -350,9 +350,9 @@ match = "prefix"
 code = "S32"
 display = "Fracture of lumbar spine and pelvis"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -361,9 +361,9 @@ match = "prefix"
 code = "S33"
 display = "Dislocation and sprain of joints and ligaments of lumbar spine and pelvis"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -372,9 +372,9 @@ match = "prefix"
 code = "S34"
 display = "Injury of lumbar and sacral spinal cord and nerves at abdomen, lower back and pelvis level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -383,9 +383,9 @@ match = "prefix"
 code = "S35"
 display = "Injury of blood vessels at abdomen, lower back and pelvis level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -394,9 +394,9 @@ match = "prefix"
 code = "S36"
 display = "Injury of intra-abdominal organs"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -405,9 +405,9 @@ match = "prefix"
 code = "S37"
 display = "Injury of urinary and pelvic organs"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -416,9 +416,9 @@ match = "prefix"
 code = "S38"
 display = "Crushing injury and traumatic amputation of abdomen, lower back, pelvis and external genitals"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -427,9 +427,9 @@ match = "prefix"
 code = "S39"
 display = "Other and unspecified injuries of abdomen, lower back, pelvis and external genitals"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -438,9 +438,9 @@ match = "prefix"
 code = "S40"
 display = "Superficial injury of shoulder and upper arm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -449,9 +449,9 @@ match = "prefix"
 code = "S41"
 display = "Open wound of shoulder and upper arm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -460,9 +460,9 @@ match = "prefix"
 code = "S42"
 display = "Fracture of shoulder and upper arm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -471,9 +471,9 @@ match = "prefix"
 code = "S43"
 display = "Dislocation and sprain of joints and ligaments of shoulder girdle"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -482,9 +482,9 @@ match = "prefix"
 code = "S44"
 display = "Injury of nerves at shoulder and upper arm level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -493,9 +493,9 @@ match = "prefix"
 code = "S45"
 display = "Injury of blood vessels at shoulder and upper arm level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -504,9 +504,9 @@ match = "prefix"
 code = "S46"
 display = "Injury of muscle, fascia and tendon at shoulder and upper arm level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -515,9 +515,9 @@ match = "prefix"
 code = "S47"
 display = "Crushing injury of shoulder and upper arm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -526,9 +526,9 @@ match = "prefix"
 code = "S48"
 display = "Traumatic amputation of shoulder and upper arm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -537,9 +537,9 @@ match = "prefix"
 code = "S49"
 display = "Other and unspecified injuries of shoulder and upper arm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -548,9 +548,9 @@ match = "prefix"
 code = "S50"
 display = "Superficial injury of elbow and forearm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -559,9 +559,9 @@ match = "prefix"
 code = "S51"
 display = "Open wound of elbow and forearm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -570,9 +570,9 @@ match = "prefix"
 code = "S52"
 display = "Fracture of forearm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -581,9 +581,9 @@ match = "prefix"
 code = "S53"
 display = "Dislocation and sprain of joints and ligaments of elbow"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -592,9 +592,9 @@ match = "prefix"
 code = "S54"
 display = "Injury of nerves at forearm level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -603,9 +603,9 @@ match = "prefix"
 code = "S55"
 display = "Injury of blood vessels at forearm level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -614,9 +614,9 @@ match = "prefix"
 code = "S56"
 display = "Injury of muscle, fascia and tendon at forearm level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -625,9 +625,9 @@ match = "prefix"
 code = "S57"
 display = "Crushing injury of elbow and forearm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -636,9 +636,9 @@ match = "prefix"
 code = "S58"
 display = "Traumatic amputation of elbow and forearm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -647,9 +647,9 @@ match = "prefix"
 code = "S59"
 display = "Other and unspecified injuries of elbow and forearm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -658,9 +658,9 @@ match = "prefix"
 code = "S60"
 display = "Superficial injury of wrist, hand and fingers"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -669,9 +669,9 @@ match = "prefix"
 code = "S61"
 display = "Open wound of wrist, hand and fingers"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -680,9 +680,9 @@ match = "prefix"
 code = "S62"
 display = "Fracture at wrist and hand level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -691,9 +691,9 @@ match = "prefix"
 code = "S63"
 display = "Dislocation and sprain of joints and ligaments at wrist and hand level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -702,9 +702,9 @@ match = "prefix"
 code = "S64"
 display = "Injury of nerves at wrist and hand level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -713,9 +713,9 @@ match = "prefix"
 code = "S65"
 display = "Injury of blood vessels at wrist and hand level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -724,9 +724,9 @@ match = "prefix"
 code = "S66"
 display = "Injury of muscle, fascia and tendon at wrist and hand level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -735,9 +735,9 @@ match = "prefix"
 code = "S67"
 display = "Crushing injury of wrist, hand and fingers"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -746,9 +746,9 @@ match = "prefix"
 code = "S68"
 display = "Traumatic amputation of wrist, hand and fingers"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -757,9 +757,9 @@ match = "prefix"
 code = "S69"
 display = "Other and unspecified injuries of wrist, hand and finger(s)"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -768,9 +768,9 @@ match = "prefix"
 code = "S70"
 display = "Superficial injury of hip and thigh"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -779,9 +779,9 @@ match = "prefix"
 code = "S71"
 display = "Open wound of hip and thigh"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -790,9 +790,9 @@ match = "prefix"
 code = "S72"
 display = "Fracture of femur"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -801,9 +801,9 @@ match = "prefix"
 code = "S73"
 display = "Dislocation and sprain of joint and ligaments of hip"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -812,9 +812,9 @@ match = "prefix"
 code = "S74"
 display = "Injury of nerves at hip and thigh level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -823,9 +823,9 @@ match = "prefix"
 code = "S75"
 display = "Injury of blood vessels at hip and thigh level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -834,9 +834,9 @@ match = "prefix"
 code = "S76"
 display = "Injury of muscle, fascia and tendon at hip and thigh level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -845,9 +845,9 @@ match = "prefix"
 code = "S77"
 display = "Crushing injury of hip and thigh"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -856,9 +856,9 @@ match = "prefix"
 code = "S78"
 display = "Traumatic amputation of hip and thigh"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -867,9 +867,9 @@ match = "prefix"
 code = "S79"
 display = "Other and unspecified injuries of hip and thigh"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -878,9 +878,9 @@ match = "prefix"
 code = "S80"
 display = "Superficial injury of knee and lower leg"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -889,9 +889,9 @@ match = "prefix"
 code = "S81"
 display = "Open wound of knee and lower leg"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -900,9 +900,9 @@ match = "prefix"
 code = "S82"
 display = "Fracture of lower leg, including ankle"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -911,9 +911,9 @@ match = "prefix"
 code = "S83"
 display = "Dislocation and sprain of joints and ligaments of knee"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -922,9 +922,9 @@ match = "prefix"
 code = "S84"
 display = "Injury of nerves at lower leg level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -933,9 +933,9 @@ match = "prefix"
 code = "S85"
 display = "Injury of blood vessels at lower leg level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -944,9 +944,9 @@ match = "prefix"
 code = "S86"
 display = "Injury of muscle, fascia and tendon at lower leg level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -955,9 +955,9 @@ match = "prefix"
 code = "S87"
 display = "Crushing injury of lower leg"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -966,9 +966,9 @@ match = "prefix"
 code = "S88"
 display = "Traumatic amputation of lower leg"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -977,9 +977,9 @@ match = "prefix"
 code = "S89"
 display = "Other and unspecified injuries of lower leg"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -988,9 +988,9 @@ match = "prefix"
 code = "S90"
 display = "Superficial injury of ankle, foot and toes"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -999,9 +999,9 @@ match = "prefix"
 code = "S91"
 display = "Open wound of ankle, foot and toes"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1010,9 +1010,9 @@ match = "prefix"
 code = "S92"
 display = "Fracture of foot and toe, except ankle"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1021,9 +1021,9 @@ match = "prefix"
 code = "S93"
 display = "Dislocation and sprain of joints and ligaments at ankle, foot and toe level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1032,9 +1032,9 @@ match = "prefix"
 code = "S94"
 display = "Injury of nerves at ankle and foot level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1043,9 +1043,9 @@ match = "prefix"
 code = "S95"
 display = "Injury of blood vessels at ankle and foot level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1054,9 +1054,9 @@ match = "prefix"
 code = "S96"
 display = "Injury of muscle and tendon at ankle and foot level"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1065,9 +1065,9 @@ match = "prefix"
 code = "S97"
 display = "Crushing injury of ankle and foot"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1076,9 +1076,9 @@ match = "prefix"
 code = "S98"
 display = "Traumatic amputation of ankle and foot"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1087,9 +1087,9 @@ match = "prefix"
 code = "S99"
 display = "Other and unspecified injuries of ankle and foot"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1098,9 +1098,9 @@ match = "prefix"
 code = "T07"
 display = "Unspecified multiple injuries"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1109,9 +1109,9 @@ match = "prefix"
 code = "T14.8"
 display = "Other injury of unspecified body region"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1120,9 +1120,9 @@ match = "prefix"
 code = "T14.90"
 display = "Injury, unspecified"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1131,9 +1131,9 @@ match = "prefix"
 code = "T15"
 display = "Foreign body on external eye"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1142,9 +1142,9 @@ match = "prefix"
 code = "T16"
 display = "Foreign body in ear"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1153,9 +1153,9 @@ match = "prefix"
 code = "T17"
 display = "Foreign body in respiratory tract"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1164,9 +1164,9 @@ match = "prefix"
 code = "T18"
 display = "Foreign body in alimentary tract"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1175,9 +1175,9 @@ match = "prefix"
 code = "T19"
 display = "Foreign body in genitourinary tract"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1186,9 +1186,9 @@ match = "prefix"
 code = "T20"
 display = "Burn and corrosion of head, face, and neck"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1197,9 +1197,9 @@ match = "prefix"
 code = "T21"
 display = "Burn and corrosion of trunk"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1208,9 +1208,9 @@ match = "prefix"
 code = "T22"
 display = "Burn and corrosion of shoulder and upper limb, except wrist and hand"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1219,9 +1219,9 @@ match = "prefix"
 code = "T23"
 display = "Burn and corrosion of wrist and hand"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1230,9 +1230,9 @@ match = "prefix"
 code = "T24"
 display = "Burn and corrosion of lower limb, except ankle and foot"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1241,9 +1241,9 @@ match = "prefix"
 code = "T25"
 display = "Burn and corrosion of ankle and foot"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1252,9 +1252,9 @@ match = "prefix"
 code = "T26"
 display = "Burn and corrosion confined to eye and adnexa"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1263,9 +1263,9 @@ match = "prefix"
 code = "T27"
 display = "Burn and corrosion of respiratory tract"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1274,9 +1274,9 @@ match = "prefix"
 code = "T28"
 display = "Burn and corrosion of other internal organs"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1285,9 +1285,9 @@ match = "prefix"
 code = "T30"
 display = "Burn and corrosion, body region unspecified"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1296,9 +1296,9 @@ match = "prefix"
 code = "T31"
 display = "Burns classified according to extent of body surface involved"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1307,9 +1307,9 @@ match = "prefix"
 code = "T32"
 display = "Corrosions classified according to extent of body surface involved"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1318,9 +1318,9 @@ match = "prefix"
 code = "T33"
 display = "Superficial frostbite"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -1329,7 +1329,7 @@ match = "prefix"
 code = "T34"
 display = "Frostbite with tissue necrosis"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

@@ -97,6 +97,7 @@ class MedicationRecord(_Record):
     date: DateRange | None
     days_supply: float | None
     quantity: float | None
+    reason_codes: tuple[Coding, ...] = ()
 
 
 class EncounterRecord(_Record):

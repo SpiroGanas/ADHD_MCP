@@ -1,7 +1,7 @@
 id = "safety.self_harm_asphyxiation"
 version = "0.1.0"
 title = "Asphyxiation, intentional self-harm (T71)"
-description = "Found during verification; not in the research report. Whether the safety gate uses it is an open question for the project owner. FY2027 addenda not yet checked directly; secondary summaries report no change in scope."
+description = "Found during verification; not in the research report. Used by the safety gate (project owner decision 2026-11-27)."
 
 [[entries]]
 system = "http://hl7.org/fhir/sid/icd-10-cm"
@@ -9,9 +9,9 @@ match = "prefix"
 code = "T71.112"
 display = "Asphyxiation due to smothering under pillow, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -20,9 +20,9 @@ match = "prefix"
 code = "T71.122"
 display = "Asphyxiation due to plastic bag, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -31,9 +31,9 @@ match = "prefix"
 code = "T71.132"
 display = "Asphyxiation due to being trapped in bed linens, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -42,9 +42,9 @@ match = "prefix"
 code = "T71.152"
 display = "Asphyxiation due to smothering in furniture, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -53,9 +53,9 @@ match = "prefix"
 code = "T71.162"
 display = "Asphyxiation due to hanging, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -64,9 +64,9 @@ match = "prefix"
 code = "T71.192"
 display = "Asphyxiation due to mechanical threat to breathing due to other causes, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -75,9 +75,9 @@ match = "prefix"
 code = "T71.222"
 display = "Asphyxiation due to being trapped in a car trunk, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
 
 [[entries]]
@@ -86,7 +86,7 @@ match = "prefix"
 code = "T71.232"
 display = "Asphyxiation due to being trapped in a (discarded) refrigerator, intentional self-harm"
 verified = true
-source = "CMS/NCHS ICD-10-CM Tabular List icd10c-tabular-April-1-2026.xml, as redistributed in the PyPI package simple-icd-10-cm 1.5.0 (sha256 f161f818...2935; not yet compared with a CMS/NCHS download); checked with scripts/verify_icd10cm_value_sets.py"
-source_version = "FY2026, April 1 2026 update"
-checked_on = "2026-11-26"
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py. Also passed against the FY2026 April 1 2026 tabular"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
 checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"

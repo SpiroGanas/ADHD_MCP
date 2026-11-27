@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from adhd_mcp.models.domain import (
+    CheckOutcome,
     DataCompleteness,
     DataStatus,
     EvidenceItem,
@@ -11,6 +12,7 @@ from adhd_mcp.models.domain import (
     Recommendation,
     RecommendationCode,
     ResourceRef,
+    SafetyCheck,
     SafetyGateResult,
     SafetyGateStatus,
     Versions,
@@ -31,8 +33,23 @@ def evidence(**overrides: object) -> EvidenceItem:
     return EvidenceItem.model_validate(fields)
 
 
+def check(outcome: CheckOutcome, check_id: str = "suicidal_ideation") -> SafetyCheck:
+    reason = None if outcome in {CheckOutcome.FOUND, CheckOutcome.NOT_FOUND} else "why"
+    return SafetyCheck(id=check_id, description="d", outcome=outcome, reason=reason)
+
+
+GATE_CHECKS = {
+    SafetyGateStatus.POSITIVE: [check(CheckOutcome.FOUND)],
+    SafetyGateStatus.CLEAR: [check(CheckOutcome.NOT_FOUND)],
+    SafetyGateStatus.CLEAR_LIMITED_DATA: [check(CheckOutcome.NOT_PERFORMED)],
+    SafetyGateStatus.DATA_UNAVAILABLE: [check(CheckOutcome.FAILED)],
+}
+
+
 def clear_gate() -> SafetyGateResult:
-    return SafetyGateResult(status=SafetyGateStatus.CLEAR, checks_performed=["self-harm codes"])
+    return SafetyGateResult(
+        status=SafetyGateStatus.CLEAR, checks=GATE_CHECKS[SafetyGateStatus.CLEAR]
+    )
 
 
 def test_evidence_item_with_a_reference_is_valid() -> None:
@@ -63,14 +80,19 @@ def test_models_are_immutable() -> None:
 
 def test_positive_safety_gate_requires_evidence() -> None:
     with pytest.raises(ValidationError, match="evidence"):
-        SafetyGateResult(status=SafetyGateStatus.POSITIVE, checks_performed=["self-harm codes"])
+        SafetyGateResult(
+            status=SafetyGateStatus.POSITIVE,
+            checks=GATE_CHECKS[SafetyGateStatus.POSITIVE],
+            guidance="g",
+        )
 
 
 def test_positive_safety_gate_with_evidence_is_valid() -> None:
     gate = SafetyGateResult(
         status=SafetyGateStatus.POSITIVE,
-        checks_performed=["self-harm codes"],
+        checks=GATE_CHECKS[SafetyGateStatus.POSITIVE],
         evidence=[evidence(signal="suicidal_ideation", weight_class=None)],
+        guidance="g",
     )
     assert gate.status is SafetyGateStatus.POSITIVE
 
@@ -92,7 +114,9 @@ def test_recommendation_is_never_a_diagnosis() -> None:
         condition_to_screen="adult ADHD",
         safety_gate=clear_gate(),
         basis=[evidence()],
-        exclusions_checked=[ExclusionCheck(check="existing ADHD diagnosis", found=False)],
+        exclusions_checked=[
+            ExclusionCheck(check="adhd_diagnosis_code", outcome=CheckOutcome.NOT_FOUND)
+        ],
         data_completeness=[DataCompleteness(category="Condition", status=DataStatus.AVAILABLE)],
         versions=Versions(server="0.1.0", tool_contract="0.1.0", ruleset="1.0.0"),
     )
@@ -113,15 +137,17 @@ def test_recommendation_vocabulary_is_fixed() -> None:
 
 def test_exclusion_found_requires_references() -> None:
     with pytest.raises(ValidationError, match="references"):
-        ExclusionCheck(check="existing ADHD diagnosis", found=True)
+        ExclusionCheck(check="adhd_diagnosis_code", outcome=CheckOutcome.FOUND)
 
 
 def gate(status: SafetyGateStatus) -> SafetyGateResult:
     evidence_items = [evidence(signal="suicidal_ideation", weight_class=None)]
+    positive = status is SafetyGateStatus.POSITIVE
     return SafetyGateResult(
         status=status,
-        checks_performed=["self-harm codes"],
-        evidence=evidence_items if status is SafetyGateStatus.POSITIVE else [],
+        checks=GATE_CHECKS[status],
+        evidence=evidence_items if positive else [],
+        guidance="g" if positive else None,
     )
 
 
@@ -177,3 +203,86 @@ def test_safety_gate_is_serialised_before_the_recommendation() -> None:
     rec = recommendation(RecommendationCode.CONSIDER_REFERRAL, SafetyGateStatus.CLEAR)
     keys = list(rec.model_dump())
     assert keys.index("safety_gate") < keys.index("recommendation")
+
+
+@pytest.mark.parametrize(
+    ("status", "outcomes", "valid"),
+    [
+        (SafetyGateStatus.CLEAR, [CheckOutcome.NOT_FOUND, CheckOutcome.NOT_FOUND], True),
+        (SafetyGateStatus.CLEAR, [CheckOutcome.NOT_FOUND, CheckOutcome.NOT_PERFORMED], False),
+        (SafetyGateStatus.CLEAR, [CheckOutcome.NOT_FOUND, CheckOutcome.FAILED], False),
+        (SafetyGateStatus.CLEAR_LIMITED_DATA, [CheckOutcome.NOT_FOUND], True),
+        (SafetyGateStatus.CLEAR_LIMITED_DATA, [CheckOutcome.NOT_PERFORMED], True),
+        (SafetyGateStatus.CLEAR_LIMITED_DATA, [CheckOutcome.FAILED], False),
+        (SafetyGateStatus.CLEAR_LIMITED_DATA, [CheckOutcome.FOUND], False),
+        (SafetyGateStatus.DATA_UNAVAILABLE, [CheckOutcome.FAILED, CheckOutcome.NOT_FOUND], True),
+        (SafetyGateStatus.DATA_UNAVAILABLE, [CheckOutcome.NOT_FOUND], False),
+        (SafetyGateStatus.DATA_UNAVAILABLE, [CheckOutcome.FAILED, CheckOutcome.FOUND], False),
+        (SafetyGateStatus.POSITIVE, [CheckOutcome.FOUND, CheckOutcome.FAILED], True),
+        (SafetyGateStatus.POSITIVE, [CheckOutcome.NOT_FOUND], False),
+    ],
+)
+def test_gate_status_must_agree_with_check_outcomes(
+    status: SafetyGateStatus, outcomes: list[CheckOutcome], valid: bool
+) -> None:
+    positive = status is SafetyGateStatus.POSITIVE
+    fields: dict[str, object] = {
+        "status": status,
+        "checks": [check(o, f"c{i}") for i, o in enumerate(outcomes)],
+        "evidence": [evidence(signal="c0", weight_class=None)] if positive else [],
+        "guidance": "g" if positive else None,
+    }
+    if valid:
+        assert SafetyGateResult.model_validate(fields).status is status
+    else:
+        with pytest.raises(ValidationError):
+            SafetyGateResult.model_validate(fields)
+
+
+def test_gate_needs_at_least_one_check() -> None:
+    with pytest.raises(ValidationError):
+        SafetyGateResult(status=SafetyGateStatus.CLEAR_LIMITED_DATA, checks=[])
+
+
+def test_guidance_is_given_exactly_when_positive() -> None:
+    with pytest.raises(ValidationError, match="guidance"):
+        SafetyGateResult(
+            status=SafetyGateStatus.POSITIVE,
+            checks=GATE_CHECKS[SafetyGateStatus.POSITIVE],
+            evidence=[evidence(signal="suicidal_ideation", weight_class=None)],
+        )
+    with pytest.raises(ValidationError, match="guidance"):
+        SafetyGateResult(
+            status=SafetyGateStatus.CLEAR,
+            checks=GATE_CHECKS[SafetyGateStatus.CLEAR],
+            guidance="g",
+        )
+
+
+def test_a_check_not_performed_or_failed_must_say_why() -> None:
+    for outcome in (CheckOutcome.NOT_PERFORMED, CheckOutcome.FAILED):
+        with pytest.raises(ValidationError, match="reason"):
+            SafetyCheck(id="x", description="d", outcome=outcome)
+
+
+def test_check_ids_are_unique() -> None:
+    with pytest.raises(ValidationError, match="unique"):
+        SafetyGateResult(
+            status=SafetyGateStatus.CLEAR,
+            checks=[check(CheckOutcome.NOT_FOUND), check(CheckOutcome.NOT_FOUND)],
+        )
+
+
+def test_incomplete_data_status_exists() -> None:
+    note = DataCompleteness(
+        category="Flag", status=DataStatus.INCOMPLETE, records=2, warnings=["suppressed"]
+    )
+    assert note.status == "incomplete"
+
+
+def test_exclusion_not_performed_or_failed_must_say_why() -> None:
+    for outcome in (CheckOutcome.NOT_PERFORMED, CheckOutcome.FAILED):
+        with pytest.raises(ValidationError, match="reason"):
+            ExclusionCheck(check="adhd_care_plan", outcome=outcome)
+    check = ExclusionCheck(check="adhd_care_plan", outcome=CheckOutcome.FAILED, reason="r")
+    assert check.found is False

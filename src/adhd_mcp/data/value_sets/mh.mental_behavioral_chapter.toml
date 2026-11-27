@@ -1,0 +1,16 @@
+id = "mh.mental_behavioral_chapter"
+version = "0.1.0"
+title = "Mental, behavioral and neurodevelopmental disorders (ICD-10-CM chapter 5, F01-F99)"
+description = "Problem list fallback family: chapter 5 codes not in a more specific family. Not used by any rule."
+
+[[entries]]
+system = "http://hl7.org/fhir/sid/icd-10-cm"
+match = "regex"
+code = "F[0-9][0-9A-Z](\\.[0-9A-Z]{1,4})?"
+display = "Any code in chapter 5 (F01-F99)"
+verified = true
+source = "CDC/NCHS ICD-10-CM Tabular List icd10cm-tabular_-2027.xml from ftp.cdc.gov (icd10cm-table-and-index-2027.zip; sha256 d778c97a...4b2a); checked with scripts/verify_icd10cm_value_sets.py"
+source_version = "FY2027 (effective 2026-10-01)"
+checked_on = "2026-11-27"
+checked_by = "Claude Code agent, delegated by the project owner on 2026-11-26"
+note = "Chapter 5 is exactly the F codes; the check confirms the regex matches every F leaf code and nothing else."
