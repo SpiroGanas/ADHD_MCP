@@ -12,7 +12,8 @@ Set one. With neither, every patient tool returns a `not_configured` error.
 | `ADHD_MCP_FHIR_BASE_URL` | A FHIR R4 server. The server only issues GET requests to it. Wins over `ADHD_MCP_FIXTURE_DIR` |
 | `ADHD_MCP_SCORER` | `rules-only` (default) or `dummy`. The dummy scorer is not a model: it always reports a score of 0.0 to prove the scorer slot (Phase 8). A score never changes the recommendation |
 | `ADHD_MCP_EXPERIMENTAL_CONDITIONS` | Comma-separated experimental stub conditions to register; only `autism` exists. Off by default and not for clinical use ([rule card](../clinical/rule_card_autism_stub.md)) |
-| `ADHD_MCP_SITE_CODES` | The local code mapping in `src/adhd_mcp/data/site_codes/` (only `synthetic` exists). Defaults to `synthetic` with fixture data and to no mapping with a FHIR server, in which case checks that need local codes report "not performed" ([ADR 0008](../adr/0008-site-codes-and-search-warnings.md)) |
+| `ADHD_MCP_SITE_CODES` | A packaged local code mapping in `src/adhd_mcp/data/site_codes/`, by name (only `synthetic` exists; any other name is refused at start-up). Defaults to `synthetic` with fixture data and to no mapping with a FHIR server, in which case checks that need local codes report "not performed" ([ADR 0008](../adr/0008-site-codes-and-search-warnings.md)) |
+| `ADHD_MCP_SITE_CODES_FILE` | A site's own code mapping file, in the format of `synthetic.toml`; its file name must match its `id`. Loaded strictly: an unverified entry refuses start-up. Not with `ADHD_MCP_SITE_CODES` |
 
 ### A local FHIR server
 

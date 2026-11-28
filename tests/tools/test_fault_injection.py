@@ -28,9 +28,10 @@ pytestmark = pytest.mark.anyio
 
 #: Resource types read by the safety gate.
 GATE_TYPES = {"Condition", "Observation", "QuestionnaireResponse", "Encounter", "Flag"}
-#: Gate types read by checks that are active today (the PHQ-9 and C-SSRS checks, which read
-#: Observation and QuestionnaireResponse, are not performed until LOINC is verified).
-ACTIVE_GATE_TYPES = {"Condition", "Encounter", "Flag"}
+#: Gate types read by checks that are active today. The PHQ-9 and C-SSRS checks are not scored
+#: until LOINC is verified, but they read Observation and QuestionnaireResponse to find results
+#: recorded under their codes, and an unreadable category fails them (peer review 01, S2).
+ACTIVE_GATE_TYPES = GATE_TYPES
 #: Resource types the ADHD signals are read from.
 SIGNAL_TYPES = {
     "Condition",
@@ -170,6 +171,11 @@ def garbage_link(_: httpx2.Request, response: httpx2.Response | None) -> httpx2.
     return _json(bundle)
 
 
+def not_found(_: httpx2.Request, __: httpx2.Response | None) -> httpx2.Response:
+    """Peer review 01, D2: some servers answer 404 to a search for a type they do not offer."""
+    return httpx2.Response(404)
+
+
 def server_warning(_: httpx2.Request, response: httpx2.Response | None) -> httpx2.Response:
     """The server says its answer may be incomplete."""
     bundle = _healthy_bundle(response)
@@ -198,6 +204,7 @@ FAULTS: dict[str, Fault] = {
     "entry_without_resource": entry_without_resource,
     "garbage_link": garbage_link,
     "server_warning": server_warning,
+    "not_found": not_found,
 }
 
 
@@ -221,8 +228,9 @@ class FaultyServer(FakeFhirServer):
         return self.fault(request, healthy)
 
 
-#: Read only while the PHQ-9 item 9 check is active, which needs verified LOINC codes (F2).
-NOT_READ_YET = {"QuestionnaireResponse"}
+#: Every searched type is read by some assessment step (since peer review 01, S2, the gate also
+#: reads QuestionnaireResponse).
+NOT_READ_YET: set[str] = set()
 
 
 async def assess_with_fault(

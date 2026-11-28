@@ -129,6 +129,16 @@ async def test_a_condition_coded_only_in_snomed_ct_makes_the_gate_fail_closed() 
     assert "unrecognized_coding" in condition.warnings
 
 
+async def test_a_timestamp_without_an_offset_is_read_not_skipped() -> None:
+    # Peer review 01, D3 (E10): one such timestamp made the category incomplete and the
+    # patient unassessable.
+    p = person()
+    p.condition("R45.851", "synthetic", recorded=f"{ago(45)}T10:00:00")
+    result = await gate(p)
+    assert result.status is SafetyGateStatus.POSITIVE
+    assert result.evidence[0].date == AS_OF - timedelta(days=45)
+
+
 async def test_an_undotted_icd10cm_code_makes_the_gate_positive() -> None:
     # Peer review 01, S1 (E8b).
     p = person()

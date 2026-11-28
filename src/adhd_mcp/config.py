@@ -22,7 +22,9 @@ from files named by a variable, never from the variable itself.
 |  | required for ``lighthouse``) |
 | ``ADHD_MCP_AUDIT_FILE`` | Append-only JSON Lines audit file; required for HTTP |
 | ``ADHD_MCP_PRIVACY_POLICY`` | A site's privacy policy file (default: packaged policy) |
-| ``ADHD_MCP_SITE_CODES`` | Site code mapping |
+| ``ADHD_MCP_SITE_CODES`` | A packaged site code mapping, by name (``synthetic``) |
+| ``ADHD_MCP_SITE_CODES_FILE`` | A site's own code mapping file (loaded strictly); not with |
+|  | ``ADHD_MCP_SITE_CODES`` |
 | ``ADHD_MCP_SCORER`` | ``rules-only`` (default) or ``dummy`` (Phase 8 proof; not a model) |
 | ``ADHD_MCP_EXPERIMENTAL_CONDITIONS`` | Experimental stubs to register, comma-separated |
 |  | (``autism``); none by default. Not for clinical use |
@@ -37,6 +39,7 @@ import httpx2
 
 from adhd_mcp.fhir.profiles import profile_ids
 from adhd_mcp.rules.scorer import SCORERS
+from adhd_mcp.terminology.site_codes import packaged_site_code_ids
 
 #: Experimental stub conditions that ``ADHD_MCP_EXPERIMENTAL_CONDITIONS`` can switch on.
 EXPERIMENTAL_CONDITIONS = frozenset({"autism"})
@@ -78,6 +81,9 @@ class Settings:
     scorer: str = "rules-only"
     fhir_server_profile: str = "generic"
     experimental_conditions: tuple[str, ...] = ()
+    fhir_base_url: str | None = None
+    site_codes: str | None = None
+    site_codes_file: Path | None = None
 
 
 def _url(env: Mapping[str, str], name: str, *, https: bool = False) -> str:
@@ -173,6 +179,20 @@ def _profile(env: Mapping[str, str], smart: SmartSettings | None) -> str:
     return profile
 
 
+def _site_codes(env: Mapping[str, str]) -> tuple[str | None, Path | None]:
+    name = env.get("ADHD_MCP_SITE_CODES") or None
+    path = _file(env, "ADHD_MCP_SITE_CODES_FILE") if env.get("ADHD_MCP_SITE_CODES_FILE") else None
+    if name is not None and path is not None:
+        raise ConfigError("set at most one of ADHD_MCP_SITE_CODES and ADHD_MCP_SITE_CODES_FILE")
+    if name is not None and name not in packaged_site_code_ids():
+        raise ConfigError(
+            "ADHD_MCP_SITE_CODES must name a packaged site code mapping: "
+            + ", ".join(packaged_site_code_ids())
+            + " (use ADHD_MCP_SITE_CODES_FILE for a site's own file)"
+        )
+    return name, path
+
+
 def load_settings(env: Mapping[str, str]) -> Settings:
     transport = env.get("ADHD_MCP_TRANSPORT", "stdio")
     if transport not in {"stdio", "http"}:
@@ -212,6 +232,8 @@ def load_settings(env: Mapping[str, str]) -> Settings:
             + ", ".join(sorted(EXPERIMENTAL_CONDITIONS))
         )
     smart = _smart(env)
+    base_url = _url(env, "ADHD_MCP_FHIR_BASE_URL") if env.get("ADHD_MCP_FHIR_BASE_URL") else None
+    site_codes, site_codes_file = _site_codes(env)
     return Settings(
         transport=transport,  # type: ignore[arg-type]
         host=host,
@@ -223,4 +245,7 @@ def load_settings(env: Mapping[str, str]) -> Settings:
         privacy_policy=policy,
         scorer=scorer,
         experimental_conditions=experimental,
+        fhir_base_url=base_url,
+        site_codes=site_codes,
+        site_codes_file=site_codes_file,
     )

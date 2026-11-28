@@ -182,3 +182,59 @@ def test_a_bad_server_profile_is_refused_without_echoing_it(env: dict[str, str])
     with pytest.raises(ConfigError, match="ADHD_MCP_FHIR_SERVER_PROFILE") as raised:
         load_settings(env)
     assert SECRET not in str(raised.value)
+
+
+# --- peer review 01, D4: every start-up error is a configuration error ----------------
+
+
+@pytest.mark.parametrize("url", ["ftp://x", "not a url", "http://"])
+def test_a_bad_fhir_base_url_is_a_configuration_error(url: str) -> None:
+    # E11: a ValueError from the adapter escaped as a traceback.
+    with pytest.raises(ConfigError, match="ADHD_MCP_FHIR_BASE_URL") as raised:
+        context_from_environment({"ADHD_MCP_FHIR_BASE_URL": url})
+    assert url not in str(raised.value) or url == "http://"
+
+
+@pytest.mark.parametrize("name", ["../privacy", "no-such-site", "synthetic.toml", ""])
+def test_site_codes_must_name_a_packaged_mapping(name: str) -> None:
+    # E12: "../privacy" loaded data/privacy.toml and failed with a validation traceback.
+    env = {"ADHD_MCP_FIXTURE_DIR": "tests/personas/bundles", "ADHD_MCP_SITE_CODES": name}
+    if not name:
+        assert context_from_environment(env).site_codes.id == "synthetic"
+        return
+    with pytest.raises(ConfigError, match="ADHD_MCP_SITE_CODES"):
+        load_settings(env)
+
+
+def test_a_site_can_supply_its_own_site_codes_file(tmp_path: Path) -> None:
+    # Peer review 01, S2: there was no supported way to give a site's own mapping.
+    path = tmp_path / "local_site.toml"
+    path.write_text('id = "local_site"\nversion = "1"\ntitle = "A site"\n')
+    context = context_from_environment(
+        {"ADHD_MCP_FIXTURE_DIR": "tests/personas/bundles", "ADHD_MCP_SITE_CODES_FILE": str(path)}
+    )
+    assert context.site_codes.id == "local_site"
+
+
+def test_a_site_codes_file_must_exist_and_load_strictly(tmp_path: Path) -> None:
+    with pytest.raises(ConfigError, match="ADHD_MCP_SITE_CODES_FILE"):
+        load_settings({"ADHD_MCP_SITE_CODES_FILE": str(tmp_path / "missing.toml")})
+    bad = tmp_path / "bad.toml"
+    bad.write_text('id = "other"\nversion = "1"\ntitle = "x"\n')
+    with pytest.raises(ConfigError, match="ADHD_MCP_SITE_CODES_FILE"):
+        context_from_environment({"ADHD_MCP_SITE_CODES_FILE": str(bad)})
+
+
+def test_site_codes_by_name_and_by_file_are_exclusive(tmp_path: Path) -> None:
+    path = tmp_path / "local_site.toml"
+    path.write_text('id = "local_site"\nversion = "1"\ntitle = "A site"\n')
+    with pytest.raises(ConfigError, match="ADHD_MCP_SITE_CODES"):
+        load_settings({"ADHD_MCP_SITE_CODES": "synthetic", "ADHD_MCP_SITE_CODES_FILE": str(path)})
+
+
+def test_the_context_can_reuse_settings_already_loaded() -> None:
+    env = {"ADHD_MCP_FIXTURE_DIR": "tests/personas/bundles", "ADHD_MCP_SCORER": "dummy"}
+    settings = load_settings(env)
+    plugin = context_from_environment(env, settings=settings).conditions.get("adhd")
+    assert plugin.scorer is not None
+    assert plugin.scorer.id == "dummy-not-a-model"

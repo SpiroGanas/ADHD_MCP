@@ -15,6 +15,16 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 - **S1.** A Condition coded in no system the value sets cover (for example SNOMED CT only, or text only) was silently "not found". It is now reported as skipped (`unrecognized_coding`), the Condition category is `incomplete`, and the safety gate fails closed (`data_unavailable`). ICD-10-CM codes sent without the dot (`R45851`) are normalized to `R45.851`.
 - **S2.** A PHQ-9 item 9 or C-SSRS risk-level result recorded within 365 days under its listed but unverified LOINC code now fails its check and makes the gate `data_unavailable`, citing the result (`SafetyCheck.references`, new). Before, the check was "not performed" and a referral could be suggested. Persona p15 added; the PHQ-9 results of p01 and p02 moved outside the look-back so they keep their roles.
 
+#### Fixed (data access and start-up)
+
+- **D2.** A 404 or 410 answer to a search crashed the tool with a masked internal error. It is now a failed read: the category is `failed` and the gate `data_unavailable`. Fault injection covers it, and covers Observation and QuestionnaireResponse as active gate inputs.
+- **D3.** A `dateTime` with a time but no offset (`2026-05-01T10:00:00`) made its resource unreadable and could block a patient's assessment. Its calendar date is now kept; values that are truly malformed are still skipped.
+- **D4.** A bad `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_SITE_CODES` gave a traceback; both are now configuration errors, and `ADHD_MCP_SITE_CODES` must name a packaged mapping. A non-JSON or non-object SMART token response is a failed request, not an internal error. Settings are read once at start-up.
+
+#### Added
+
+- `ADHD_MCP_SITE_CODES_FILE`: a site's own code mapping file, loaded strictly (S2).
+
 #### Changed
 
 - Tool contract 0.5.0: safety-gate checks gain `references`.

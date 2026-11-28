@@ -156,6 +156,20 @@ async def test_missing_patient_is_not_found_not_a_failure(
         await adapter.read_patient("p01-patient")
 
 
+@pytest.mark.parametrize("status", [404, 410])
+async def test_a_search_answered_not_found_is_a_failed_read(
+    adapter: HttpFhirAdapter, server: FakeFhirServer, status: int
+) -> None:
+    # Peer review 01, D2 (E5): some servers answer 404 for a type they do not support. That
+    # is a failed search (the category is "failed"), not a missing patient.
+    server.fail_next = [status]
+    with pytest.raises(FhirRequestError) as raised:
+        await adapter.search("Flag", "p01-patient")
+    assert not isinstance(raised.value, ResourceNotFoundError)
+    assert raised.value.status == status
+    assert raised.value.transient is False
+
+
 async def test_refuses_a_next_link_to_another_origin(
     adapter: HttpFhirAdapter, server: FakeFhirServer
 ) -> None:

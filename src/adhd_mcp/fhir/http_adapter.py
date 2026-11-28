@@ -11,7 +11,8 @@
   as failed, never read in part or silently shortened.
 * Timeouts, connection errors, 429 and 5xx are retried with exponential backoff; a numeric
   ``Retry-After`` is honoured up to ``max_backoff``. Other failures are not retried.
-* A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
+* A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure,
+  including a 404 or 410 to a search (some servers answer so for a type they do not offer),
   raises ``FhirRequestError``. Error messages never include response bodies.
 
 * A ``ServerProfile`` (``fhir/profiles.py``) says what the server offers. A search of a type
@@ -164,7 +165,9 @@ class HttpFhirAdapter:
                     renewed = True
                     continue
                 if status in _NOT_FOUND_STATUSES:
-                    raise ResourceNotFoundError(f"{label}: not found (HTTP {status})")
+                    raise ResourceNotFoundError(
+                        f"{label}: not found (HTTP {status})", status=status
+                    )
                 if status < 300:
                     try:
                         return response.json()
@@ -232,7 +235,12 @@ class HttpFhirAdapter:
                 raise FhirRequestError(
                     f"{label}: stopped after {self._max_pages} pages", transient=False
                 )
-            bundle = await self._get(url, label, page_params, patient_id=patient_id)
+            try:
+                bundle = await self._get(url, label, page_params, patient_id=patient_id)
+            except ResourceNotFoundError as exc:
+                raise FhirRequestError(
+                    f"{label}: not found (HTTP {exc.status})", status=exc.status, transient=False
+                ) from exc
             if not isinstance(bundle, dict) or bundle.get("resourceType") != "Bundle":
                 raise FhirRequestError(f"{label}: response is not a Bundle", transient=False)
             for resource in _entries(bundle, label):

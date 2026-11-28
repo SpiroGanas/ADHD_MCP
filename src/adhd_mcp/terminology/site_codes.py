@@ -113,6 +113,11 @@ def load_site_codes_file(path: Path, *, strict: bool) -> SiteCodes:
     return _parse(path.read_text(encoding="utf-8"), name=path.stem, strict=strict)
 
 
+def packaged_site_code_ids() -> list[str]:
+    root = files("adhd_mcp.data.site_codes")
+    return sorted(p.name.removesuffix(".toml") for p in root.iterdir() if p.name.endswith(".toml"))
+
+
 def load_site_codes(site_id: str, *, strict: bool = True) -> SiteCodes:
     resource = files("adhd_mcp.data.site_codes").joinpath(f"{site_id}.toml")
     if not resource.is_file():

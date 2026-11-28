@@ -93,7 +93,7 @@ def main() -> None:  # pragma: no cover - process entry point
     """Run the server over stdio or HTTP, as configured. Refuses to start on bad settings."""
     try:
         settings = load_settings(os.environ)
-        context = context_from_environment(os.environ)
+        context = context_from_environment(os.environ, settings=settings)
     except ConfigError as exc:
         print(f"adhd-mcp: configuration error: {exc}", file=sys.stderr)  # noqa: T201
         raise SystemExit(2) from None

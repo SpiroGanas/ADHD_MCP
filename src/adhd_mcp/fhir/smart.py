@@ -100,9 +100,18 @@ class SmartBackendAuth:
                 status=response.status_code,
                 transient=response.status_code >= 500,
             )
-        body = response.json()
-        token = body.get("access_token")
-        if not isinstance(token, str) or body.get("token_type", "").lower() != "bearer":
+        try:
+            body = response.json()
+        except ValueError as exc:
+            raise FhirRequestError("SMART token response is not JSON", transient=False) from exc
+        if not isinstance(body, dict):
+            raise FhirRequestError("SMART token response is not an object", transient=False)
+        token, token_type = body.get("access_token"), body.get("token_type")
+        if (
+            not isinstance(token, str)
+            or not isinstance(token_type, str)
+            or token_type.lower() != "bearer"
+        ):
             raise FhirRequestError("SMART token response is not a bearer token", transient=False)
         try:
             lifetime = int(body.get("expires_in", 300))
