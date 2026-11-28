@@ -3,15 +3,16 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-28
-**Current phase:** Fixing the findings of peer review 01 ([peer_review_01.md](peer_review_01.md), merged in PR #8). Phase 8 is merged except the live Lighthouse run (no credentials). No release is tagged; tagging waits for a named clinical reviewer (G1).
+**Current phase:** Peer review 01 fixes built and pushed for review ([peer_review_01.md](peer_review_01.md); pull request listed below). Phase 8 is merged except the live Lighthouse run (no credentials). Version 0.9.0; no release is tagged. 1.0.0 waits for a clinician's sign-off, a real model run and a real sandbox read (G3).
 **Branch:** `claude/intelligent-bardeen-359drg` (peer review 01 fixes, one commit per finding)
 
 ## Summary
 
-A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 0.4.0): `get_server_info`; seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); `assess_referral_need`, which runs the safety gate first and applies ADHD ruleset 1.0.0 (draft) to an evidence-linked signal catalog; and `draft_referral_proposal` (a ServiceRequest draft, never stored). Also MCP resources and two clinician prompts. Every call is audited (references and hashes only); a sensitive-data policy cites or withholds substance use, HIV and sickle-cell data; stdio or HTTP with OAuth; SMART backend services toward FHIR. Evaluated on 14 personas and a 184-patient labelled cohort (all match their intended outcomes); fault-injected; benchmarked; packaged (wheel, Dockerfile); documented for users ([README](README.md), [docs/guide/](docs/guide/configuration.md), [tool reference](docs/reference/tools.md), [limitations](docs/limitations.md), [change log](CHANGELOG.md)).
+A FastMCP 4.2 server, version 0.9.0, with ten read-only tools (tool contract 0.5.0): `get_server_info`; seven evidence tools (`check_safety_gate`, `get_mh_problem_list`, `get_screening_history`, `check_existing_care`, `get_medication_timeline`, `get_utilization_summary`, `get_psychosocial_context`); `assess_referral_need`, which runs the safety gate first and applies ADHD ruleset 1.0.0 (draft) to an evidence-linked signal catalog; and `draft_referral_proposal` (a ServiceRequest draft, never stored). Also MCP resources and two clinician prompts. Every call is audited (references and hashes only); a sensitive-data policy cites or withholds substance use, HIV and sickle-cell data; stdio or HTTP with OAuth; SMART backend services toward FHIR. Tested on 16 personas and a 184-patient labelled cohort (all match their intended outcomes, which shows the rules are applied as written, not that they are accurate); fault-injected; benchmarked; packaged (wheel, Dockerfile); documented for users ([README](README.md), [docs/guide/](docs/guide/configuration.md), [tool reference](docs/reference/tools.md), [limitations](docs/limitations.md), [change log](CHANGELOG.md)).
 
 ## Done
 
+- **Peer review 01 fixes** (2026-11-28, branch `claude/intelligent-bardeen-359drg`, one commit per finding; owner decisions below). Safety gate: SNOMED-only or text-only conditions fail closed and dotless ICD-10-CM is repaired (S1); a result under an unverified PHQ-9 item 9 or C-SSRS code stops the gate (S2; persona p15). Clinical logic, drafts for the reviewer: `outside_intended_population` for under-18, no birth date or deceased (C3; persona p16); only active problem-list items are open-ended and reasons give dates (C1); one visit supplies at most one high-weight signal and follow-up visits are not new injuries (C2); current ADHD medication holds the suggestion (C4); unfilled orders are not exposure (C5). Privacy and security: withheld signals are "not checked" (P1); explicit policy for remote servers (P2); refusals audited (P4); https and 0600 audit file (P5). Data access: 404 on search, timestamps without offsets, start-up errors (D2-D4); filtered Observation searches, large-record benchmark, audit cap (D1). Versions: content fingerprint in outputs and release pins (X2); version 0.9.0 (G3). Tests and CI (T2, T3, T5-T8, T10) and documents (X1, X3-X7, P3). Full check: 2,700+ tests, 100% branch coverage of rules, gate, orchestration and privacy.
 - **Peer review 01** (2026-11-27, `main` at `9e14e02`): [peer_review_01.md](peer_review_01.md). All of `src/` read, the check suite run (2,300 passed, coverage 98.65%), 17 read-only experiments on synthetic data. No code, test or data file changed. Findings are listed under "Next steps" and in the report.
 - **Phase 8** (items 1 to 8 except the live Lighthouse run; [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7), merged): `not_supported` data status (contract 0.4.0), dummy scorer, autism stub, Lighthouse adapter from public documentation, Oracle Health desk review, deployment guide, next-stage proposal, ADR 0014 (proposed).
 - **Phase 7** (items 1 to 4 and 6 to 9; item 5 waits for a live model run; [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6)): fault injection, 16 fault types on every resource type the assessment searches, and fixes for malformed Bundles (item 6); labelled cohort of 184 patients, evaluation harness and generated [report](docs/evaluation/adhd_ruleset_1.0.0.md) (items 1, 2); [sex-balance review](docs/evaluation/sex_balance_review.md) (item 3); [model-in-the-loop harness](docs/evaluation/model_in_the_loop.md) with scripted stand-ins (item 4); latency target and request budget, [performance](docs/evaluation/performance.md) (item 7); README rewritten, configuration and client guides, generated tool reference, limitations, change log, link checker (item 8); versioning policy [ADR 0013](docs/adr/0013-versioning-and-release.md) (proposed), version 1.0.0rc1, `scripts/release_check.py`, Dockerfile built and smoke-tested in CI (item 9). Risk register reviewed.
@@ -21,17 +22,18 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- **Peer review 01 fixes** on `claude/intelligent-bardeen-359drg`, one commit per finding, test-first, following the owner decisions of 2026-11-28 below. Order: S1, S2, D2-D4, P1, C3, C1, C2, C4-C5, D1, P2/P4/P5, X2/G3, the T findings, then documents.
+- The peer review 01 fixes pull request waits for the owner's review (see "Pull requests"). Watch its CI: the container job's new entry-point steps and pinned actions have not run before.
 
 ## Next steps
 
-1. Continue the peer review 01 fixes in the order under "In progress". Appendix A of the review gives the inputs for each failing test.
-2. Owner actions the code cannot do (G1, G2): protect `main` with a required human review; name a clinical reviewer; do the waived `safety.*` spot-check.
-3. Clinical decisions that need a clinical reviewer (open question 1), raised by the review: the look-back rule for unresolved conditions (C1), counting related findings once (C2), current ADHD medication (C4), unfilled prescriptions (C5), value-set scope (C7), the evidence column of the rule card (X1).
-4. Process decisions raised by the review: require a human review before merge; name a clinical reviewer; do the waived `safety.*` spot-check (G1, G2); reconsider the 1.0.0rc1 label (G3).
-5. Earlier owner decisions still open before tagging 1.0.0 (open questions 1, 4, 14, 16, 17, 19): the signal catalog (`reviewed_by_owner = false`), the [rule card](docs/clinical/rule_card_adhd_1.0.md), the wording in `src/adhd_mcp/data/wording.toml`, drug-class curation, a sex-balance option, ADR 0013 and ADR 0014.
-6. Then release as before: ruleset status `released` with its sha256 in `src/adhd_mcp/data/released_rulesets.toml`; tool contract `1.0.0`; version `1.0.0`; regenerate the evaluation report; `uv run python scripts/release_check.py` passes; the owner tags `v1.0.0` on `main`.
-7. The Lighthouse live run waits for sandbox credentials (open question 5); the model-in-the-loop run waits for the budget and SDK decision (open question 4).
+1. **Project owner: review the peer review 01 fixes pull request.** In particular the drafted wording in `src/adhd_mcp/data/wording.toml` (`outside_intended_population`, the three `population_*` notes, `adhd_medication_without_code`; open question 21) and the choice of `insufficient_data` for a held suggestion (C4; open question 22).
+2. **LOINC verification is now a blocker** (open question 14): until PHQ-9 item 9 and C-SSRS codes are verified, any patient with such a result in the past year gets `insufficient_data` (S2).
+3. Owner actions the code cannot do (G1, G2): protect `main` with a required human review; name a clinical reviewer (open question 1); have someone with security experience review the threat model and ADR 0012; do the waived `safety.*` spot-check (20 entries).
+4. Clinical reviewer: confirm or reverse the drafts C1 to C5, and answer the questions in the [rule card](docs/clinical/rule_card_adhd_1.0.md#open-questions-for-the-clinical-reviewer-peer-review-01) (flag rate and nicotine dependence C6; driver, anxiety and unconfirmed-diagnosis scope C7; exclusion scope X5; equity, falls, history-of codes, differential notes, annual code updates X7); decide SNOMED CT value sets or a terminology service for the safety concepts (S1 step 3).
+5. Follow-ups not built in this change: read `/metadata` at start-up for the `generic` profile to learn the offered types (D2); report skip rates by reason in the evaluation (D3); estimate the flag rate (C6); pin Docker base images by digest (T5); a dependency audit job (owner: not now); split `verified` into `exists_in_source` and `reviewed_by` (G2; owner: not now).
+6. Earlier owner decisions still open before 1.0.0 (open questions 1, 4, 14, 16, 17, 19): the signal catalog (`reviewed_by_owner = false`), the rule card, the wording, drug-class curation, a sex-balance option, ADR 0013 and ADR 0014. Phases 4 and 5 are marked done, but their exit criteria (an owner-reviewed catalog and an approved rule card) are not met.
+7. Then release as ADR 0013 says: ruleset status `released` with its sha256 and `content_sha256` in `src/adhd_mcp/data/released_rulesets.toml`; tool contract `1.0.0`; version `1.0.0`; regenerate the evaluation report; `uv run python scripts/release_check.py` passes; the owner tags `v1.0.0` on `main`.
+8. The Lighthouse live run waits for sandbox credentials (open question 5); the model-in-the-loop run waits for the budget and SDK decision (open question 4).
 
 ## Open questions for the project owner
 
@@ -43,12 +45,15 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 | 6 | Should a priority tier be part of the 1.0 output? (Proposal: no; not built.) | Before release |
 | 9 | PC-PTSD-5 cutoff: 4 (current National Center for PTSD default) or 3? | Before LOINC verification (F2) |
 | 12 | How should ASRS results be recognised in FHIR data (follow-up F3)? | Phase 8 |
-| 14 | Verify LOINC through a LOINC account (fhir.loinc.org) or NLM's redistribution? Until then PHQ-9 item 9 and C-SSRS checks are "not performed", no screening cutoff is applied, and no ruleset signal uses a screening score | Before release |
+| 14 | Verify LOINC through a LOINC account (fhir.loinc.org) or NLM's redistribution? Until then no screening cutoff is applied, no ruleset signal uses a screening score, and (since peer review 01, S2) any PHQ-9 item 9 or C-SSRS result in the past year stops the gate, so such patients are `insufficient_data` | Now: a blocker |
 | 15 | Approve the invariant-4 exception: the SMART token request is the one POST in the code (to the OAuth token endpoint, never the FHIR server) | PR review |
 | 16 | Sex balance: ruleset 1.0.0 flags 8 of 40 internalizing suggestive presentations against 32 of 32 externalizing ones. Choose an option from the [sex-balance review](docs/evaluation/sex_balance_review.md): A no change (proposed for 1.0.0), B a sex-blind "four or more modifiers" rule as draft ruleset 1.1.0, or another | Before release |
 | 17 | Approve [ADR 0013](docs/adr/0013-versioning-and-release.md): three version lines, the tool contract becoming 1.0.0 with server 1.0.0, release steps and the release check | Before release |
 | 19 | Accept [ADR 0014](docs/adr/0014-server-profiles-and-unoffered-data.md) (server profiles, `not_supported`, patient-scoped tokens); still "Proposed" after PR #7 merged | Before release |
 | 18 | Publish the package or container image anywhere (PyPI, a container registry)? Proposal: not for 1.0; build in CI only | Before release |
+| 21 | Approve the wording drafted for peer review 01 in `wording.toml`: the `outside_intended_population` recommendation text, the notes `population_under_age`, `population_no_birth_date`, `population_deceased` and `adhd_medication_without_code` | PR review |
+| 22 | C4: a suggestion held for current ADHD medication without an ADHD code is reported as `insufficient_data` with a note (no new code). Keep, or add a dedicated code such as `possibly_in_care` (a contract change)? | PR review |
+| 23 | T9: commit a failing test separately from the code that passes it (so the red step can be audited), which conflicts with "run the full check before every commit"? This change kept each commit green and named the tests it changed | Before the next clinical change |
 
 ## Decisions
 
@@ -80,7 +85,7 @@ Owner decisions 2026-11-27 (start of Phase 8):
 
 Owner decisions 2026-11-27 (start of Phase 7):
 
-- Safety gate on partly read data (former open question 19, found by the Phase 7 clinical safety review): a check whose data was read only in part fails, so the gate is `data_unavailable` and no suggestion is made. Built in this phase.
+- Safety gate on partly read data (found by the Phase 7 clinical safety review; the "open question 19" of that time, not today's): a check whose data was read only in part fails, so the gate is `data_unavailable` and no suggestion is made. Built in this phase.
 
 - Model-in-the-loop evaluation (item 4): build the tasks, harness and grader now, tested with a scripted stand-in model; the live run waits for an API key (open question 4).
 - Release (item 9): prepare everything (versioning policy, change log, packaging, release check) as a release candidate; tag 1.0.0 only after the owner reviews the clinical content and the ruleset is released.
@@ -101,14 +106,15 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 
 ## Known gaps and cautions
 
-- **Peer review 01 found defects not listed below**, several in the safety gate and the clinical logic, confirmed by experiment and not yet fixed. Read [peer_review_01.md](peer_review_01.md) before relying on any statement in this section.
-- LOINC codes and all screening cutoffs are unverified, so no screening score is used by the gate or the ruleset. ICD-10-CM is verified against FY2027; the human spot-check is still owed before release.
+- Peer review 01's confirmed defects are fixed on the branch; its process findings (G1, G2) and the clinical questions are not, and need people. Read [peer_review_01.md](peer_review_01.md).
+- One AI author wrote the rules, value sets, tests, evaluation, threat model and safety reviews; no human has reviewed a pull request (G1). "Verified" means checked by that author (G2).
+- LOINC codes and all screening cutoffs are unverified, so no screening score is used by the gate or the ruleset, and a recent PHQ-9 item 9 or C-SSRS result makes a patient `insufficient_data`. ICD-10-CM is verified against FY2027; the human spot-check is still owed before release.
+- Conditions coded only in SNOMED CT make a patient `insufficient_data` (fail closed) until SNOMED CT value sets or a terminology service exist.
 - Ruleset 1.0.0 is a draft and not clinically validated; internalizing presentations, so likely women, are under-flagged (cohort: 8 of 40 against 32 of 32 externalizing; [sex-balance review](docs/evaluation/sex_balance_review.md)).
 - No real language model has used the server yet (model-in-the-loop harness tested with scripted stand-ins only).
 - The development container has no Docker daemon: the image and the live latency test run only in CI (both passed on PR #6).
 - The full list for users: [docs/limitations.md](docs/limitations.md).
 - Retired RxNorm product codes are not matched (ADR 0009). Missed appointments are not read (no Appointment search). Coded social-history observation values are reported but not counted by the ruleset.
-- ICD-10-CM codes sent without a dot do not match value sets (ADR 0007, Phase 8).
 - The development audit file has no tamper evidence (risk P5, accepted); rate limiting is left to the hosting gateway (risk S6, accepted).
 
 ## Pull requests
@@ -120,6 +126,6 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#3](https://github.com/SpiroGanas/ADHD_MCP/pull/3) | Phases 1 and 2: walking skeleton, FHIR access layer, terminology and personas | Merged |
 | [SpiroGanas/ADHD_MCP#4](https://github.com/SpiroGanas/ADHD_MCP/pull/4) | Phase 3: evidence tools I | Merged |
 | [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
-| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Merged |
+| [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 (relabelled 0.9.0 by peer review 01) | Merged |
 | [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Merged |
 | [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) | Peer review 01: findings only, no code changes | Merged |
