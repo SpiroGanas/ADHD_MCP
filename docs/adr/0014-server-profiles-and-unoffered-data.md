@@ -1,6 +1,6 @@
 # ADR 0014: FHIR server profiles, data a server does not offer, and patient-scoped tokens
 
-- **Status:** Proposed (owner decisions of 2026-11-27 cover the behaviour; the owner accepts this record with the Phase 8 pull request)
+- **Status:** Proposed (owner decisions of 2026-11-27 cover the behaviour). The Phase 8 pull request merged without an explicit acceptance of this record, so it stays proposed until the owner accepts it (status.md, open question 19; peer review 01, X6)
 - **Date:** 2026-11-27
 - **Decided by:** Project owner (behaviour), Claude Code agent (design)
 

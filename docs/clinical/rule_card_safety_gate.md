@@ -74,7 +74,7 @@ From the research report, safety gate section: prior self-harm is the strongest 
 
 | Item | Result |
 |---|---|
-| Cohort used | Synthetic persona catalog (10 personas), plus unit tests per signal |
+| Cohort used | Synthetic persona catalog (16 personas), plus unit tests per signal and an encoding-varied property test |
 | Agreement with intended outcomes | All personas match `tests/personas/catalog.toml`, with today's content and with all checks active |
 | Recommendation rate by sex | Not applicable |
 | Recommendation rate by age band | Not applicable |
@@ -98,4 +98,4 @@ From the research report, safety gate section: prior self-harm is the strongest 
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1.0 | 2026-11-27 | First draft, revised after the clinical safety review (unreadable resources limit the gate; finished stays without a discharge date dated by their start) | Phase 3 |
-| 0.1.0 (server 1.0.0rc1) | 2026-11-27 | A check whose data was read only in part now fails (gate `data_unavailable`, no referral suggestion) instead of reporting not found with a limited gate. Gate definition data unchanged; the behaviour is in `evidence/safety_gate.py` | Phase 7 clinical safety review; owner decision (open question 19) |
+| 0.1.0 (server 1.0.0rc1) | 2026-11-27 | A check whose data was read only in part now fails (gate `data_unavailable`, no referral suggestion) instead of reporting not found with a limited gate. Gate definition data unchanged; the behaviour is in `evidence/safety_gate.py` | Phase 7 clinical safety review; owner decision 2026-11-27 on partly read data |

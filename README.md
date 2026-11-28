@@ -8,7 +8,7 @@ An MCP server that reads a patient's FHIR record and tells a clinician whether a
 
 ## What it does
 
-Adult ADHD is under-diagnosed, especially in veterans, and it is associated with a higher risk of self-harm that treatment appears to reduce. An undiagnosed case rarely shows up as an ADHD code. It may show up instead as problems associated with ADHD, none specific to it: stimulant or alcohol-related diagnoses, repeated accidental injuries, crashes, antidepressant switches, sleep problems.
+Adult ADHD is thought to be under-diagnosed (no estimate is veteran-specific; see [limitations](docs/limitations.md)), and it is associated with a higher risk of self-harm that treatment appears to reduce. An undiagnosed case rarely shows up as an ADHD code. It may show up instead as problems associated with ADHD, none specific to it: stimulant or alcohol-related diagnoses, repeated accidental injuries, crashes, antidepressant switches, sleep problems.
 
 The server assembles those signals from FHIR data, applies versioned, auditable rules, and returns a structured result:
 

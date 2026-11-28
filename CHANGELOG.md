@@ -59,6 +59,16 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 - **T7.** The synthetic-data guard walks every JSON object (arrays, contained resources, Parameters), reads `.jsonl` and JSON by content, checks every resource with a name or identifier, flags undashed SSN-shaped identifiers, fails closed on unparseable JSON, unreadable files and FHIR XML, and ships an optional pre-commit hook (`scripts/pre-commit`; see CONTRIBUTING.md).
 - **T10.** Tests clear `ADHD_MCP_*` settings from the shell (they made the contract tests fail, and could have written a wrong snapshot), and the evaluation report is also stale when the decision logic changes (`logic_sha256`).
 
+#### Documentation
+
+- **X1.** The ADHD rule card's evidence column said "No" (not inference) for ten counted signals. It now says, per signal, whether the evidence shows the signal precedes an ADHD diagnosis: at most two (stimulant and alcohol, from one prediction model, with wider value sets than the model's codes); every weight is an inference.
+- **X3.** Claims stronger than the evidence corrected: the threat model no longer says model-side risks are covered by an evaluation no real model has run; the README no longer says every planned feature is built and evaluated, or that ADHD is under-diagnosed "especially in veterans"; the risk register calls the cohort's look-alike result a consistency check, not specificity, and rates "no clinician available" as having happened.
+- **X4.** architecture.md: gate signals, high-weight signals, exclusions and the population as built; the tool table (what each tool reads, including that `draft_referral_proposal` runs the whole assessment); what `cite` discloses.
+- **X5, X7, C6, C7.** The rule card lists the questions the review raised for the clinical reviewer: expected flag rate and nicotine dependence, driver codes for pickups and heavy vehicles, anxiety codes, unconfirmed diagnoses, as-of statuses, the exclusion's scope, equity, falls in older adults, history-of codes, the positive-gate wording, differential notes, annual code updates and signals that cannot be evaluated on Lighthouse.
+- **X6.** Stale numbers and statuses: persona count, tool count, contract versions, ADR 0014's status, the risk register's review date, the two meanings of "open question 19".
+- **P3.** The threat model records patient-level authorization as a trust assumption (T19) with the audit trail as the compensating control.
+- **S1.** ADR 0007 and the Lighthouse notes no longer say dotless codes are not repaired, or that the main signal source "works as designed" with SNOMED CT codings.
+
 #### Changed
 
 - Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`; utilization events gain `follow_up`; `versions` gains `clinical_content`.

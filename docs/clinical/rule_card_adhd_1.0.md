@@ -38,27 +38,29 @@ Under a `withhold` privacy policy, a signal not found in data the policy thinned
 
 Window: days before the as-of date, inclusive. A condition counts when its last date (the latest recorded, onset or abatement date of any of its records) falls inside the window. Only an active problem-list item (clinical status active, recurrence or relapse, category `problem-list-item`, no abatement on or before the as-of date) is open-ended and counts whatever its date; encounter diagnoses, conditions without a clinical status, and single-day event codes (`sud.blood_alcohol_level`, `sud.alcohol_in_blood`, marked `point_in_time`) always count by their dates. The reason states the dates: "Last recorded 2025-03-02, within the 1095-day window." or "Counted as current: an active problem-list entry since 2021-05-01." Undated conditions do not count. (Peer review 01, C1; owner decision 2026-11-28, a draft for the clinical reviewer. Before, any condition not marked resolved counted as current forever, and the reason always read "Found within 1095 days.") All value sets are verified against ICD-10-CM FY2027; drug classes against RxNorm 02-Nov-2026 (ADR 0009).
 
-| Signal | Weight class | Definition (value set, window) | Supplied by tool | Evidence source | Inference? |
+| Signal | Weight class | Definition (value set, window) | Supplied by tool | Evidence source | Evidence that it precedes an ADHD diagnosis (peer review 01, X1) |
 |---|---|---|---|---|---|
-| Stimulant-related disorder | High | `sud.stimulant` (F15, includes caffeine); 1095 days | `get_mh_problem_list` | Hamed 2026 (civilian): among strongest predictors | No |
-| Alcohol involvement | High | `sud.alcohol` (F10), `sud.blood_alcohol_level` (Y90.1-Y90.9; Y90.0 excluded), `sud.alcohol_in_blood` (R78.0); 1095 days | `get_mh_problem_list` | Hamed 2026: Y90.3 a top predictor | No |
-| Motor-vehicle crash as driver | High | `injury.motor_vehicle_driver`; one per encounter (or day); at least 1 in 1095 days | `get_utilization_summary` | Crash OR about 1.45 (secondary) | No |
-| Repeated accidental injury | High | Emergency or urgent care visits with an injury or accidental external-cause code and no self-harm code; at least 2 new injuries in 730 days. A visit whose injury codes are all subsequent-encounter or sequela codes (seventh character other than A, B or C) is a follow-up of the same injury and does not count (peer review 01, C2) | `get_utilization_summary` | Accidents lead excess ADHD deaths (Dalsgaard 2015) | Count of 2 is inference |
-| TBI overlap | Note | `injury.tbi`, `injury.history_tbi`; 1095 days. Adds a note suggesting neuropsychological evaluation; never counts | `get_mh_problem_list` | Research report: TBI mimics ADHD | No |
-| Other substance use | Modifier | `sud.other` (F11, F12, F14, F17.2, F19); 1095 days | `get_mh_problem_list` | ASRS validated in SUD | No |
-| PTSD | Modifier | `mh.ptsd` (F43.10-F43.12); 1095 days | `get_mh_problem_list` | Howlett 2018 (soldiers) | No |
-| Intermittent explosive disorder | Modifier | `mh.intermittent_explosive_disorder` (F63.81); 1095 days | `get_mh_problem_list` | Nock 2014 (soldiers) | No |
-| Depression or anxiety | Modifier | `mh.depression`, `mh.generalized_anxiety`; 1095 days | `get_mh_problem_list` | Women first labeled depressed or anxious | No |
-| Multiple antidepressants | Modifier | At least 3 distinct `med.antidepressant` ingredients with exposure in 1095 days: dispenses and statements; orders count only when the record holds no dispensing data at all (peer review 01, C5: before, orders never filled counted too). The count ignores indication: bupropion for smoking cessation and duloxetine for pain count | `get_medication_timeline` | "Untested inference" in the research | Yes |
-| Borderline personality | Modifier | `mh.borderline_personality` (F60.3); 1095 days | `get_mh_problem_list` | ADHD-BPD comorbidity 18-34% | No |
-| Insomnia | Modifier | `sleep.insomnia_delayed_phase`; 1095 days | `get_mh_problem_list` | Insomnia in about 67% (secondary) | No |
-| Attention symptoms | Modifier | `symptom.attention_executive` (R41.840, R41.844); 1095 days | `get_mh_problem_list` | Unvalidated | Yes |
-| Legal problems | Modifier | Psychosocial domain `legal` (Z65.0-Z65.3); 1095 days | `get_psychosocial_context` | Medication about 13% less criminality | No |
-| Education or employment problems | Modifier | Domain `education_occupation` (Z55, Z56); 1095 days | `get_psychosocial_context` | Inference | Yes |
-| Housing problems | Modifier | Domain `housing` (Z59.0, Z59.81); 1095 days | `get_psychosocial_context` | Inference | Yes |
-| Family history | Modifier | `family.mental_behavioral_history` (Z81.8); 1095 days | `get_mh_problem_list` | Code mapping is inference | Yes |
+| Stimulant-related disorder | High | `sud.stimulant` (F15, includes caffeine); 1095 days | `get_mh_problem_list` | Hamed 2026 (civilian): among strongest predictors | Direct, from one prediction model; but the model's code (F15.8) does not exist in ICD-10-CM and the value set was widened to all of F15, caffeine included. Weight: inference |
+| Alcohol involvement | High | `sud.alcohol` (F10), `sud.blood_alcohol_level` (Y90.1-Y90.9; Y90.0 excluded), `sud.alcohol_in_blood` (R78.0); 1095 days | `get_mh_problem_list` | Hamed 2026: Y90.3 a top predictor | Direct, from the same prediction model; the value set was widened to all of F10. Weight: inference |
+| Motor-vehicle crash as driver | High | `injury.motor_vehicle_driver`; one per encounter (or day); at least 1 in 1095 days | `get_utilization_summary` | Crash OR about 1.45 (secondary) | Indirect: an association from a secondary source. Weight: inference |
+| Repeated accidental injury | High | Emergency or urgent care visits with an injury or accidental external-cause code and no self-harm code; at least 2 new injuries in 730 days. A visit whose injury codes are all subsequent-encounter or sequela codes (seventh character other than A, B or C) is a follow-up of the same injury and does not count (peer review 01, C2) | `get_utilization_summary` | Accidents lead excess ADHD deaths (Dalsgaard 2015) | Indirect: Dalsgaard 2015 is a mortality study in people already diagnosed. Count of 2 and weight: inference |
+| TBI overlap | Note | `injury.tbi`, `injury.history_tbi`; 1095 days. Adds a note suggesting neuropsychological evaluation; never counts | `get_mh_problem_list` | Research report: TBI mimics ADHD | Not applicable (a note, never counted) |
+| Other substance use | Modifier | `sud.other` (F11, F12, F14, F17.2, F19); 1095 days | `get_mh_problem_list` | ASRS validated in SUD | Indirect: "ASRS validated in SUD" is about a screener's accuracy, not precedence. Weight: inference |
+| PTSD | Modifier | `mh.ptsd` (F43.10-F43.12); 1095 days | `get_mh_problem_list` | Howlett 2018 (soldiers) | Indirect: comorbidity in soldiers. Weight: inference |
+| Intermittent explosive disorder | Modifier | `mh.intermittent_explosive_disorder` (F63.81); 1095 days | `get_mh_problem_list` | Nock 2014 (soldiers) | Indirect: Nock 2014 is an odds ratio for suicide attempts, not an association with ADHD. Weight: inference |
+| Depression or anxiety | Modifier | `mh.depression`, `mh.generalized_anxiety`; 1095 days | `get_mh_problem_list` | Women first labeled depressed or anxious | Indirect: women are often first labelled depressed or anxious. Weight: inference |
+| Multiple antidepressants | Modifier | At least 3 distinct `med.antidepressant` ingredients with exposure in 1095 days: dispenses and statements; orders count only when the record holds no dispensing data at all (peer review 01, C5: before, orders never filled counted too). The count ignores indication: bupropion for smoking cessation and duloxetine for pain count | `get_medication_timeline` | "Untested inference" in the research | Inference ("untested inference" in the research) |
+| Borderline personality | Modifier | `mh.borderline_personality` (F60.3); 1095 days | `get_mh_problem_list` | ADHD-BPD comorbidity 18-34% | Indirect: comorbidity. Weight: inference |
+| Insomnia | Modifier | `sleep.insomnia_delayed_phase`; 1095 days | `get_mh_problem_list` | Insomnia in about 67% (secondary) | Indirect: prevalence from a secondary source. Weight: inference |
+| Attention symptoms | Modifier | `symptom.attention_executive` (R41.840, R41.844); 1095 days | `get_mh_problem_list` | Unvalidated | Inference |
+| Legal problems | Modifier | Psychosocial domain `legal` (Z65.0-Z65.3); 1095 days | `get_psychosocial_context` | Medication about 13% less criminality | Indirect: a treatment effect in people already diagnosed, from press coverage; exact figures unchecked. Weight: inference |
+| Education or employment problems | Modifier | Domain `education_occupation` (Z55, Z56); 1095 days | `get_psychosocial_context` | Inference | Inference |
+| Housing problems | Modifier | Domain `housing` (Z59.0, Z59.81); 1095 days | `get_psychosocial_context` | Inference | Inference |
+| Family history | Modifier | `family.mental_behavioral_history` (Z81.8); 1095 days | `get_mh_problem_list` | Code mapping is inference | Inference (code mapping too) |
 
 Not used, because their codes or cutoffs are unverified (follow-up F2): AUDIT-C, PC-PTSD-5, PHQ scores, ASRS. Coded social-history Observation values are reported by `get_psychosocial_context` but not counted in 1.0 (no date in the evidence).
+
+At most two signals (stimulant-related disorder and alcohol involvement) rest on direct evidence that they precede an ADHD diagnosis, and even for those the value sets are wider than the cited model's codes. Every other signal rests on an association, a comorbidity or a treatment effect, and every weight is an inference. Before peer review 01 this column marked ten counted signals "No" (not inference), which overstated the evidence. The clinical reviewer should check each row against the primary sources.
 
 ## Decision logic
 
@@ -111,6 +113,24 @@ Full report: [docs/evaluation/adhd_ruleset_1.0.0.md](../evaluation/adhd_ruleset_
 - **TBI mimics ADHD.** TBI is a note, not a signal.
 - **Drug classes.** Retired RxNorm product codes are not matched; some products carry a class ingredient for another use (ADR 0009).
 - **Protected data.** Substance-use signals are protected categories (Phase 6 privacy policy).
+
+## Open questions for the clinical reviewer (peer review 01)
+
+The owner decided C1 to C5 on 2026-11-28 as drafts; the reviewer may confirm or reverse each. These further questions were raised and are not decided:
+
+- **Expected flag rate (C6).** Unknown and probably high: any alcohol code with nicotine dependence (F17.2, a modifier through `sud.other`), depression and insomnia fires `high_with_modifiers`. Estimate it from published comorbidity prevalence or a population generator before release, and decide whether nicotine dependence should be a modifier.
+- **Driver codes (C7).** `injury.motor_vehicle_driver` covers cars (V40-V49) and motorcycles (V20-V29) only; drivers of pickup trucks and vans (V50-V59) and heavy vehicles (V60-V69) are not counted.
+- **Anxiety (C7).** `mh.generalized_anxiety` is F41.1 only; panic disorder (F41.0) and unspecified anxiety (F41.9) do not count, although the signal exists partly for presentations first labelled as anxiety.
+- **Unconfirmed diagnoses (C7).** Provisional, differential and unconfirmed conditions count like confirmed ones, for signals and for the ADHD exclusion. A refuted ADHD diagnosis, which shows an evaluation took place, leaves no trace.
+- **As-of dates (C7).** Clinical statuses are today's: a condition resolved after the as-of date is treated as resolved at it, which matters for back-testing.
+- **Exclusion scope (X5).** A ServiceRequest whose reason is an attention-symptom code (R41.840, R41.844) counts as an ADHD referral (`existing_care.toml`). Any F90 code, of any age or status (a long-resolved childhood code included), gives `already_in_care`, although adults diagnosed in childhood are a group the research is concerned with.
+- **Equity (X7).** Bias is analysed for sex only. Legal, housing, education and employment problems are modifiers and proxies for socioeconomic status and, in practice, race.
+- **Falls in older adults (X7).** `injury.accidental_external_cause` includes falls (W00-W19): two fall visits with depression and insomnia codes in an 80-year-old give a suggestion.
+- **History-of codes (X7).** In the safety gate, Z91.51 and Z91.52 count for 365 days from their recorded date, while prior self-harm is the strongest predictor and a "history of" code is about the past.
+- **"Until the signals have been addressed" (X7).** The approved positive-gate text implies something detects that the signals were addressed; nothing does: the gate clears with time.
+- **Differential notes (X7).** Only TBI gets a note. The research says the ASRS may not separate ADHD from PTSD symptoms; PTSD is a modifier without a note.
+- **Annual code updates (X7).** Value sets are verified against ICD-10-CM FY2027; nothing requires re-verification each October.
+- **Signals that cannot be evaluated (X7).** Injury visits need the emergency encounter class or a site mapping; VA Lighthouse documents neither, so `repeated_accidental_injury` would read "Not found" there rather than "not performed". To be checked against the sandbox.
 
 ## Change log
 

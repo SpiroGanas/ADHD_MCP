@@ -51,7 +51,7 @@ The scope string above is a guess in the documented `launch` plus resource-scope
 
 | Type | Lighthouse returns | Effect on ADHD_MCP |
 |---|---|---|
-| Condition | Problem-list items and encounter diagnoses; SNOMED CT and ICD-10-CM codings, ICD-10-CM written with the dot (`J01.21`) | The main signal source works as designed |
+| Condition | Problem-list items and encounter diagnoses; SNOMED CT and ICD-10-CM codings, ICD-10-CM written with the dot (`J01.21`) | Conditions with an ICD-10-CM coding are read as designed. A Condition coded only in SNOMED CT matches no value set: it is reported as `unrecognized_coding`, the Condition category is incomplete and the safety gate is `data_unavailable` (peer review 01, S1). How often Lighthouse sends SNOMED-only problem-list items is unknown until the sandbox is read; until then this note's earlier conclusion, "the main signal source works as designed", is withdrawn |
 | Observation | "Only antibiotic sensitivity, bacteriology, lab chemistry, mycobacteriology, mycology and parasitology lab records, vital signs, and social history." Categories `laboratory`, `social-history`, `vital-signs` | **No screening instruments** (PHQ-9, PHQ-2, AUDIT-C, PC-PTSD-5, C-SSRS, ASRS): `get_screening_history` finds none. See data-shape findings below |
 | Encounter | "Only inpatient and outpatient encounters" | No emergency class is documented, so acute-care and injury visits that rely on the `EMER` class may be under-counted; crash and injury codes on Conditions still count. To be checked on sandbox data |
 | Procedure | "An inpatient surgery only" | The ADHD evaluation procedure check finds nothing (and needs a site mapping anyway) |
