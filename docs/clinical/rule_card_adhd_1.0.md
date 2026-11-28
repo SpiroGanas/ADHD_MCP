@@ -32,6 +32,7 @@ Under a `withhold` privacy policy, a signal not found in data the policy thinned
 | Existing ADHD care | `check_existing_care`: an ADHD code (F90, any status other than refuted or entered in error) on a Condition or as a medication reason; an ADHD referral, evaluation or care plan open or completed within 365 days | Avoid duplicate referrals. A missing F90 code is weak evidence of absence (research report) |
 | Incomplete exclusion checks | When an existing-care check could not run (for example a site that maps no evaluation codes), a suggestion is still made, with a note to check the record first | Otherwise unmapped sites could never receive a suggestion |
 | Narcolepsy medication | Not an exclusion. Medication ordered for narcolepsy is never an ADHD signal; a note says so | Research report |
+| Current ADHD medication without an ADHD code | Exposure to a `med.adhd_stimulant` or `med.adhd_nonstimulant` ingredient (dispense, statement, or an order when the record holds no dispensing data), not for narcolepsy, ending within 90 days of the as-of date (`existing_care.toml`), with no ADHD code: `excluded` is unknown, the check `adhd_medication_exposure` is found and cites the records, a note says the patient may already be in ADHD care elsewhere, and the result is `insufficient_data` (no suggestion until a clinician checks). An ADHD code still gives `already_in_care` | Peer review 01, C4; owner decision 2026-11-28, a draft for the clinical reviewer. A diagnosis made elsewhere or coded only in SNOMED CT is common |
 
 ## Signals
 
@@ -48,7 +49,7 @@ Window: days before the as-of date, inclusive. A condition counts when its last 
 | PTSD | Modifier | `mh.ptsd` (F43.10-F43.12); 1095 days | `get_mh_problem_list` | Howlett 2018 (soldiers) | No |
 | Intermittent explosive disorder | Modifier | `mh.intermittent_explosive_disorder` (F63.81); 1095 days | `get_mh_problem_list` | Nock 2014 (soldiers) | No |
 | Depression or anxiety | Modifier | `mh.depression`, `mh.generalized_anxiety`; 1095 days | `get_mh_problem_list` | Women first labeled depressed or anxious | No |
-| Multiple antidepressants | Modifier | At least 3 distinct `med.antidepressant` ingredients with exposure in 1095 days | `get_medication_timeline` | "Untested inference" in the research | Yes |
+| Multiple antidepressants | Modifier | At least 3 distinct `med.antidepressant` ingredients with exposure in 1095 days: dispenses and statements; orders count only when the record holds no dispensing data at all (peer review 01, C5: before, orders never filled counted too). The count ignores indication: bupropion for smoking cessation and duloxetine for pain count | `get_medication_timeline` | "Untested inference" in the research | Yes |
 | Borderline personality | Modifier | `mh.borderline_personality` (F60.3); 1095 days | `get_mh_problem_list` | ADHD-BPD comorbidity 18-34% | No |
 | Insomnia | Modifier | `sleep.insomnia_delayed_phase`; 1095 days | `get_mh_problem_list` | Insomnia in about 67% (secondary) | No |
 | Attention symptoms | Modifier | `symptom.attention_executive` (R41.840, R41.844); 1095 days | `get_mh_problem_list` | Unvalidated | Yes |

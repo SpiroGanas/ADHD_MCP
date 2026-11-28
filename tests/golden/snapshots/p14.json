@@ -83,26 +83,6 @@
           "id": "p14-meddisp-4",
           "resource_type": "MedicationDispense",
           "version": null
-        },
-        {
-          "id": "p14-medreq-1",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-2",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-3",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-4",
-          "resource_type": "MedicationRequest",
-          "version": null
         }
       ],
       "signal": "multiple_antidepressants",
@@ -263,6 +243,13 @@
     {
       "check": "adhd_care_plan",
       "description": "ADHD care plan, open or completed within 365 days",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
+    },
+    {
+      "check": "adhd_medication_exposure",
+      "description": "ADHD medication dispensed or taken within 90 days, not for narcolepsy",
       "outcome": "not_found",
       "reason": null,
       "references": []
@@ -540,26 +527,6 @@
         {
           "id": "p14-meddisp-4",
           "resource_type": "MedicationDispense",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-1",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-2",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-3",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-4",
-          "resource_type": "MedicationRequest",
           "version": null
         }
       ],

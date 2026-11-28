@@ -209,7 +209,8 @@ async def test_distinct_agents_ignore_dose_and_product_variants() -> None:
     sertraline = next(a for a in antidepressants.agents if a.ingredient.name == "sertraline")
     assert sertraline.first_date == AS_OF - timedelta(900)
     assert sertraline.last_date == AS_OF - timedelta(471)
-    assert len(sertraline.references) == 4
+    # The exposure records only (peer review 01, C5): the two dispenses, not their orders.
+    assert [r.resource_type for r in sertraline.references] == ["MedicationDispense"] * 2
 
 
 async def test_unclassified_medications_are_counted_not_named() -> None:

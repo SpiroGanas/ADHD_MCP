@@ -20,6 +20,9 @@ class ExclusionResult:
     checks: list[ExclusionCheck]
     data_completeness: list[DataCompleteness]
     notes: list[str] = field(default_factory=list)
+    #: An exclusion may apply but needs a clinician to check (for example current ADHD
+    #: medication with no ADHD code): no suggestion is made (peer review 01, C4).
+    hold: bool = False
 
 
 ExclusionCheckFn = Callable[[PatientRecords, str, date, SiteCodes], Awaitable[ExclusionResult]]

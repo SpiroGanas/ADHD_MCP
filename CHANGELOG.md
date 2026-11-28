@@ -23,6 +23,9 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 - **C2.** Related findings were counted as independent signals: one crash visit with a blood-alcohol code fired `two_high_classes` by itself, two crash visits were also "two injuries", and a fracture and its re-check were "two injuries". High-weight classes now count only as far as they rest on separate visits or records, and an injury visit whose injury codes are all subsequent-encounter or sequela codes is a follow-up (`follow_up`), not a new injury.
 
+- **C4.** Current ADHD medication was ignored by the exclusion check: a patient with recent methylphenidate dispenses and no ADHD code got a suggestion. Exposure to a stimulant or non-stimulant ADHD medication, not for narcolepsy, ending within 90 days of the as-of date now makes `excluded` unknown, adds the exclusion check `adhd_medication_exposure` and a note, and gives `insufficient_data`.
+- **C5.** Orders never filled counted toward "three or more distinct antidepressants". With dispensing data in the record, only agents with exposure (dispenses or statements) count, as the rule card says; an agent's references are its exposure records.
+
 #### Fixed (privacy)
 
 - **P1.** Under a `withhold` policy, signals whose records were withheld read "Not found in the record" and the result could be `no_recommendation`. They now read "Not checked: records it needs were withheld by the privacy policy", and with no rule fired the result is `insufficient_data`.

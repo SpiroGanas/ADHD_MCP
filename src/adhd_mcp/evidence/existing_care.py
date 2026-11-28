@@ -54,6 +54,8 @@ class ExistingCareDefinition(BaseModel):
     open_statuses: tuple[str, ...]
     completed_window_days: int
     narcolepsy_value_set: str
+    adhd_medication_classes: tuple[str, ...]
+    adhd_medication_recent_days: int
 
 
 @cache

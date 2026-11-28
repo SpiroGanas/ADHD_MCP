@@ -257,6 +257,13 @@
       "outcome": "not_found",
       "reason": null,
       "references": []
+    },
+    {
+      "check": "adhd_medication_exposure",
+      "description": "ADHD medication dispensed or taken within 90 days, not for narcolepsy",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
     }
   ],
   "is_diagnosis": false,

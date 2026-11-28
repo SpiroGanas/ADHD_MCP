@@ -156,12 +156,14 @@ def _basis(findings: Sequence[SignalFinding]) -> list[EvidenceItem]:
     ]
 
 
-def _choose(
+def _choose(  # noqa: PLR0911 - one return per outcome
     gate: SafetyGateResult,
     excluded: bool | None,
     decision: Decision,
     completeness: Sequence[DataCompleteness],
     sources_readable: bool,
+    *,
+    hold: bool = False,
 ) -> RecommendationCode:
     if gate.status is SafetyGateStatus.POSITIVE:
         return RecommendationCode.ADDRESS_SAFETY_GATE_FIRST
@@ -169,6 +171,9 @@ def _choose(
         return RecommendationCode.INSUFFICIENT_DATA
     if excluded is True:
         return RecommendationCode.ALREADY_IN_CARE
+    if hold:
+        # An exclusion may apply and needs a clinician to check (peer review 01, C4).
+        return RecommendationCode.INSUFFICIENT_DATA
     if decision.recommend:
         return RecommendationCode.CONSIDER_REFERRAL
     # A record with nothing in it: every category empty, or not offered by the server.
@@ -286,7 +291,9 @@ async def assess(
         evidence.utilization_events,
         evidence.distinct_agents,
     )
-    recommendation = _choose(gate, exclusions.excluded, decision, completeness, sources_readable)
+    recommendation = _choose(
+        gate, exclusions.excluded, decision, completeness, sources_readable, hold=exclusions.hold
+    )
     notes = [
         plugin.note_texts[f.signal]
         for f in findings
