@@ -277,8 +277,12 @@ class HttpFhirAdapter:
         params = {"patient": patient_id, "_count": str(self._page_size)}
         if categories:
             params["category"] = ",".join(categories)
-        if codes:
-            params["code"] = ",".join(f"{system}|{code}" for system, code in codes)
+        # Codes go out system-less as combo-code (code or component code): a server that
+        # matches token systems literally must not miss an aliased system, and a result may
+        # be a component of a local panel. A server without combo-code is read unfiltered by
+        # code; the reader filters locally (clinical safety review, B1).
+        if codes and self._profile.component_code_search:
+            params["combo-code"] = ",".join(dict.fromkeys(code for _, code in codes))
         date_param = self._profile.date_param(resource_type)
         if since is not None and date_param is not None:
             params[date_param] = f"ge{since.isoformat()}"

@@ -10,6 +10,8 @@ import pytest
 from adhd_mcp.clock import FixedClock
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
+from adhd_mcp.fhir.port import FhirReadPort
+from adhd_mcp.fhir.profiles import load_server_profile
 from adhd_mcp.fhir.reader import PatientRecords
 from adhd_mcp.fhir.request_cache import RequestCachedPort
 from adhd_mcp.terminology.site_codes import load_site_codes
@@ -65,7 +67,7 @@ async def test_the_http_adapter_sends_the_filters() -> None:
         )
     params = server.requests[-1].url.params
     assert params["category"] == "social-history,survey"
-    assert params["code"] == f"{LOINC}|44260-8,{LOINC}|93374-7"
+    assert params["combo-code"] == "44260-8,93374-7"
 
 
 async def test_the_request_cache_keeps_differently_filtered_searches_apart() -> None:
@@ -99,7 +101,7 @@ async def test_an_assessment_never_reads_laboratory_results_or_vital_signs() -> 
     observation_requests = [r for r in server.requests if r.url.path.endswith("/Observation")]
     assert observation_requests
     for request in observation_requests:
-        assert "category" in request.url.params or "code" in request.url.params
+        assert "category" in request.url.params or "combo-code" in request.url.params
     returned = {
         entry["resource"]["code"]["coding"][0]["code"]
         for response in server.responses
@@ -141,3 +143,77 @@ async def test_a_malformed_resource_is_kept_for_normalization_to_report(
         assert "t98-broken" in {r["id"] for r in by_category.resources}
     else:
         assert "t98-broken" in {r["id"] for r in by_code.resources}
+
+
+# --- clinical safety review of the peer review 01 fixes, B1 ----------------------------
+# Filtering by top-level code lost a PHQ-9 item 9 recorded as a component under a local
+# panel code, and a server that matches token systems literally would lose an aliased
+# system: E17 again. The code filter now means "code or component code", sent system-less
+# as combo-code, and a server profile without combo-code reads Observations unfiltered.
+
+
+def component_record(*, category: str | None) -> PersonaBuilder:
+    p = PersonaBuilder("t99", gender="male", birth_date="1985-01-01")
+    for code in ("F10.20", "F32.9", "G47.00"):
+        p.condition(code, "x", recorded="2026-01-10")
+    panel: dict[str, object] = {
+        "resourceType": "Observation",
+        "id": "t99-obs-panel",
+        "status": "final",
+        "subject": p.subject,
+        "code": {"coding": [{"system": "urn:synthetic:local-flowsheet", "code": "PHQ9-PANEL"}]},
+        "effectiveDateTime": "2026-06-01T09:00:00Z",
+        "component": [
+            {
+                "code": {
+                    "coding": [{"system": "urn:oid:2.16.840.1.113883.6.1", "code": "44260-8"}]
+                },
+                "valueInteger": 3,
+            }
+        ],
+    }
+    if category:
+        panel["category"] = [{"coding": [{"code": category}]}]
+    p.resources.append(panel)
+    return p
+
+
+@pytest.mark.parametrize("category", ["survey", None, "laboratory"])
+@pytest.mark.parametrize("over_http", [False, True])
+async def test_an_item9_component_under_a_local_panel_stops_the_gate(
+    category: str | None, over_http: bool
+) -> None:
+    p = component_record(category=category)
+    port: FhirReadPort = FixtureFhirAdapter(p.resources)
+    if over_http:
+        server = FakeFhirServer(p.resources)
+        port = HttpFhirAdapter(BASE, transport=server.transport(), sleep=no_sleep)
+    context = ToolContext(port=port, clock=CLOCK, site_codes=load_site_codes("synthetic"))
+    _, result = await run_assessment(context, p.patient_id, None, "adhd")
+    assert result.gate.status == "data_unavailable"
+    assert result.recommendation == "insufficient_data"
+
+
+async def test_code_filters_go_out_system_less_as_combo_code() -> None:
+    server = FakeFhirServer(person().resources)
+    async with HttpFhirAdapter(BASE, transport=server.transport(), sleep=no_sleep) as adapter:
+        await adapter.search(
+            "Observation", "t98-patient", codes=((LOINC, "44260-8"), (LOINC, "93374-7"))
+        )
+    params = server.requests[-1].url.params
+    assert params["combo-code"] == "44260-8,93374-7"
+    assert "code" not in params
+
+
+async def test_a_server_without_combo_code_is_read_unfiltered_by_code() -> None:
+    server = FakeFhirServer(person().resources)
+    profile = load_server_profile("lighthouse").model_copy(
+        update={"offered": frozenset({"Condition", "Encounter", "Observation"})}
+    )
+    async with HttpFhirAdapter(
+        BASE, transport=server.transport(), sleep=no_sleep, profile=profile
+    ) as adapter:
+        await adapter.search("Observation", "t98-patient", codes=((LOINC, "44260-8"),))
+    params = server.requests[-1].url.params
+    assert "combo-code" not in params
+    assert "code" not in params

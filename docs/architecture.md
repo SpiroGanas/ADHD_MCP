@@ -170,7 +170,7 @@ All tools are read-only and take a patient identifier and an optional as-of date
 | Tool | FHIR resources read | Output summary |
 |---|---|---|
 | `get_server_info` | none | Server, contract and ruleset versions; intended-use statement |
-| `check_safety_gate` | Condition, Observation (by instrument code), QuestionnaireResponse, Encounter, Flag | Gate status, checks performed, evidence, fixed guidance when positive |
+| `check_safety_gate` | Condition, Observation (by instrument code or component code), QuestionnaireResponse, Encounter, Flag | Gate status, checks performed, evidence, fixed guidance when positive |
 | `get_mh_problem_list` | Condition | Diagnoses grouped by family with first-recorded dates and onset order |
 | `get_screening_history` | Observation (by instrument code and by category), QuestionnaireResponse | Instrument score timeline with cutoffs applied |
 | `get_medication_timeline` | MedicationRequest, MedicationDispense, MedicationStatement | Exposure periods by drug class; distinct antidepressant count |

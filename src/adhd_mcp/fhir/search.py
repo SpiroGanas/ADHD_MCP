@@ -12,8 +12,9 @@ from typing import Any
 from adhd_mcp.fhir.codes import canonical_system
 from adhd_mcp.fhir.dates import DateRange, parse_fhir_date, parse_period
 
-#: (system, code) pairs a search may be restricted to (FHIR ``code`` token search).
-type Codes = tuple[tuple[str, str], ...]
+#: (system, code) pairs a search may be restricted to: the resource's code or any component
+#: code (FHIR ``combo-code``). A system of ``None`` matches any system.
+type Codes = tuple[tuple[str | None, str], ...]
 
 #: resource type -> (FHIR search parameter, element name, element kind)
 DATE_SEARCH: dict[str, tuple[str, str, str]] = {
@@ -73,9 +74,10 @@ def _codings(concept: Any) -> list[dict[str, Any]]:
 
 
 def matches_filters(resource: Mapping[str, Any], categories: tuple[str, ...], codes: Codes) -> bool:
-    """FHIR ``category`` and ``code`` token search, as a local filter: any category code in
-    ``categories`` (any system), and any ``code`` coding in ``codes``. A resource too
-    malformed to tell is kept, so normalization reports it rather than it vanishing."""
+    """FHIR ``category`` and ``combo-code`` token search, as a local filter: any category code
+    in ``categories`` (any system), and any coding of the resource's code or of a component's
+    code in ``codes`` (aliased systems made canonical). A resource too malformed to tell is
+    kept, so normalization reports it rather than it vanishing."""
     if categories:
         concepts = resource.get("category") or []
         if not isinstance(concepts, list) or not all(_well_formed(k) for k in concepts):
@@ -84,14 +86,20 @@ def matches_filters(resource: Mapping[str, Any], categories: tuple[str, ...], co
         if not found & set(categories):
             return False
     if codes:
-        concept = resource.get("code")
-        if concept is not None and not _well_formed(concept):
+        components = resource.get("component") or []
+        if not isinstance(components, list) or not all(isinstance(c, dict) for c in components):
+            return True
+        concepts = [resource.get("code"), *(c.get("code") for c in components)]
+        if not all(k is None or _well_formed(k) for k in concepts):
             return True
         have = {
             (canonical_system(c.get("system")), str(c.get("code") or "").strip())
-            for c in _codings(concept)
+            for k in concepts
+            for c in _codings(k)
         }
-        if not have & set(codes):
+        wanted = {(s, c) for s, c in codes if s is not None}
+        any_system = {c for s, c in codes if s is None}
+        if not (have & wanted or {c for _, c in have} & any_system):
             return False
     return True
 

@@ -89,11 +89,8 @@ class FakeFhirServer:
             since=date.fromisoformat(since.removeprefix("ge")) if since else None,
             updated_since=datetime.fromisoformat(updated.removeprefix("ge")) if updated else None,
             categories=tuple(params["category"].split(",")) if params.get("category") else (),
-            codes=tuple(
-                tuple(c.split("|", 1))  # type: ignore[misc]
-                for c in params["code"].split(",")
-            )
-            if params.get("code")
+            codes=tuple((None, c) for c in params["combo-code"].split(","))
+            if params.get("combo-code")
             else (),
         )
         results = found.resources

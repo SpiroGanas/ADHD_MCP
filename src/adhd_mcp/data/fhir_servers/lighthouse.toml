@@ -16,5 +16,8 @@ no_date_search = ["MedicationRequest"]
 # No _include: referenced Medication resources are read one by one (GET Medication/{id}).
 include_medications = false
 
+# The CapabilityStatement offers Observation search by code and category, not combo-code.
+component_code_search = false
+
 # "_count ... The maximum count size is 200."
 max_page_size = 200

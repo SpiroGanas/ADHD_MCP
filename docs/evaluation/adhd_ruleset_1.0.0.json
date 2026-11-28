@@ -4,8 +4,8 @@
     "harness_version": "1.0.0",
     "ruleset": "adhd 1.0.0 (draft)",
     "catalog": "adhd.signal_catalog 1.0.0",
-    "content_sha256": "5ab4c0e49d16a86e47e7d52e43ade5b3de46eaf78c2693db77337fe8183c56c8",
-    "logic_sha256": "9675d33caa884f671672bf3ab26400bbddafda91f8a43b63b3f0dd601c7ced62",
+    "content_sha256": "8cfb889267bf586094f432fb73453cc0a5bd3746ea224db63e74cfd701474352",
+    "logic_sha256": "890cc40eb7d216b114272de1ac6aac727849c170d8e9a0b9277b9322bfa3208a",
     "cohort_version": "1.0.0",
     "cohort_sha256": "2b0047fe6c29dd42305ad74b4ba8fb789f438be75ed17dc2e29ee78f4fe68820",
     "as_of": "2026-06-15"

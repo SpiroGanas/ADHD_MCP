@@ -91,3 +91,45 @@ def test_a_recent_self_harm_fact_is_never_read_as_clear(
     result, _ = asyncio.run(assess_safety_gate(records, p.patient_id, AS_OF, CONTENT))
     event(f"gate: {result.status}")
     assert result.status in {SafetyGateStatus.POSITIVE, SafetyGateStatus.DATA_UNAVAILABLE}
+
+
+# Clinical safety review of the peer review 01 fixes, B1: the same for a screening result.
+LOINC_SYSTEMS = ["http://loinc.org", "http://loinc.org/", "urn:oid:2.16.840.1.113883.6.1"]
+
+
+@st.composite
+def item9_results(draw: st.DrawFn) -> dict[str, Any]:
+    day = AS_OF - timedelta(days=draw(st.integers(min_value=0, max_value=365)))
+    when = draw(st.sampled_from([day.isoformat(), f"{day.isoformat()}T09:00:00"]))
+    coding = {"system": draw(st.sampled_from(LOINC_SYSTEMS)), "code": "44260-8"}
+    value = {"valueInteger": draw(st.integers(min_value=0, max_value=3))}
+    resource: dict[str, Any] = {
+        "resourceType": "Observation",
+        "id": "h03-obs-x",
+        "status": "final",
+        "subject": {"reference": "Patient/h03-patient"},
+        "effectiveDateTime": when,
+    }
+    if draw(st.booleans()):
+        resource |= {"code": {"coding": [coding]}} | value
+    else:
+        local = {"system": "urn:synthetic:local-flowsheet", "code": "PHQ9"}
+        resource |= {
+            "code": {"coding": [local]},
+            "component": [{"code": {"coding": [coding]}} | value],
+        }
+    category = draw(st.sampled_from([None, "survey", "laboratory"]))
+    if category is not None:
+        resource["category"] = [{"coding": [{"code": category}]}]
+    return resource
+
+
+@settings(max_examples=150, deadline=None)
+@given(observation=item9_results())
+def test_a_recent_item9_result_is_never_read_as_clear(observation: dict[str, Any]) -> None:
+    p = PersonaBuilder("h03", gender="unknown", birth_date="1980")
+    p.resources.append(observation)
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    result, _ = asyncio.run(assess_safety_gate(records, p.patient_id, AS_OF, CONTENT))
+    event(f"gate: {result.status}")
+    assert result.status in {SafetyGateStatus.POSITIVE, SafetyGateStatus.DATA_UNAVAILABLE}
