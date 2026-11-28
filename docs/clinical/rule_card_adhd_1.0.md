@@ -35,7 +35,7 @@ Under a `withhold` privacy policy, a signal not found in data the policy thinned
 
 ## Signals
 
-Window: days before the as-of date, inclusive. A condition counts if it is active (open-ended) or was last recorded inside the window after it resolved; undated conditions do not count. All value sets are verified against ICD-10-CM FY2027; drug classes against RxNorm 02-Nov-2026 (ADR 0009).
+Window: days before the as-of date, inclusive. A condition counts when its last date (the latest recorded, onset or abatement date of any of its records) falls inside the window. Only an active problem-list item (clinical status active, recurrence or relapse, category `problem-list-item`, no abatement on or before the as-of date) is open-ended and counts whatever its date; encounter diagnoses, conditions without a clinical status, and single-day event codes (`sud.blood_alcohol_level`, `sud.alcohol_in_blood`, marked `point_in_time`) always count by their dates. The reason states the dates: "Last recorded 2025-03-02, within the 1095-day window." or "Counted as current: an active problem-list entry since 2021-05-01." Undated conditions do not count. (Peer review 01, C1; owner decision 2026-11-28, a draft for the clinical reviewer. Before, any condition not marked resolved counted as current forever, and the reason always read "Found within 1095 days.") All value sets are verified against ICD-10-CM FY2027; drug classes against RxNorm 02-Nov-2026 (ADR 0009).
 
 | Signal | Weight class | Definition (value set, window) | Supplied by tool | Evidence source | Inference? |
 |---|---|---|---|---|---|

@@ -31,8 +31,19 @@ class ProblemEntry(_Frozen):
     onset: date | None = Field(description="Earliest onset date recorded, if any")
     first_recorded: date | None = Field(description="Earliest recorded date, if any")
     last_recorded: date | None = Field(description="Latest recorded date, if any")
+    last_date: date | None = Field(
+        default=None,
+        description="Latest date any record of this code carries (recorded, onset or "
+        "abatement), if any",
+    )
     clinical_status: str | None = Field(description="Clinical status of the latest record")
     resolved: bool = Field(description="True when the latest record is resolved or inactive")
+    current: bool = Field(
+        default=False,
+        description="True when the latest record is an active problem-list item with no "
+        "abatement on or before the as-of date, and the code is not a single-day event: it "
+        "then counts as current whatever its date. Otherwise the entry counts by its last date",
+    )
     onset_order: int | None = Field(
         description="Rank by first known date (onset or recorded), 1 = earliest; equal dates "
         "share a rank; null when undated"

@@ -19,6 +19,8 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 - **C3.** New recommendation `outside_intended_population`: a patient under 18 at the as-of date (ruleset field `min_age_years`), without a usable birth date, or recorded as deceased gets it before any signal is evaluated or rule run, with a note saying why. The safety gate still runs and a positive gate still comes first. Before, a child's record could get an adult screening suggestion. Patient records now read `deceasedBoolean` and `deceasedDateTime`. Persona p16 added.
 
+- **C1.** The look-back window did not limit unresolved conditions, and the reason "Found within 1095 days." was given for codes sixteen years old. Now only an active problem-list item with no abatement by the as-of date counts as current whatever its date; encounter diagnoses, conditions without a status and single-day event codes (value sets marked `point_in_time`: Y90, R78.0) count by their last date, abatement dates included. Reasons give the dates. Problem-list entries gain `last_date` and `current`.
+
 #### Fixed (privacy)
 
 - **P1.** Under a `withhold` policy, signals whose records were withheld read "Not found in the record" and the result could be `no_recommendation`. They now read "Not checked: records it needs were withheld by the privacy policy", and with no rule fired the result is `insufficient_data`.
@@ -35,7 +37,7 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 #### Changed
 
-- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`.
+- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`.
 
 ### Phase 8
 

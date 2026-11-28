@@ -14,7 +14,7 @@
       "weight_class": "high"
     },
     {
-      "date": "2021-05-20",
+      "date": "2021-05-31",
       "references": [
         {
           "id": "p14-cond-2",
@@ -398,7 +398,7 @@
       "last_date": "2025-12-20",
       "present": true,
       "protected": "substance_use",
-      "reason": "Found within 1095 days.",
+      "reason": "Last recorded 2025-12-20, within the 1095-day window.",
       "references": [
         {
           "id": "p14-cond-1",
@@ -456,7 +456,7 @@
       "last_date": "2024-03-03",
       "present": true,
       "protected": "substance_use",
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2024-03-03.",
       "references": [
         {
           "id": "p14-cond-4",
@@ -488,7 +488,7 @@
       "last_date": "2024-07-15",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2024-07-15.",
       "references": [
         {
           "id": "p14-cond-3",
@@ -571,10 +571,10 @@
     {
       "count": null,
       "first_date": "2021-05-01",
-      "last_date": "2021-05-20",
+      "last_date": "2021-05-31",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2021-05-01.",
       "references": [
         {
           "id": "p14-cond-2",
@@ -645,7 +645,7 @@
       "last_date": "2025-11-05",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-11-05.",
       "references": [
         {
           "id": "p14-cond-5",
@@ -664,7 +664,7 @@
       "last_date": "2020-01-10",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2020-01-10.",
       "references": [
         {
           "id": "p14-cond-6",

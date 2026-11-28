@@ -77,6 +77,10 @@ class ValueSet(BaseModel):
     version: str
     title: str
     description: str | None = None
+    #: Codes that record one event on one day (a blood alcohol level, for example). An entry
+    #: from such a set always counts by its date, never as an ongoing problem (peer review
+    #: 01, C1).
+    point_in_time: bool = False
     entries: tuple[ValueSetEntry, ...]
 
     def matches(self, coding: Coding) -> ValueSetEntry | None:

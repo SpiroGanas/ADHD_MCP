@@ -340,7 +340,7 @@
       "last_date": "2024-02-01",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Last recorded 2024-02-01, within the 1095-day window.",
       "references": [
         {
           "id": "p09-cond-1",
@@ -377,7 +377,7 @@
       "last_date": null,
       "present": false,
       "protected": null,
-      "reason": "Found, but outside the 1095-day window.",
+      "reason": "Last recorded 2019-12-31, outside the 1095-day window.",
       "references": [],
       "signal": "depression_or_anxiety",
       "title": "Depression or generalized anxiety",

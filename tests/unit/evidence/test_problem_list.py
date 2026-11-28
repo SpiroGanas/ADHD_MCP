@@ -164,3 +164,72 @@ async def test_record_display_text_is_never_returned() -> None:
         "R41.840": "Attention and concentration deficit",
         "F43.10": None,
     }
+
+
+# --- peer review 01, C1: which entries count as current whatever their date -----------
+# Owner decision 2026-11-28 (a draft for the clinical reviewer): only an active problem-list
+# item, without an abatement date on or before the as-of date, is open-ended. Encounter
+# diagnoses, conditions without a status and single-day event codes count by their dates.
+
+
+def _only_entry(result: ProblemListResult, code: str) -> object:
+    return next(e for f in result.families for e in f.entries if e.code.code == code)
+
+
+@pytest.mark.parametrize(
+    ("category", "clinical", "current"),
+    [
+        ("problem-list-item", "active", True),
+        ("problem-list-item", "recurrence", True),
+        ("problem-list-item", "relapse", True),
+        ("problem-list-item", "remission", False),
+        ("problem-list-item", "resolved", False),
+        ("encounter-diagnosis", "active", False),
+    ],
+)
+async def test_only_an_active_problem_list_item_is_current(
+    category: str, clinical: str, current: bool
+) -> None:
+    p = person()
+    p.condition("F43.10", "PTSD", recorded="2009-01-01", clinical=clinical, category=category)
+    entry = _only_entry(await problems(p.patient_id, p.resources), "F43.10")
+    assert entry.current is current  # type: ignore[attr-defined]
+
+
+async def test_a_condition_without_a_clinical_status_is_not_current() -> None:
+    p = person()
+    cid = p.condition("F43.10", "PTSD", recorded="2009-01-01")
+    del next(r for r in p.resources if r["id"] == cid)["clinicalStatus"]
+    entry = _only_entry(await problems(p.patient_id, p.resources), "F43.10")
+    assert entry.current is False  # type: ignore[attr-defined]
+
+
+@pytest.mark.parametrize(("abated", "current"), [("2026-06-15", False), ("2026-06-16", True)])
+async def test_an_abatement_date_ends_an_active_item(abated: str, current: bool) -> None:
+    p = person()
+    cid = p.condition("F43.10", "PTSD", recorded="2009-01-01")
+    next(r for r in p.resources if r["id"] == cid)["abatementDateTime"] = abated
+    entry = _only_entry(await problems(p.patient_id, p.resources), "F43.10")
+    assert entry.current is current  # type: ignore[attr-defined]
+    if not current:
+        assert entry.last_date == date(2026, 6, 15)  # type: ignore[attr-defined]
+
+
+async def test_a_single_day_event_code_is_never_current() -> None:
+    # Y90 and R78.0 record one measurement on one day (E1).
+    p = person()
+    p.condition("Y90.3", "Blood alcohol level", recorded="2010-03-01")
+    p.condition("R78.0", "Alcohol in blood", recorded="2011-03-01")
+    result = await problems(p.patient_id, p.resources)
+    assert _only_entry(result, "Y90.3").current is False  # type: ignore[attr-defined]
+    assert _only_entry(result, "R78.0").current is False  # type: ignore[attr-defined]
+
+
+async def test_the_last_date_is_the_latest_date_any_record_carries() -> None:
+    p = person()
+    p.condition("F43.10", "PTSD", recorded="2020-01-01")
+    p.condition("F43.10", "PTSD", onset="2022-05-01", category="encounter-diagnosis")
+    entry = _only_entry(await problems(p.patient_id, p.resources), "F43.10")
+    assert entry.last_date == date(2022, 5, 1)  # type: ignore[attr-defined]
+    # The latest record (by date) is the encounter diagnosis: not current.
+    assert entry.current is False  # type: ignore[attr-defined]

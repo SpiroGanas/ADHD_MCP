@@ -1,8 +1,15 @@
 """The mental health problem list: coded conditions grouped into the families the rules use.
 
 One entry per code: duplicate codings across encounters collapse into one entry citing every
-Condition. Each entry has its first onset and recorded dates, the clinical status of its
-latest record, and an onset order (entries with the same first date share a rank).
+Condition. Each entry has its first onset and recorded dates, its last date, the clinical
+status of its latest record, whether it counts as current, and an onset order (entries with
+the same first date share a rank).
+
+An entry is current (open-ended, counted whatever its date) only when its latest record is
+an active problem-list item with no abatement on or before the as-of date, and its family is
+not a single-day event. Encounter diagnoses, conditions without a status and event codes
+count by their last date (peer review 01, C1; owner decision 2026-11-28, a draft for the
+clinical reviewer).
 """
 
 import tomllib
@@ -23,6 +30,8 @@ from adhd_mcp.models.evidence_outputs import CodeRef, ProblemEntry, ProblemFamil
 from adhd_mcp.terminology import ValueSet, load_value_set
 
 _RESOLVED = frozenset({"resolved", "inactive"})
+_ACTIVE = frozenset({"active", "recurrence", "relapse"})
+_PROBLEM_LIST_ITEM = "problem-list-item"
 
 
 class _Frozen(BaseModel):
@@ -78,11 +87,29 @@ def _max(values: Sequence[date | None]) -> date | None:
     return max(known) if known else None
 
 
+def _last_date(c: ConditionRecord) -> date | None:
+    ends = [r.end or r.start for r in (c.recorded, c.onset, c.abatement) if r is not None]
+    known = [d for d in ends if d is not None]
+    return max(known) if known else None
+
+
 def _recency(c: ConditionRecord) -> date:
-    """Sort key for "latest record": its recorded date, else its first known date."""
+    """Sort key for "latest record": its recorded date, else its latest known date."""
     if c.recorded is not None and c.recorded.start is not None:
         return c.recorded.start
-    return _first_date(c) or date.min
+    return _last_date(c) or date.min
+
+
+def _current(c: ConditionRecord, as_of: date | None) -> bool:
+    """An active problem-list item not abated by the as-of date."""
+    abated = c.abatement is not None and (
+        as_of is None or c.abatement.start is None or c.abatement.start <= as_of
+    )
+    return (
+        c.clinical_status in _ACTIVE
+        and any(k.code == _PROBLEM_LIST_ITEM for k in c.categories)
+        and not abated
+    )
 
 
 def _display(coding: Coding, value_sets: tuple[ValueSet, ...]) -> str | None:
@@ -96,17 +123,25 @@ def _display(coding: Coding, value_sets: tuple[ValueSet, ...]) -> str | None:
 
 
 def _entry(
-    coding: Coding, conditions: list[ConditionRecord], value_sets: tuple[ValueSet, ...]
+    coding: Coding,
+    conditions: list[ConditionRecord],
+    value_sets: tuple[ValueSet, ...],
+    *,
+    point_in_time: bool,
+    as_of: date | None,
 ) -> ProblemEntry:
     recorded = [c.recorded.start if c.recorded else None for c in conditions]
-    status = max(conditions, key=_recency).clinical_status
+    latest_record = max(conditions, key=_recency)
+    status = latest_record.clinical_status
     return ProblemEntry(
         code=CodeRef(system=coding.system, code=coding.code, display=_display(coding, value_sets)),
         onset=_min([c.onset.start if c.onset else None for c in conditions]),
         first_recorded=_min(recorded),
         last_recorded=_max(recorded),
+        last_date=_max([_last_date(c) for c in conditions]),
         clinical_status=status,
         resolved=status in _RESOLVED,
+        current=not point_in_time and _current(latest_record, as_of),
         onset_order=None,
         references=sorted({c.ref for c in conditions}, key=lambda r: r.id),
     )
@@ -132,10 +167,13 @@ def group_conditions(
     conditions: Sequence[ConditionRecord],
     families: tuple[ValueSet, ...],
     fallback: ValueSet | None = None,
+    *,
+    as_of: date | None = None,
 ) -> list[ProblemFamily]:
     """Group conditions into families: one entry per code citing every Condition, families
     in the given order, entries by onset order. The fallback family takes codes it matches
-    that no other family matches."""
+    that no other family matches. ``as_of`` decides whether an abatement has happened yet
+    (any abatement counts when it is not given)."""
     every = (*families, fallback) if fallback is not None else families
     # code -> (coding, conditions); a family keeps the codes it matches
     by_code: dict[tuple[str | None, str], tuple[Coding, list[ConditionRecord]]] = {}
@@ -161,7 +199,10 @@ def group_conditions(
         keys = family_codes.get(vs.id)
         if not keys:
             continue
-        entries = _with_order([_entry(*by_code[k], every) for k in keys], firsts)
+        entries = _with_order(
+            [_entry(*by_code[k], every, point_in_time=vs.point_in_time, as_of=as_of) for k in keys],
+            firsts,
+        )
         entries.sort(key=lambda e: (e.onset_order is None, e.onset_order or 0, e.code.code))
         grouped.append(ProblemFamily(family=vs.id, title=vs.title, entries=entries))
     return grouped
@@ -176,7 +217,7 @@ async def assemble_problem_list(
     # A condition first known after the as-of date did not exist yet.
     conditions = conditions_as_of(read.records if read else (), as_of)
     return ProblemListResult(
-        families=group_conditions(conditions, content.families, content.fallback),
+        families=group_conditions(conditions, content.families, content.fallback, as_of=as_of),
         families_checked=[vs.id for vs in (*content.families, content.fallback)],
         data_completeness=notes,
         definition_version=content.definition.version,

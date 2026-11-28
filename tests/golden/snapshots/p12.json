@@ -291,7 +291,7 @@
       "last_date": "2025-04-01",
       "present": true,
       "protected": "substance_use",
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-04-01.",
       "references": [
         {
           "id": "p12-cond-1",
@@ -362,7 +362,7 @@
       "last_date": "2024-01-10",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2024-01-10.",
       "references": [
         {
           "id": "p12-cond-2",

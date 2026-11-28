@@ -57,7 +57,7 @@ async def test_withheld_signals_are_not_checked_and_the_result_is_insufficient_d
     why = reasons(out)
     for signal in SUBSTANCE_SIGNALS:
         assert why[signal] == WITHHELD
-    assert why["depression_or_anxiety"].startswith("Found")
+    assert why["depression_or_anxiety"].startswith("Counted as current")
     assert {s["signal"] for s in out["signals_checked"] if s["present"]} == {
         "depression_or_anxiety",
         "insomnia",

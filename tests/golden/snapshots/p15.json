@@ -311,7 +311,7 @@
       "last_date": "2025-10-01",
       "present": true,
       "protected": "substance_use",
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-10-01.",
       "references": [
         {
           "id": "p15-cond-1",
@@ -408,7 +408,7 @@
       "last_date": "2025-11-12",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-11-12.",
       "references": [
         {
           "id": "p15-cond-2",
@@ -453,7 +453,7 @@
       "last_date": "2026-01-15",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2026-01-15.",
       "references": [
         {
           "id": "p15-cond-3",

@@ -325,7 +325,7 @@
       "last_date": "2025-01-15",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Last recorded 2024-05-11, within the 1095-day window. Also counted as current: an active problem-list entry since 2025-01-15.",
       "references": [
         {
           "id": "p05-cond-1",
@@ -427,7 +427,7 @@
       "last_date": "2025-02-20",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-02-20.",
       "references": [
         {
           "id": "p05-cond-4",
@@ -446,7 +446,7 @@
       "last_date": "2025-01-15",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-01-15.",
       "references": [
         {
           "id": "p05-cond-3",

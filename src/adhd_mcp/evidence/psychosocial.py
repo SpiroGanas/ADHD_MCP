@@ -118,7 +118,7 @@ async def assemble_psychosocial(
     ]
     domains = []
     for definition, value_sets in content.domains:
-        families = group_conditions(conditions, value_sets)
+        families = group_conditions(conditions, value_sets, as_of=as_of)
         obs_refs = sorted(
             {
                 o.ref

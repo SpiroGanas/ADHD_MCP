@@ -152,6 +152,11 @@
                           ],
                           "type": "object"
                         },
+                        "current": {
+                          "default": false,
+                          "description": "True when the latest record is an active problem-list item with no abatement on or before the as-of date, and the code is not a single-day event: it then counts as current whatever its date. Otherwise the entry counts by its last date",
+                          "type": "boolean"
+                        },
                         "first_recorded": {
                           "anyOf": [
                             {
@@ -163,6 +168,19 @@
                             }
                           ],
                           "description": "Earliest recorded date, if any"
+                        },
+                        "last_date": {
+                          "anyOf": [
+                            {
+                              "format": "date",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "description": "Latest date any record of this code carries (recorded, onset or abatement), if any"
                         },
                         "last_recorded": {
                           "anyOf": [
