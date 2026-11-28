@@ -22,7 +22,7 @@ A FastMCP 4.2 server, version 0.9.0, with ten read-only tools (tool contract 0.5
 
 ## In progress
 
-- **Hand-off documents** (branch `claude/production-handoff-docs-aozfkw`; documentation only, no code, test or data change): three Word documents in [docs/handoff/](docs/handoff/README.md). A **Human Review Checklist** of about 130 items grouped by reviewer role (owner, physician, suicide prevention lead, psychologist, nurse, pharmacist, coder, informaticist, software and security engineers, privacy, counsel, data scientist, operations), each with where to look and when it is needed; a **User Guide** (30 pages); a three-page **Clinician Quick Start Guide**. The worked examples were produced by running 0.9.0 on the synthetic personas. Pull request to be opened from this branch.
+- **Hand-off documents** (branch `claude/production-handoff-docs-aozfkw`; documentation only, no code, test or data change): three Word documents in [docs/handoff/](docs/handoff/README.md). A **Human Review Checklist** of about 130 items grouped by reviewer role (owner, physician, suicide prevention lead, psychologist, nurse, pharmacist, coder, informaticist, software and security engineers, privacy, counsel, data scientist, operations), each with where to look and when it is needed; a **User Guide** (30 pages); a three-page **Clinician Quick Start Guide**. The worked examples were produced by running 0.9.0 on the synthetic personas. In review: [SpiroGanas/ADHD_MCP#10](https://github.com/SpiroGanas/ADHD_MCP/pull/10).
 
 ## Next steps
 
@@ -130,4 +130,4 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Merged |
 | [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) | Peer review 01: findings only, no code changes | Merged |
 | [SpiroGanas/ADHD_MCP#9](https://github.com/SpiroGanas/ADHD_MCP/pull/9) | Peer review 01 fixes | Merged (no recorded review) |
-| Not yet opened | Hand-off documents: review checklist, user guide, clinician quick start | Branch `claude/production-handoff-docs-aozfkw` |
+| [SpiroGanas/ADHD_MCP#10](https://github.com/SpiroGanas/ADHD_MCP/pull/10) | Hand-off documents: review checklist, user guide, clinician quick start | Open |
