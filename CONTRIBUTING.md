@@ -11,7 +11,7 @@ This guide applies to human developers and AI agents alike. AI agents must also 
 
 ## Ground rules
 
-- **Never commit real patient data**, real identifiers or credentials. All test data is synthetic.
+- **Never commit real patient data**, real identifiers or credentials. All test data is synthetic. The synthetic-data guard (`scripts/check_synthetic_data.py`; its rules are in the file's docstring) requires every FHIR resource in JSON that describes a person or carries a name or identifier to have the `HTEST` tag, the `urn:adhd-mcp:synthetic-id` identifier system and the family name `Synthetic`, and it fails on SSN-shaped numbers, JSON it cannot parse and any FHIR XML (store FHIR data as JSON). To run it before every commit, install the pre-commit hook once from the root of your clone: `ln -s ../../scripts/pre-commit .git/hooks/pre-commit`.
 - The software recommends referral for screening. It never diagnoses, and nothing in the code, tests or documents may say otherwise.
 - Tools are read-only.
 - Clinical content (codes, cutoffs, weights, wording) changes only through a clinical content change issue and with the project owner's approval.
