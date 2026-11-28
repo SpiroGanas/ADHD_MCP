@@ -27,6 +27,13 @@ self_harm_value_sets = [
 # an encounter, one day) count as one crash. Passenger codes are not in the set.
 driver_value_set = "injury.motor_vehicle_driver"
 
+# ICD-10-CM seventh characters of an initial encounter (B and C: open fractures). An injury
+# visit whose injury codes all carry another seventh character (subsequent encounter,
+# sequela) is a follow-up, not a new injury (peer review 01, C2; owner decision 2026-11-28
+# named D and S, this also covers the fracture-specific subsequent characters E to R; for the
+# clinical reviewer to confirm).
+initial_encounter_characters = ["A", "B", "C"]
+
 # Psychiatric inpatient or residential stays (site-mapped encounter codes).
 psychiatric_concepts = ["psychiatric_inpatient_encounter", "psychiatric_residential_encounter"]
 

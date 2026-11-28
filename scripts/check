@@ -9,3 +9,7 @@ echo "== ruff format";    uv run ruff format --check .
 echo "== mypy";           uv run mypy
 echo "== synthetic data"; uv run python scripts/check_synthetic_data.py
 echo "== pytest";         uv run pytest --cov --cov-report=term
+# The plan requires every branch of the rules and the safety gate covered; orchestration and
+# privacy too (peer review 01, T5).
+echo "== coverage 100%";  uv run coverage report --fail-under=100 --skip-covered \
+                            --include='*/adhd_mcp/rules/*,*/adhd_mcp/evidence/safety_gate.py,*/adhd_mcp/orchestration/*,*/adhd_mcp/privacy/*'

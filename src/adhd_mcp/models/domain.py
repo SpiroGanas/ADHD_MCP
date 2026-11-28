@@ -80,6 +80,11 @@ class SafetyCheck(_Frozen):
     reason: str | None = Field(
         default=None, description="Why the check was not performed or failed"
     )
+    references: list[ResourceRef] = Field(
+        default_factory=list,
+        description="Resources a failed check found but could not interpret, for example a "
+        "screening result recorded under a code not yet verified",
+    )
 
     @model_validator(mode="after")
     def _reason_when_not_run(self) -> Self:
@@ -157,6 +162,9 @@ class RecommendationCode(StrEnum):
     ADDRESS_SAFETY_GATE_FIRST = "address_safety_gate_first"
     ALREADY_IN_CARE = "already_in_care"
     INSUFFICIENT_DATA = "insufficient_data"
+    #: Under the ruleset's minimum age at the as-of date, without a birth date, or deceased
+    #: (peer review 01, C3).
+    OUTSIDE_INTENDED_POPULATION = "outside_intended_population"
 
 
 class DataStatus(StrEnum):
@@ -218,6 +226,12 @@ class Versions(_Frozen):
     scorer: str | None = None
     site_codes: str | None = Field(
         default=None, description="Local code mapping in use: id and version"
+    )
+    clinical_content: str | None = Field(
+        default=None,
+        description="sha256 of all packaged clinical content (rulesets, catalogs, value sets, "
+        "drug classes, instruments, site codes, safety gate and evidence definitions, privacy "
+        "policy, wording): two outputs with the same value rest on the same content",
     )
 
 

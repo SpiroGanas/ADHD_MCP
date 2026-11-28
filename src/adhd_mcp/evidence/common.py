@@ -14,12 +14,19 @@ from pydantic import BaseModel
 
 from adhd_mcp.fhir.dates import DateRange
 from adhd_mcp.fhir.errors import FhirRequestError, SearchNotSupportedError
-from adhd_mcp.fhir.reader import ReadResult
+from adhd_mcp.fhir.reader import ReadResult, merge_reads
 from adhd_mcp.fhir.records import SkipReason
 from adhd_mcp.models.domain import DataCompleteness, DataStatus
 
+#: Observation categories the evidence tools read: social history, surveys (screening
+#: instruments) and US Core SDOH assessments. Laboratory results, vital signs and the other
+#: categories are never needed, so never read (peer review 01, D1).
+EVIDENCE_OBSERVATION_CATEGORIES = ("social-history", "survey", "sdoh")
+
 #: Completeness warning code for resources that could not be read.
 UNREADABLE = "unreadable_resources"
+#: Completeness warning code for conditions coded in no system the value sets cover.
+UNRECOGNIZED = "unrecognized_coding"
 
 
 @dataclass(frozen=True)
@@ -64,10 +71,14 @@ def completeness[R: BaseModel](category: str, result: Read[R]) -> DataCompletene
     if isinstance(result, NotSupported):
         return DataCompleteness(category=category, status=DataStatus.NOT_SUPPORTED)
     warnings = [w.code for w in result.warnings]
-    # A resource that could not be read (malformed, or no id) may hold a signal: the
-    # category is incomplete. Entered-in-error and refuted resources are not data.
-    if any(s.reason is not SkipReason.EXCLUDED_STATUS for s in result.skipped):
+    # A resource that could not be read (malformed, or no id) or a condition no value set
+    # can match may hold a signal: the category is incomplete. Entered-in-error and refuted
+    # resources are not data.
+    reasons = {s.reason for s in result.skipped}
+    if reasons - {SkipReason.EXCLUDED_STATUS, SkipReason.UNRECOGNIZED_CODING}:
         warnings.append(UNREADABLE)
+    if SkipReason.UNRECOGNIZED_CODING in reasons:
+        warnings.append(UNRECOGNIZED)
     if warnings:
         status = DataStatus.INCOMPLETE
     elif result.records:
@@ -92,6 +103,17 @@ async def read_category[R: BaseModel](read: Awaitable[ReadResult[R]]) -> Read[R]
         return None
     except SearchNotSupportedError:
         return NOT_SUPPORTED
+
+
+async def read_merged[R: BaseModel](*reads: Awaitable[ReadResult[R]]) -> Read[R]:
+    """Several filtered reads of one type as one category read: failed if any failed, not
+    offered if any was not offered, else the merged records."""
+    results = [await read_category(r) for r in reads]
+    if any(r is None for r in results):
+        return None
+    if any(isinstance(r, NotSupported) for r in results):
+        return NOT_SUPPORTED
+    return merge_reads(*(r for r in results if isinstance(r, ReadResult)))
 
 
 def not_offered_reason(categories: list[str]) -> str:

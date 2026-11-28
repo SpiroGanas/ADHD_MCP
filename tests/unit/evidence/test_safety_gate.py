@@ -107,6 +107,47 @@ async def test_unrelated_codes_do_not_trigger() -> None:
     assert (await gate(p)).status is SafetyGateStatus.CLEAR
 
 
+async def test_a_condition_coded_only_in_snomed_ct_makes_the_gate_fail_closed() -> None:
+    # Peer review 01, S1 (E8): recent suicidal thoughts and a suicide attempt coded only in
+    # SNOMED CT were "not found" with the Condition category "available" and no warning.
+    p = person()
+    for code, when in (("6471006", ago(45)), ("82313006", ago(75))):
+        p.resources.append(
+            {
+                "resourceType": "Condition",
+                "id": f"t01-snomed-{code}",
+                "subject": p.subject,
+                "code": {"coding": [{"system": "http://snomed.info/sct", "code": code}]},
+                "recordedDate": when,
+            }
+        )
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    result, notes = await assess_safety_gate(records, p.patient_id, AS_OF, content())
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    [condition] = [n for n in notes if n.category == "Condition"]
+    assert condition.status is DataStatus.INCOMPLETE
+    assert "unrecognized_coding" in condition.warnings
+
+
+async def test_a_timestamp_without_an_offset_is_read_not_skipped() -> None:
+    # Peer review 01, D3 (E10): one such timestamp made the category incomplete and the
+    # patient unassessable.
+    p = person()
+    p.condition("R45.851", "synthetic", recorded=f"{ago(45)}T10:00:00")
+    result = await gate(p)
+    assert result.status is SafetyGateStatus.POSITIVE
+    assert result.evidence[0].date == AS_OF - timedelta(days=45)
+
+
+async def test_an_undotted_icd10cm_code_makes_the_gate_positive() -> None:
+    # Peer review 01, S1 (E8b).
+    p = person()
+    p.condition("R45851", "synthetic", recorded=ago(45))
+    result = await gate(p)
+    assert result.status is SafetyGateStatus.POSITIVE
+    assert outcome(result, "suicidal_ideation_code") is CheckOutcome.FOUND
+
+
 @pytest.mark.parametrize(("days", "found"), [(364, True), (365, True), (366, False)])
 async def test_coded_signal_look_back_boundary(days: int, found: bool) -> None:
     p = person()
@@ -416,6 +457,29 @@ async def test_a_flag_starting_after_the_as_of_date_is_ignored() -> None:
     assert (result.status, result.history) == (SafetyGateStatus.CLEAR, [])
 
 
+@pytest.mark.parametrize(("ended_days_ago", "current"), [(0, True), (1, False)])
+async def test_a_flag_ending_on_the_as_of_date_still_counts(
+    ended_days_ago: int, current: bool
+) -> None:
+    # Peer review 01, T8: the boundary of "ended before the as-of date" was untested.
+    p = person()
+    fid = p.flag("high-risk-for-suicide", ago(30))
+    next(r for r in p.resources if r["id"] == fid)["period"]["end"] = ago(ended_days_ago)
+    result = await gate(p)
+    assert (outcome(result, "high_risk_flag") is CheckOutcome.FOUND) is current
+    assert bool(result.history) is not current
+
+
+async def test_an_unmapped_or_unanswered_questionnaire_does_not_stop_the_gate() -> None:
+    # Strict content: only a mapped PHQ-9 response with an item 9 answer stops the gate.
+    p = person()
+    p.questionnaire_response("urn:adhd-mcp:synthetic-questionnaire:other", ago(10), {"9": 3})
+    p.questionnaire_response(PHQ9_QUESTIONNAIRE, ago(10), {"1": 2, "total": 9})
+    result = await gate(p, strict=True)
+    assert outcome(result, "phq9_item9") is CheckOutcome.NOT_PERFORMED
+    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+
+
 async def test_other_flags_do_not_count() -> None:
     p = person()
     p.flag("fall-risk", ago(10))
@@ -456,9 +520,9 @@ async def test_every_check_is_listed_with_a_description() -> None:
 
 
 async def test_strict_content_leaves_the_unverified_loinc_checks_not_performed() -> None:
+    # With no result recorded under their codes. A recorded result stops the gate (S2 tests).
     p = person()
     p.condition("I10", "Essential hypertension", recorded=ago(10))
-    phq9_item9(p, 3)
     result = await gate(p, strict=True)
     assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
     for check_id in ("phq9_item9", "cssrs_risk_level"):
@@ -466,6 +530,66 @@ async def test_strict_content_leaves_the_unverified_loinc_checks_not_performed()
         assert check.outcome is CheckOutcome.NOT_PERFORMED
         assert check.reason is not None
         assert "not verified" in check.reason
+
+
+# Peer review 01, S2 (E17): a result recorded under a code the instrument file lists for a
+# gate check stops the gate even while that code is unverified. The code is used only to
+# stop, never to score (owner decision 2026-11-28).
+
+
+@pytest.mark.parametrize("value", [0, 3])
+async def test_a_phq9_item9_result_under_an_unverified_code_stops_the_gate(value: int) -> None:
+    p = person()
+    oid = phq9_item9(p, value)
+    result = await gate(p, strict=True)
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.outcome is CheckOutcome.FAILED
+    assert check.reason is not None
+    assert "not verified" in check.reason
+    assert [r.id for r in check.references] == [oid]
+    assert_no_diagnostic_language(result.model_dump(mode="json"))
+
+
+async def test_a_phq9_item9_answer_in_a_mapped_questionnaire_stops_the_gate() -> None:
+    p = person()
+    qid = p.questionnaire_response(PHQ9_QUESTIONNAIRE, ago(10), {"9": 0, "total": 3})
+    result = await gate(p, strict=True)
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.outcome is CheckOutcome.FAILED
+    assert [r.id for r in check.references] == [qid]
+
+
+async def test_a_cssrs_risk_level_under_an_unverified_code_stops_the_gate() -> None:
+    p = person()
+    oid = p.observation(
+        "93374-7", "Suicide risk level", f"{ago(20)}T09:00:00Z", value_code=("LA9194-7", "Low")
+    )
+    result = await gate(p, strict=True)
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "cssrs_risk_level")
+    assert check.outcome is CheckOutcome.FAILED
+    assert [r.id for r in check.references] == [oid]
+
+
+@pytest.mark.parametrize(("days", "stops"), [(365, True), (366, False)])
+async def test_an_unverified_result_outside_the_look_back_does_not_stop_the_gate(
+    days: int, stops: bool
+) -> None:
+    p = person()
+    phq9_item9(p, 2, days)
+    result = await gate(p, strict=True)
+    assert (result.status is SafetyGateStatus.DATA_UNAVAILABLE) is stops
+    expected = CheckOutcome.FAILED if stops else CheckOutcome.NOT_PERFORMED
+    assert outcome(result, "phq9_item9") is expected
+
+
+async def test_an_observation_without_a_result_does_not_stop_the_gate() -> None:
+    p = person()
+    p.observation("44260-8", "PHQ-9 item 9", f"{ago(3)}T09:00:00Z", value=2, status="cancelled")
+    p.observation("44260-8", "PHQ-9 item 9", f"{ago(3)}T09:00:00Z")
+    assert outcome(await gate(p, strict=True), "phq9_item9") is CheckOutcome.NOT_PERFORMED
 
 
 async def test_strict_content_still_finds_verified_signals() -> None:
@@ -654,11 +778,15 @@ async def test_completeness_covers_every_category_read() -> None:
     ]
 
 
-async def test_strict_content_does_not_read_categories_only_inactive_checks_need() -> None:
+async def test_strict_content_reads_observations_to_find_unverified_results() -> None:
+    # Peer review 01, S2: an unreadable Observation category could hide a recorded PHQ-9
+    # item 9 result, so the unverified instrument checks fail rather than pass.
     records = PatientRecords(FailingAdapter(person(), {"Observation", "QuestionnaireResponse"}))
     result, notes = await assess_safety_gate(records, "t01-patient", AS_OF, content(strict=True))
-    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
-    assert "Observation" not in [n.category for n in notes]
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    assert {"Observation", "QuestionnaireResponse"} <= {n.category for n in notes}
+    for check_id in ("phq9_item9", "cssrs_risk_level"):
+        assert outcome(result, check_id) is CheckOutcome.FAILED
 
 
 async def test_positive_output_wording_is_not_diagnostic() -> None:

@@ -17,6 +17,8 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from adhd_mcp.versions import clinical_content_sha256
+
 
 class Rule(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
@@ -46,6 +48,9 @@ class Ruleset(BaseModel):
         description="Always false: no ruleset in this project is clinically validated"
     )
     exclusions: tuple[str, ...]
+    min_age_years: int = Field(
+        ge=0, description="Youngest age, at the as-of date, the ruleset is meant for"
+    )
     citations: tuple[str, ...] = Field(min_length=1)
     rules: tuple[Rule, ...] = Field(min_length=1)
 
@@ -60,6 +65,9 @@ class ReleasedRuleset(BaseModel):
     id: str
     version: str
     sha256: str
+    #: ``versions.clinical_content_sha256()`` at release: the catalog, value sets and every
+    #: other data file the ruleset's results depend on (peer review 01, X2).
+    content_sha256: str
 
 
 def released_rulesets() -> tuple[ReleasedRuleset, ...]:
@@ -75,6 +83,8 @@ def parse_ruleset(text: str, *, released: Sequence[ReleasedRuleset]) -> Ruleset:
             raise ValueError(f"ruleset {ruleset.label} is released but not pinned")
         if hashlib.sha256(text.encode("utf-8")).hexdigest() != pins[0].sha256:
             raise ValueError(f"ruleset {ruleset.label} changed since release")
+        if clinical_content_sha256() != pins[0].content_sha256:
+            raise ValueError(f"ruleset {ruleset.label}: clinical content changed since release")
     return ruleset
 
 

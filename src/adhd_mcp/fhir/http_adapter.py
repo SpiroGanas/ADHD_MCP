@@ -11,7 +11,8 @@
   as failed, never read in part or silently shortened.
 * Timeouts, connection errors, 429 and 5xx are retried with exponential backoff; a numeric
   ``Retry-After`` is honoured up to ``max_backoff``. Other failures are not retried.
-* A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure
+* A missing patient (404 or 410) raises ``ResourceNotFoundError``; every other failure,
+  including a 404 or 410 to a search (some servers answer so for a type they do not offer),
   raises ``FhirRequestError``. Error messages never include response bodies.
 
 * A ``ServerProfile`` (``fhir/profiles.py``) says what the server offers. A search of a type
@@ -50,7 +51,7 @@ from adhd_mcp.fhir.port import (
     validate_patient_id,
 )
 from adhd_mcp.fhir.profiles import GENERIC, ServerProfile
-from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES, matches_since
+from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES, Codes, matches_since
 from adhd_mcp.fhir.smart import FhirAuth
 
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
@@ -164,7 +165,9 @@ class HttpFhirAdapter:
                     renewed = True
                     continue
                 if status in _NOT_FOUND_STATUSES:
-                    raise ResourceNotFoundError(f"{label}: not found (HTTP {status})")
+                    raise ResourceNotFoundError(
+                        f"{label}: not found (HTTP {status})", status=status
+                    )
                 if status < 300:
                     try:
                         return response.json()
@@ -209,13 +212,17 @@ class HttpFhirAdapter:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> SearchResult:
         validate_patient_id(patient_id)
         if resource_type not in DATE_SEARCH:
             raise ValueError(f"unsupported search type {resource_type!r}")
         if resource_type not in self._profile.offered:
             raise SearchNotSupportedError(resource_type)
-        params = self._search_params(resource_type, patient_id, since, updated_since)
+        params = self._search_params(
+            resource_type, patient_id, since, updated_since, categories=categories, codes=codes
+        )
         date_param = self._profile.date_param(resource_type)
         medications = resource_type in MEDICATION_TYPES
 
@@ -232,7 +239,12 @@ class HttpFhirAdapter:
                 raise FhirRequestError(
                     f"{label}: stopped after {self._max_pages} pages", transient=False
                 )
-            bundle = await self._get(url, label, page_params, patient_id=patient_id)
+            try:
+                bundle = await self._get(url, label, page_params, patient_id=patient_id)
+            except ResourceNotFoundError as exc:
+                raise FhirRequestError(
+                    f"{label}: not found (HTTP {exc.status})", status=exc.status, transient=False
+                ) from exc
             if not isinstance(bundle, dict) or bundle.get("resourceType") != "Bundle":
                 raise FhirRequestError(f"{label}: response is not a Bundle", transient=False)
             for resource in _entries(bundle, label):
@@ -257,9 +269,20 @@ class HttpFhirAdapter:
         patient_id: str,
         since: date | None,
         updated_since: datetime | None,
+        *,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> dict[str, str]:
         """The first page's query: only parameters the server's profile offers."""
         params = {"patient": patient_id, "_count": str(self._page_size)}
+        if categories:
+            params["category"] = ",".join(categories)
+        # Codes go out system-less as combo-code (code or component code): a server that
+        # matches token systems literally must not miss an aliased system, and a result may
+        # be a component of a local panel. A server without combo-code is read unfiltered by
+        # code; the reader filters locally (clinical safety review, B1).
+        if codes and self._profile.component_code_search:
+            params["combo-code"] = ",".join(dict.fromkeys(code for _, code in codes))
         date_param = self._profile.date_param(resource_type)
         if since is not None and date_param is not None:
             params[date_param] = f"ge{since.isoformat()}"

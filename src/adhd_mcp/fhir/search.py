@@ -9,7 +9,12 @@ from collections.abc import Mapping
 from datetime import date, datetime
 from typing import Any
 
+from adhd_mcp.fhir.codes import canonical_system
 from adhd_mcp.fhir.dates import DateRange, parse_fhir_date, parse_period
+
+#: (system, code) pairs a search may be restricted to: the resource's code or any component
+#: code (FHIR ``combo-code``). A system of ``None`` matches any system.
+type Codes = tuple[tuple[str | None, str], ...]
 
 #: resource type -> (FHIR search parameter, element name, element kind)
 DATE_SEARCH: dict[str, tuple[str, str, str]] = {
@@ -48,6 +53,55 @@ def clinical_date(resource: Mapping[str, Any]) -> DateRange | None:
 def matches_since(resource: Mapping[str, Any], since: date) -> bool:
     when = clinical_date(resource)
     return when is not None and when.ends_on_or_after(since)
+
+
+def _well_formed(concept: Any) -> bool:
+    """A CodeableConcept whose codings can be read (codes and systems strings or absent)."""
+    if not isinstance(concept, dict):
+        return False
+    codings = concept.get("coding") or []
+    return isinstance(codings, list) and all(
+        isinstance(c, dict)
+        and isinstance(c.get("code", ""), str)
+        and isinstance(c.get("system", ""), str)
+        for c in codings
+    )
+
+
+def _codings(concept: Any) -> list[dict[str, Any]]:
+    codings = concept.get("coding") if isinstance(concept, dict) else None
+    return [c for c in codings or [] if isinstance(c, dict)]
+
+
+def matches_filters(resource: Mapping[str, Any], categories: tuple[str, ...], codes: Codes) -> bool:
+    """FHIR ``category`` and ``combo-code`` token search, as a local filter: any category code
+    in ``categories`` (any system), and any coding of the resource's code or of a component's
+    code in ``codes`` (aliased systems made canonical). A resource too malformed to tell is
+    kept, so normalization reports it rather than it vanishing."""
+    if categories:
+        concepts = resource.get("category") or []
+        if not isinstance(concepts, list) or not all(_well_formed(k) for k in concepts):
+            return True
+        found = {c.get("code") for k in concepts for c in _codings(k)}
+        if not found & set(categories):
+            return False
+    if codes:
+        components = resource.get("component") or []
+        if not isinstance(components, list) or not all(isinstance(c, dict) for c in components):
+            return True
+        concepts = [resource.get("code"), *(c.get("code") for c in components)]
+        if not all(k is None or _well_formed(k) for k in concepts):
+            return True
+        have = {
+            (canonical_system(c.get("system")), str(c.get("code") or "").strip())
+            for k in concepts
+            for c in _codings(k)
+        }
+        wanted = {(s, c) for s, c in codes if s is not None}
+        any_system = {c for s, c in codes if s is None}
+        if not (have & wanted or {c for _, c in have} & any_system):
+            return False
+    return True
 
 
 def matches_updated_since(resource: Mapping[str, Any], updated_since: datetime) -> bool:

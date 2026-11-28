@@ -14,7 +14,14 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Literal
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category, usable
+from adhd_mcp.evidence.common import (
+    EVIDENCE_OBSERVATION_CATEGORIES,
+    completeness,
+    not_after,
+    read_category,
+    read_merged,
+    usable,
+)
 from adhd_mcp.fhir.codes import Coding
 from adhd_mcp.fhir.dates import DateRange
 from adhd_mcp.fhir.reader import PatientRecords
@@ -29,6 +36,7 @@ from adhd_mcp.models.evidence_outputs import CodeRef, CutoffResult, ScreeningEnt
 from adhd_mcp.terminology.instruments import (
     Instrument,
     InstrumentCode,
+    instrument_codes,
     load_instrument,
     packaged_instrument_ids,
 )
@@ -265,8 +273,13 @@ async def assemble_screening_history(
         if patient.administrative_gender in {"male", "female"}
         else None
     )
+    # Results under an instrument's codes in any category, plus every survey (peer review
+    # 01, D1: laboratory results and vital signs are not read).
     observation_read, response_read = await asyncio.gather(
-        read_category(records.observations(patient_id)),
+        read_merged(
+            records.observations(patient_id, codes=instrument_codes()),
+            records.observations(patient_id, categories=EVIDENCE_OBSERVATION_CATEGORIES),
+        ),
         read_category(records.questionnaire_responses(patient_id)),
     )
     observations, responses = usable(observation_read), usable(response_read)

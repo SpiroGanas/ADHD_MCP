@@ -36,3 +36,14 @@ def test_refuses_a_file_with_an_unexpected_hash(
     monkeypatch.setattr("sys.argv", ["verify", str(path)])
     with pytest.raises(SystemExit, match="does not match"):
         script.main()
+
+
+def test_check_counts_a_value_set_code_the_tabular_lacks(
+    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # Peer review 01, T5: check() stands behind every verified ICD-10-CM entry and was untested.
+    monkeypatch.setattr(script, "packaged_value_set_ids", lambda: ["safety.suicidal_ideation"])
+    present = {"R45.851": {"title": "Suicidal ideations", "leaf": True, "seven": []}}
+    assert script.check(present) == 0
+    assert script.check({}) == 1
+    assert "MISSING: safety.suicidal_ideation names R45.851" in capsys.readouterr().out

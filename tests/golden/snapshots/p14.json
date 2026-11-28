@@ -14,7 +14,7 @@
       "weight_class": "high"
     },
     {
-      "date": "2021-05-20",
+      "date": "2021-05-31",
       "references": [
         {
           "id": "p14-cond-2",
@@ -83,26 +83,6 @@
           "id": "p14-meddisp-4",
           "resource_type": "MedicationDispense",
           "version": null
-        },
-        {
-          "id": "p14-medreq-1",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-2",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-3",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-4",
-          "resource_type": "MedicationRequest",
-          "version": null
         }
       ],
       "signal": "multiple_antidepressants",
@@ -135,6 +115,20 @@
       "records": 1,
       "skipped": 0,
       "status": "available",
+      "warnings": []
+    },
+    {
+      "category": "Observation",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "QuestionnaireResponse",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
       "warnings": []
     },
     {
@@ -174,13 +168,6 @@
     },
     {
       "category": "MedicationStatement",
-      "records": 0,
-      "skipped": 0,
-      "status": "empty",
-      "warnings": []
-    },
-    {
-      "category": "Observation",
       "records": 0,
       "skipped": 0,
       "status": "empty",
@@ -259,6 +246,13 @@
       "outcome": "not_found",
       "reason": null,
       "references": []
+    },
+    {
+      "check": "adhd_medication_exposure",
+      "description": "ADHD medication dispensed or taken within 90 days, not for narcolepsy",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
     }
   ],
   "is_diagnosis": false,
@@ -286,67 +280,78 @@
         "description": "Suicidal ideation code (ICD-10-CM R45.851)",
         "id": "suicidal_ideation_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Suicide attempt or intentional self-harm code (T14.91, X71-X83)",
         "id": "suicide_attempt_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Poisoning by intentional self-harm code (T36-T65, intent character 2)",
         "id": "intentional_self_poisoning_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Poisoning of undetermined intent code (T36-T65, intent character 4)",
         "id": "undetermined_intent_poisoning_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Asphyxiation by intentional self-harm code (T71.1x2, T71.2x2)",
         "id": "self_harm_asphyxiation_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Non-suicidal self-harm code (R45.88)",
         "id": "nonsuicidal_self_harm_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Personal history of suicidal behavior or self-harm code (Z91.51, Z91.52)",
         "id": "self_harm_history_code",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "Psychiatric inpatient or residential discharge within 365 days (within 90 days is highest priority)",
         "id": "psychiatric_discharge",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       },
       {
         "description": "PHQ-9 item 9 at or above the cutoff within 365 days",
         "id": "phq9_item9",
         "outcome": "not_performed",
-        "reason": "Not performed: its codes or cutoffs are not verified yet. Any recorded results are listed by get_screening_history for clinician review."
+        "reason": "Not performed: its codes or cutoffs are not verified yet. Any recorded results are listed by get_screening_history for clinician review.",
+        "references": []
       },
       {
         "description": "C-SSRS screener risk level moderate or high within 365 days",
         "id": "cssrs_risk_level",
         "outcome": "not_performed",
-        "reason": "Not performed: its codes or cutoffs are not verified yet. Any recorded results are listed by get_screening_history for clinician review."
+        "reason": "Not performed: its codes or cutoffs are not verified yet. Any recorded results are listed by get_screening_history for clinician review.",
+        "references": []
       },
       {
         "description": "Active high-risk-for-suicide flag",
         "id": "high_risk_flag",
         "outcome": "not_found",
-        "reason": null
+        "reason": null,
+        "references": []
       }
     ],
     "evidence": [],
@@ -380,7 +385,7 @@
       "last_date": "2025-12-20",
       "present": true,
       "protected": "substance_use",
-      "reason": "Found within 1095 days.",
+      "reason": "Last recorded 2025-12-20, within the 1095-day window.",
       "references": [
         {
           "id": "p14-cond-1",
@@ -438,7 +443,7 @@
       "last_date": "2024-03-03",
       "present": true,
       "protected": "substance_use",
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2024-03-03.",
       "references": [
         {
           "id": "p14-cond-4",
@@ -470,7 +475,7 @@
       "last_date": "2024-07-15",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2024-07-15.",
       "references": [
         {
           "id": "p14-cond-3",
@@ -523,26 +528,6 @@
           "id": "p14-meddisp-4",
           "resource_type": "MedicationDispense",
           "version": null
-        },
-        {
-          "id": "p14-medreq-1",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-2",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-3",
-          "resource_type": "MedicationRequest",
-          "version": null
-        },
-        {
-          "id": "p14-medreq-4",
-          "resource_type": "MedicationRequest",
-          "version": null
         }
       ],
       "signal": "multiple_antidepressants",
@@ -553,10 +538,10 @@
     {
       "count": null,
       "first_date": "2021-05-01",
-      "last_date": "2021-05-20",
+      "last_date": "2021-05-31",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2021-05-01.",
       "references": [
         {
           "id": "p14-cond-2",
@@ -627,7 +612,7 @@
       "last_date": "2025-11-05",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2025-11-05.",
       "references": [
         {
           "id": "p14-cond-5",
@@ -646,7 +631,7 @@
       "last_date": "2020-01-10",
       "present": true,
       "protected": null,
-      "reason": "Found within 1095 days.",
+      "reason": "Counted as current: an active problem-list entry since 2020-01-10.",
       "references": [
         {
           "id": "p14-cond-6",
@@ -665,6 +650,6 @@
     "ruleset": "adhd 1.0.0 (draft)",
     "scorer": "rules-only 1.0.0",
     "site_codes": "synthetic 0.2.0",
-    "tool_contract": "0.4.0"
+    "tool_contract": "0.5.0"
   }
 }

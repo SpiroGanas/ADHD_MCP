@@ -19,3 +19,9 @@ completed_window_days = 365
 
 # Reported separately, never as an exclusion.
 narcolepsy_value_set = "care.narcolepsy"
+
+# Peer review 01, C4 (owner decision 2026-11-28, a draft for the clinical reviewer): exposure
+# to a medication in these classes, not for narcolepsy, ending within this many days of the
+# as-of date, makes "already in care" unknown and holds a suggestion until a clinician checks.
+adhd_medication_classes = ["med.adhd_stimulant", "med.adhd_nonstimulant"]
+adhd_medication_recent_days = 90

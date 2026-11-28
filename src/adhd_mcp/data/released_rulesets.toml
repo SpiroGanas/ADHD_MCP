@@ -1,4 +1,7 @@
 # Hashes of released rulesets. A ruleset whose status is "released" loads only if its file's
-# sha256 is listed here, so a released ruleset cannot change silently. Add an entry when the
+# sha256 (sha256) and the fingerprint of all packaged clinical content (content_sha256,
+# adhd_mcp.versions.clinical_content_sha256) are listed here, so neither the ruleset nor the
+# catalog, value sets, drug classes, definitions or wording it depends on can change silently
+# (peer review 01, X2). Add an entry when the
 # project owner approves a ruleset for release; never edit an existing entry.
 released = []

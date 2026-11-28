@@ -170,15 +170,15 @@ All tools are read-only and take a patient identifier and an optional as-of date
 | Tool | FHIR resources read | Output summary |
 |---|---|---|
 | `get_server_info` | none | Server, contract and ruleset versions; intended-use statement |
-| `check_safety_gate` | Condition, Observation, QuestionnaireResponse, Encounter, Flag | Gate status, checks performed, evidence, fixed guidance when positive |
+| `check_safety_gate` | Condition, Observation (by instrument code or component code), QuestionnaireResponse, Encounter, Flag | Gate status, checks performed, evidence, fixed guidance when positive |
 | `get_mh_problem_list` | Condition | Diagnoses grouped by family with first-recorded dates and onset order |
-| `get_screening_history` | Observation, QuestionnaireResponse | Instrument score timeline with cutoffs applied |
+| `get_screening_history` | Observation (by instrument code and by category), QuestionnaireResponse | Instrument score timeline with cutoffs applied |
 | `get_medication_timeline` | MedicationRequest, MedicationDispense, MedicationStatement | Exposure periods by drug class; distinct antidepressant count |
 | `get_utilization_summary` | Encounter, Condition | Injury visits, crashes, psychiatric discharges, counts per window |
-| `get_psychosocial_context` | Condition, Observation, Patient | Housing, legal, occupational, educational and military context |
-| `check_existing_care` | Condition, ServiceRequest, CarePlan, Procedure | Exclusions and existing referrals |
-| `assess_referral_need` | all of the above | The recommendation (below) |
-| `draft_referral_proposal` | none | A draft referral with proposal intent; returned only, never stored |
+| `get_psychosocial_context` | Condition, Observation (social history, survey and SDOH categories; military separation codes), Patient | Housing, legal, occupational, educational and military context |
+| `check_existing_care` | Condition, ServiceRequest, CarePlan, Procedure, MedicationRequest, MedicationStatement | Exclusions and existing referrals (an ADHD code as a medication reason counts) |
+| `assess_referral_need` | Patient and all of the above except the screening history (it also reads the medication timeline for current ADHD medication) | The recommendation (below) |
+| `draft_referral_proposal` | Everything `assess_referral_need` reads: it runs the whole assessment | A draft referral with proposal intent when the assessment suggests one; returned only, never stored |
 
 `find_note_evidence` from the research report is deferred (see Future work in the project plan).
 
@@ -210,11 +210,12 @@ Fields of the `assess_referral_need` result. The exact schema is fixed by contra
 
 Details and sources are in the research report, ADHD section. The ruleset is a starting heuristic from the literature, not a validated rule.
 
-- **Safety gate signals:** suicidal ideation, attempt and self-harm codes; history of suicidal behavior; PHQ-9 item 9 at 1 or more; positive C-SSRS; recent psychiatric inpatient or residential discharge; existing high-risk flags.
-- **High-weight ADHD signals:** stimulant-related disorder or non-prescribed stimulant evidence; alcohol involvement; motor-vehicle crashes as driver; repeated accidental injuries; TBI with attention complaints (routes to neuropsychological evaluation).
+- **Safety gate signals:** suicidal ideation, attempt and self-harm codes; history of suicidal behavior; recent psychiatric inpatient or residential discharge and high-risk flags (both need a site code mapping). PHQ-9 item 9 and the C-SSRS risk level are not scored until their LOINC codes are verified; meanwhile any result under those codes in the past year stops the gate (`data_unavailable`).
+- **High-weight ADHD signals:** stimulant-related disorder; alcohol involvement; motor-vehicle crash as driver; repeated accidental injuries (new injuries, not follow-up visits). One visit supplies at most one high-weight class. TBI is a note only (it suggests neuropsychological evaluation) and never counts.
 - **Modifiers:** other substance use disorders; PTSD; intermittent explosive disorder; recurrent or treatment-resistant depression or anxiety with many antidepressant switches; borderline personality label; chronic insomnia; attention symptom codes; legal, occupational, educational or housing problems; family history.
 - **Starting rule:** one high-weight signal with two or more modifiers, or two or more high-weight signal classes within about three years.
-- **Exclusions:** existing ADHD diagnosis; evaluation already in progress. Stimulants for narcolepsy are handled separately.
+- **Population:** adults alive at the as-of date; otherwise `outside_intended_population` before any rule runs.
+- **Exclusions:** existing ADHD code, referral, evaluation or care plan. Current ADHD medication without an ADHD code holds the suggestion (`insufficient_data`) for a clinician to check. Stimulants for narcolepsy are handled separately.
 
 Every code, window and cutoff lives in versioned data and must be verified before use ([verification backlog](clinical/verification_backlog.md)).
 
@@ -246,7 +247,7 @@ Built in Phase 6. Per request the port chain is: FHIR source, then `AuditingPort
 - The server is an OAuth resource server toward MCP clients and a SMART on FHIR client toward the FHIR server. It never forwards a caller's token.
 - Local use over stdio; hosted use over HTTP with authentication.
 - Text from FHIR records is data, never instructions. It is delimited where returned and never placed into prompts as instructions.
-- Specially protected data (for example substance use under 38 U.S.C. 7332 and 42 CFR Part 2) passes through a configurable policy: allow, cite existence and date only, or withhold.
+- Specially protected data (for example substance use under 38 U.S.C. 7332 and 42 CFR Part 2) passes through a configurable policy: allow; cite (references, dates and the signal or family it belongs to are shown, the code is replaced by `restricted`); or withhold (removed before any tool sees it; dependent signals read "not checked"). A FHIR server that is not on the server's own machine needs the policy chosen explicitly.
 - Audit records and logs contain references and hashes only.
 
 ## Implemented: evaluation and release

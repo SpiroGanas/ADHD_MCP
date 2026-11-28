@@ -20,7 +20,7 @@ Normalization rules recorded here because later phases depend on them:
 | Topic | Rule |
 |---|---|
 | Dates | `date`, `dateTime`, `instant` and `Period` all become a `DateRange` (start, end, precision). Partial dates cover their whole year or month. A dateTime keeps its calendar date as written; time zones are not converted |
-| Codes | System OIDs and URL variants map to one canonical URI (data file `terminology/code_systems.toml`). ICD-10-CM codes are upper-cased. Codes are otherwise kept as sent; an undotted ICD-10-CM code is not repaired |
+| Codes | System OIDs and URL variants map to one canonical URI (data file `terminology/code_systems.toml`). ICD-10-CM codes are upper-cased, and one sent without its dot (`R45851`) gets the dot after the category (`R45.851`; peer review 01, S1). Codes are otherwise kept as sent. A Condition with no coding in a system any value set covers (SNOMED CT only, text only) is reported as skipped with reason `unrecognized_coding`, so its category is incomplete and the safety gate fails closed |
 | Status | `entered-in-error` resources are excluded; refuted conditions are excluded. All other statuses are kept and labelled for later phases to judge |
 | Unusable data | A resource with no id, a malformed value, or an unsupported type is skipped and reported, never silently dropped and never guessed |
 | Medications | `medicationCodeableConcept`, contained `Medication` and referenced `Medication` (from the same search's `_include`) all resolve to medication codes |
@@ -35,4 +35,4 @@ Normalization rules recorded here because later phases depend on them:
 ## Consequences
 
 - Each new field a rule needs is added deliberately to a record, with a test.
-- Undotted ICD-10-CM codes from a real server would not match value sets. Revisit when Phase 8 shows real data shapes.
+- Undotted ICD-10-CM codes are repaired (peer review 01, S1). Conditions coded only in SNOMED CT make a patient's Condition category incomplete, so the assessment is `insufficient_data` until SNOMED CT value sets for the safety concepts exist or a terminology service translates them (a clinical decision).

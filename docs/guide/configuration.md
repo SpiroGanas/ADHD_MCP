@@ -9,10 +9,12 @@ Set one. With neither, every patient tool returns a `not_configured` error.
 | Variable | Meaning |
 |---|---|
 | `ADHD_MCP_FIXTURE_DIR` | A directory of FHIR R4 bundles (JSON) to read in memory. Use `tests/personas/bundles` for the 14 synthetic personas |
-| `ADHD_MCP_FHIR_BASE_URL` | A FHIR R4 server. The server only issues GET requests to it. Wins over `ADHD_MCP_FIXTURE_DIR` |
+| `ADHD_MCP_FHIR_BASE_URL` | A FHIR R4 server. The server only issues GET requests to it. Wins over `ADHD_MCP_FIXTURE_DIR`. Must use https unless it is on this machine (`localhost`, `127.0.0.1`, `::1`) or `ADHD_MCP_ALLOW_PLAIN_HTTP=1`. A server not on this machine also needs `ADHD_MCP_PRIVACY_POLICY` (below) |
+| `ADHD_MCP_ALLOW_PLAIN_HTTP` | `1`: allow plain http to a FHIR server or public URL that is not on this machine, for a private network the site trusts. Off by default (peer review 01, P5) |
 | `ADHD_MCP_SCORER` | `rules-only` (default) or `dummy`. The dummy scorer is not a model: it always reports a score of 0.0 to prove the scorer slot (Phase 8). A score never changes the recommendation |
 | `ADHD_MCP_EXPERIMENTAL_CONDITIONS` | Comma-separated experimental stub conditions to register; only `autism` exists. Off by default and not for clinical use ([rule card](../clinical/rule_card_autism_stub.md)) |
-| `ADHD_MCP_SITE_CODES` | The local code mapping in `src/adhd_mcp/data/site_codes/` (only `synthetic` exists). Defaults to `synthetic` with fixture data and to no mapping with a FHIR server, in which case checks that need local codes report "not performed" ([ADR 0008](../adr/0008-site-codes-and-search-warnings.md)) |
+| `ADHD_MCP_SITE_CODES` | A packaged local code mapping in `src/adhd_mcp/data/site_codes/`, by name (only `synthetic` exists; any other name is refused at start-up). Defaults to `synthetic` with fixture data and to no mapping with a FHIR server, in which case checks that need local codes report "not performed" ([ADR 0008](../adr/0008-site-codes-and-search-warnings.md)) |
+| `ADHD_MCP_SITE_CODES_FILE` | A site's own code mapping file, in the format of `synthetic.toml`; its file name must match its `id`. Loaded strictly: an unverified entry refuses start-up. Not with `ADHD_MCP_SITE_CODES` |
 
 ### A local FHIR server
 
@@ -71,7 +73,12 @@ The server never forwards a caller's token to the FHIR server. Rate limiting is 
 | Variable | Meaning |
 |---|---|
 | `ADHD_MCP_AUDIT_FILE` | Append-only JSON Lines file, one record per tool call: caller, versions, resource references and an output hash, never clinical values ([ADR 0011](../adr/0011-audit-tracing-and-privacy.md)). Its directory must exist. Optional over stdio, required over HTTP |
-| `ADHD_MCP_PRIVACY_POLICY` | A site's sensitive-data policy file; default the packaged `src/adhd_mcp/data/privacy.toml` (substance use, HIV and sickle-cell data are cited by existence and date only) |
+| `ADHD_MCP_PRIVACY_POLICY` | A site's sensitive-data policy file, or `packaged` for the packaged `src/adhd_mcp/data/privacy.toml`. Required when `ADHD_MCP_FHIR_BASE_URL` is not on this machine, so a site chooses its policy rather than inheriting one (peer review 01, P2). The packaged policy cites substance use, HIV and sickle-cell data: see below for what that hides and what it does not. Under `withhold`, a signal whose records were withheld for the patient reads "Not checked: records it needs were withheld by the privacy policy", and when no rule fires the result is `insufficient_data`, never `no_recommendation` |
+
+
+### What `cite` hides, and what it does not
+
+Under `cite` (the packaged policy's action for every category) a protected record is used by the rules, and outputs replace its code with `restricted`. They still show the record's reference (`Condition/<id>`), its date, and the signal or family it belongs to, for example "Alcohol involvement" or "Stimulant-related disorder". Under 42 CFR Part 2 and 38 U.S.C. 7332 the protected fact may be that such a record exists at all, so `cite` may not be enough for a site. `withhold` removes the records before any tool sees them; signals that needed them then read "Not checked: records it needs were withheld by the privacy policy", and the outputs count what was withheld per category. Categories that no output uses (HIV, sickle-cell disease) are never named, even in counts. Classification is by ICD-10-CM code and security label only: AUDIT-C results, drug screens and medications such as buprenorphine are not recognized as protected unless a site adds value sets for them.
 
 ## Examples
 

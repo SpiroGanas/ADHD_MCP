@@ -46,6 +46,8 @@ async def test_full_output_matches_its_snapshot(
 ) -> None:
     out = await assess(persona_client, persona_id)
     out["versions"].pop("server")  # changes with every release
+    # Changes with every data edit; checked by tests/tools/test_shared_tool_behavior.py.
+    out["versions"].pop("clinical_content")
     assert_matches_snapshot(SNAPSHOTS / f"{persona_id}.json", out)
 
 
@@ -62,4 +64,5 @@ def test_every_recommendation_has_a_persona() -> None:
         "address_safety_gate_first",
         "already_in_care",
         "insufficient_data",
+        "outside_intended_population",
     }

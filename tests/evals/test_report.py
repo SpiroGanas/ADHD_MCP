@@ -10,7 +10,13 @@ from typing import Any
 
 from adhd_mcp.conditions.adhd import adhd_plugin
 from tests.evals.cohort import build_cohort
-from tests.evals.report import _content_files, identity, render_markdown, report_paths
+from tests.evals.report import (
+    _content_files,
+    identity,
+    logic_files,
+    render_markdown,
+    report_paths,
+)
 
 JSON_PATH, MD_PATH = report_paths(adhd_plugin().ruleset.version)
 
@@ -27,9 +33,24 @@ def test_a_report_exists_for_the_active_ruleset_version() -> None:
 
 def test_the_report_matches_the_current_ruleset_content_and_cohort() -> None:
     assert committed()["identity"] == identity(build_cohort()), (
-        "The ruleset, its clinical content or the cohort changed since the report was made. "
+        "The ruleset, its clinical content, the decision logic or the cohort changed since the "
+        "report was made. "
         "Run: uv run python scripts/evaluate_ruleset.py"
     )
+
+
+def test_the_logic_fingerprint_covers_the_modules_that_decide_outcomes() -> None:
+    # Peer review 01, T10: a logic change left the committed report looking current.
+    paths = {path for path, _ in logic_files()}
+    for module in (
+        "rules/engine.py",
+        "rules/signals.py",
+        "orchestration/assess.py",
+        "evidence/safety_gate.py",
+        "conditions/adhd.py",
+        "fhir/normalize.py",
+    ):
+        assert module in paths
 
 
 def test_the_markdown_is_rendered_from_the_json() -> None:

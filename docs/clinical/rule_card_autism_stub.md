@@ -9,7 +9,7 @@
 | Status | Experimental (cannot be released) |
 | Author | Claude Code agent, delegated by the project owner, 2026-11-27 |
 | Clinical reviewer and date | None |
-| Server versions that can load it | 1.0.0rc1 and later development versions (tool contract 0.4.0) |
+| Server versions that can load it | 0.9.0 and later development versions (tool contract 0.5.0) |
 | Enabled by | `ADHD_MCP_EXPERIMENTAL_CONDITIONS=autism`; off by default |
 
 ## Intended use

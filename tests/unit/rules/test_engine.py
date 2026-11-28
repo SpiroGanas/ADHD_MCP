@@ -80,3 +80,51 @@ def test_input_order_does_not_change_the_decision(seed: int) -> None:
     shuffled = findings[:]
     random.Random(seed).shuffle(shuffled)  # noqa: S311 - test data order, not security
     assert decide(findings, RULESET) == decide(shuffled, RULESET)
+
+
+# --- peer review 01, C2: one encounter supplies at most one high-weight signal ---------
+# ``units`` maps each present high-weight signal to the visits (or records) it rests on and
+# how many distinct ones it needs. Classes count only as far as they can rest on separate
+# units (owner decision 2026-11-28, a draft for the clinical reviewer).
+
+
+def units(**kw: tuple[set[str], int]) -> dict[str, tuple[frozenset[str], int]]:
+    return {k: (frozenset(v[0]), v[1]) for k, v in kw.items()}
+
+
+def test_two_high_signals_from_one_visit_count_once() -> None:
+    # E2: a crash visit with a blood alcohol code.
+    findings = [finding("crash", "high"), finding("alcohol", "high")]
+    decision = decide(findings, RULESET, units(crash=({"e1"}, 1), alcohol=({"e1"}, 1)))
+    assert decision.recommend is False
+    two = next(r for r in decision.rules if r.rule_id == "two_high_classes")
+    assert two.reason == (
+        "2 high-weight, 1 resting on separate visits or records (needs 2) and 0 modifiers "
+        "(needs 0)."
+    )
+
+
+def test_a_crash_visit_cannot_also_be_one_of_two_injuries() -> None:
+    # E2b: two crash visits, each also an injury visit.
+    findings = [finding("crash", "high"), finding("injury", "high")]
+    decision = decide(findings, RULESET, units(crash=({"e1", "e2"}, 1), injury=({"e1", "e2"}, 2)))
+    assert decision.recommend is False
+
+
+def test_separate_visits_count_separately() -> None:
+    # p01: a crash visit and two other injury visits, plus problem-list codes.
+    findings = [finding("crash", "high"), finding("injury", "high"), finding("stim", "high")]
+    decision = decide(
+        findings,
+        RULESET,
+        units(crash=({"e2"}, 1), injury=({"e1", "e2", "e3"}, 2), stim=({"c1"}, 1)),
+    )
+    assert fired(findings) == ["two_high_classes"]
+    assert decision.recommend is True
+    assert decision.rules[1].reason == "3 high-weight (needs 2) and 0 modifiers (needs 0)."
+
+
+def test_a_signal_with_another_unit_keeps_its_class() -> None:
+    findings = [finding("crash", "high"), finding("alcohol", "high")]
+    decision = decide(findings, RULESET, units(crash=({"e1"}, 1), alcohol=({"e1", "c9"}, 1)))
+    assert decision.recommend is True

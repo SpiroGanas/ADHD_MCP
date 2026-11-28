@@ -1,5 +1,6 @@
 """Shared test fixtures: in-memory MCP client and a fixed clock."""
 
+import os
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 
@@ -12,6 +13,15 @@ from adhd_mcp.server import create_server
 from adhd_mcp.terminology.site_codes import load_site_codes
 from adhd_mcp.tools.context import ToolContext
 from tests.personas import all_resources
+
+
+@pytest.fixture(autouse=True)
+def _no_server_settings_from_the_shell(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Tests never read the developer's ADHD_MCP_* settings (peer review 01, T10: with
+    ADHD_MCP_TRANSPORT=http in the shell the contract tests failed, and with an experimental
+    condition switched on UPDATE_SNAPSHOTS=1 would have written the wrong contract)."""
+    for name in [n for n in os.environ if n.startswith("ADHD_MCP_")]:
+        monkeypatch.delenv(name)
 
 
 @pytest.fixture

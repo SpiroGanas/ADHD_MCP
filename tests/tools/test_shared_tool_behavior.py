@@ -88,6 +88,8 @@ async def test_output_carries_the_shared_fields(
     assert out["data_completeness"]
     assert out["versions"]["tool_contract"] == versions.TOOL_CONTRACT_VERSION
     assert out["versions"]["site_codes"] == "synthetic 0.2.0"
+    # Peer review 01, X2: which clinical content produced the output.
+    assert out["versions"]["clinical_content"] == versions.clinical_content_sha256()
 
 
 @pytest.mark.parametrize("tool", PATIENT_TOOLS)

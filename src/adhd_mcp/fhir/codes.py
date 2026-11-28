@@ -1,5 +1,6 @@
 """One code representation across coding systems and their aliases."""
 
+import re
 import tomllib
 from collections.abc import Mapping
 from functools import cache
@@ -12,6 +13,10 @@ ICD10CM = "http://hl7.org/fhir/sid/icd-10-cm"
 SNOMED = "http://snomed.info/sct"
 LOINC = "http://loinc.org"
 RXNORM = "http://www.nlm.nih.gov/research/umls/rxnorm"
+
+#: An ICD-10-CM code sent without its dot: a category (letter, digit, character) followed
+#: by one to four more characters. The dot goes after the category.
+_UNDOTTED_ICD10CM = re.compile(r"[A-Z][0-9][0-9A-Z][0-9A-Z]{1,4}")
 
 
 class Coding(BaseModel):
@@ -55,6 +60,8 @@ def normalize_coding(raw: Mapping[str, Any]) -> Coding | None:
     known = _systems().get(raw.get("system") or "")
     if known is not None and known.uppercase_codes:
         code = code.upper()
+    if known is not None and known.uri == ICD10CM and _UNDOTTED_ICD10CM.fullmatch(code):
+        code = f"{code[:3]}.{code[3:]}"
     return Coding(
         system=known.uri if known else raw.get("system"),
         code=code,

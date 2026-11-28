@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from adhd_mcp.conditions.adhd import adhd_plugin
+from adhd_mcp.versions import clinical_content_files, clinical_content_sha256
 from tests.evals import harness as h
 from tests.evals.cohort import AS_OF, COHORT_VERSION, CohortPatient
 
@@ -40,28 +41,41 @@ LIMITATIONS = [
 
 
 def _content_files() -> list[tuple[str, Traversable]]:
-    """Every TOML file under the packaged data: ruleset, catalog, value sets, drug classes,
-    instruments, site codes, evidence-tool definitions, safety gate, privacy and wording. Any
-    of them can change an assessment."""
+    """Every packaged clinical data file (``adhd_mcp.versions.clinical_content_files``)."""
+    return clinical_content_files()
+
+
+#: Source that decides outcomes: a change here can change the report's figures even when no
+#: data file changes (peer review 01, T10).
+LOGIC_PACKAGES = ("rules", "orchestration", "evidence", "conditions", "terminology")
+LOGIC_MODULES = ("fhir/codes.py", "fhir/dates.py", "fhir/normalize.py", "fhir/reader.py",
+                 "fhir/search.py")  # fmt: skip
+
+
+def logic_files() -> list[tuple[str, Traversable]]:
+    root = files("adhd_mcp")
     found: list[tuple[str, Traversable]] = []
-
-    def walk(folder: Traversable, prefix: str) -> None:
-        for item in folder.iterdir():
-            if item.is_dir():
-                walk(item, f"{prefix}{item.name}/")
-            elif item.name.endswith(".toml"):
-                found.append((f"{prefix}{item.name}", item))
-
-    walk(files("adhd_mcp.data"), "")
+    for package in LOGIC_PACKAGES:
+        found += [
+            (f"{package}/{f.name}", f)
+            for f in root.joinpath(package).iterdir()
+            if f.name.endswith(".py")
+        ]
+    found += [(m, root.joinpath(m)) for m in LOGIC_MODULES]
     return sorted(found, key=lambda pair: pair[0])
+
+
+def logic_fingerprint() -> str:
+    """sha256 over the source of every module that decides an outcome."""
+    digest = hashlib.sha256()
+    for path, f in logic_files():
+        digest.update(path.encode() + b"\0" + f.read_bytes() + b"\0")
+    return digest.hexdigest()
 
 
 def content_fingerprint() -> str:
     """sha256 over every packaged clinical data file (by path and content)."""
-    digest = hashlib.sha256()
-    for path, f in _content_files():
-        digest.update(path.encode() + b"\0" + f.read_bytes() + b"\0")
-    return digest.hexdigest()
+    return clinical_content_sha256()
 
 
 def cohort_fingerprint(patients: Sequence[CohortPatient]) -> str:
@@ -93,6 +107,7 @@ def identity(patients: Sequence[CohortPatient]) -> dict[str, Any]:
         "ruleset": plugin.ruleset.label,
         "catalog": f"{plugin.catalog.id} {plugin.catalog.version}",
         "content_sha256": content_fingerprint(),
+        "logic_sha256": logic_fingerprint(),
         "cohort_version": COHORT_VERSION,
         "cohort_sha256": cohort_fingerprint(patients),
         "as_of": AS_OF.isoformat(),
@@ -206,6 +221,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         [
             ("Ruleset", f"`{ident['ruleset']}`, catalog `{ident['catalog']}`"),
             ("Clinical content sha256", f"`{ident['content_sha256'][:16]}...`"),
+            ("Decision logic sha256", f"`{ident['logic_sha256'][:16]}...`"),
             ("Cohort", f"version {ident['cohort_version']}, "
              f"sha256 `{ident['cohort_sha256'][:16]}...`"),
             ("As-of date", ident["as_of"]),

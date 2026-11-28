@@ -10,7 +10,14 @@ from importlib.resources import files
 
 from pydantic import BaseModel, ConfigDict
 
-from adhd_mcp.evidence.common import completeness, not_after, read_category, usable
+from adhd_mcp.evidence.common import (
+    EVIDENCE_OBSERVATION_CATEGORIES,
+    completeness,
+    not_after,
+    read_category,
+    read_merged,
+    usable,
+)
 from adhd_mcp.evidence.problem_list import conditions_as_of, group_conditions
 from adhd_mcp.fhir.reader import PatientRecords, ReadResult
 from adhd_mcp.fhir.records import ConditionRecord, ObservationRecord
@@ -99,9 +106,21 @@ def _military(
 async def assemble_psychosocial(
     records: PatientRecords, patient_id: str, as_of: date, content: PsychosocialContent
 ) -> PsychosocialResult:
+    # Social history, survey and SDOH Observations, plus the site's military separation
+    # codes in any category (peer review 01, D1: laboratory results and vital signs are not
+    # read). A separation concept mapped by pattern cannot be searched by code, so it is
+    # read unfiltered.
+    military = content.site.exact_codes(content.definition.military_separation_concept)
+    observation_reads = [
+        records.observations(patient_id, categories=EVIDENCE_OBSERVATION_CATEGORIES)
+    ]
+    if military is None:
+        observation_reads = [records.observations(patient_id)]
+    elif military:
+        observation_reads.append(records.observations(patient_id, codes=military))
     raw_conditions, raw_observations = await asyncio.gather(
         read_category(records.conditions(patient_id)),
-        read_category(records.observations(patient_id)),
+        read_merged(*observation_reads),
     )
     notes = [
         completeness("Condition", raw_conditions),
@@ -118,7 +137,7 @@ async def assemble_psychosocial(
     ]
     domains = []
     for definition, value_sets in content.domains:
-        families = group_conditions(conditions, value_sets)
+        families = group_conditions(conditions, value_sets, as_of=as_of)
         obs_refs = sorted(
             {
                 o.ref

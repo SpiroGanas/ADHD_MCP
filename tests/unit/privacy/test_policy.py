@@ -145,10 +145,18 @@ async def test_under_withhold_substance_signals_are_absent_and_the_output_says_s
 
 
 async def test_under_withhold_p12_loses_its_only_high_weight_signal() -> None:
+    # Peer review 01, P1: the signal was not evaluated, so the result is insufficient data,
+    # not "no recommendation" (this test used to pin the latter).
     out = await call(context({"substance_use": "withhold"}), "assess_referral_need", "p12-patient")
-    assert out["recommendation"] == "no_recommendation"
+    assert out["recommendation"] == "insufficient_data"
     assert [b["signal"] for b in out["basis"]] == ["ptsd"]
     assert out["privacy"]["withheld"][0]["category"] == "substance_use"
+    withheld = [s for s in out["signals_checked"] if s["reason"].startswith("Not checked: rec")]
+    assert {s["signal"] for s in withheld} == {
+        "alcohol_involvement",
+        "other_substance_use",
+        "stimulant_related_disorder",
+    }
 
 
 async def test_allow_shows_codes() -> None:

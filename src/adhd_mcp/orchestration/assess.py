@@ -3,19 +3,22 @@
 Order of precedence for the recommendation:
 
 1. a positive safety gate: address the safety gate first (other findings still reported);
-2. a safety gate that could not be evaluated: insufficient data;
-3. already in care for the condition: already in care;
-4. a rule fired: consider referral for formal screening;
-5. an empty record, or a signal source that could not be read completely: insufficient data;
-6. otherwise: no recommendation.
+2. a record outside the intended population (under the ruleset's minimum age, no birth date,
+   or deceased): outside the intended population, before any evidence is read or rule run;
+3. a safety gate that could not be evaluated: insufficient data;
+4. already in care for the condition: already in care;
+5. a rule fired: consider referral for formal screening;
+6. an empty record, a signal source that could not be read completely, or a signal whose
+   records a withhold policy removed: insufficient data;
+7. otherwise: no recommendation.
 
 Every evidence assembler reads through one request-scoped cached port, so no FHIR query is
 issued twice. Nothing here is specific to a condition.
 """
 
 import asyncio
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, field
 from datetime import date
 
 from adhd_mcp.conditions.base import ConditionPlugin, ExclusionResult
@@ -38,10 +41,13 @@ from adhd_mcp.models.domain import (
     SafetyGateStatus,
     WeightClass,
 )
+from adhd_mcp.orchestration.population import outside_population
+from adhd_mcp.rules.catalog import SignalDefinition
 from adhd_mcp.rules.engine import Decision, decide
 from adhd_mcp.rules.scorer import run_scorer
 from adhd_mcp.rules.signals import SignalEvidence, evaluate_signals
 from adhd_mcp.terminology.site_codes import SiteCodes
+from adhd_mcp.wording import load_wording
 
 _SEVERITY = {
     DataStatus.AVAILABLE: 0,
@@ -52,6 +58,66 @@ _SEVERITY = {
     DataStatus.FAILED: 4,
 }
 _READABLE = frozenset({DataStatus.AVAILABLE, DataStatus.EMPTY})
+
+
+#: The reason of a signal whose records a withhold policy removed (peer review 01, P1).
+WITHHELD_REASON = "Not checked: records it needs were withheld by the privacy policy."
+_MEDICATION_TYPES = frozenset({"MedicationRequest", "MedicationDispense", "MedicationStatement"})
+
+
+@dataclass(frozen=True)
+class WithheldScope:
+    """What a withhold policy removed in this request: disclosed categories that lost records,
+    and the resource types of those records."""
+
+    categories: frozenset[str] = field(default_factory=frozenset)
+    types: frozenset[str] = field(default_factory=frozenset)
+
+
+def _units(
+    signals: Sequence[SignalDefinition],
+    findings: Sequence[SignalFinding],
+    encounter_of: dict[str, str],
+) -> dict[str, tuple[frozenset[str], int]]:
+    """What each present high-weight signal rests on: the visit a condition codes, else the
+    record itself; and how many distinct units it needs (peer review 01, C2)."""
+    units = {}
+    for s, f in zip(signals, findings, strict=True):
+        if not f.present or f.weight != "high":
+            continue
+        pool = set()
+        for r in f.references:
+            if r.resource_type == "Condition" and r.id in encounter_of:
+                pool.add(f"Encounter/{encounter_of[r.id]}")
+            else:
+                pool.add(f"{r.resource_type}/{r.id}")
+        need = s.min_count if s.source in ("events", "distinct_agents") else 1
+        units[s.id] = (frozenset(pool), need)
+    return units
+
+
+def _withheld_from(s: SignalDefinition, scope: WithheldScope) -> bool:
+    """Whether a withhold policy may have removed records this signal is evaluated on."""
+    if s.source == "events":
+        return "Encounter" in scope.types
+    if s.source == "distinct_agents":
+        return bool(_MEDICATION_TYPES & scope.types)
+    return s.protected is not None and s.protected in scope.categories
+
+
+def _mark_withheld(
+    signals: Sequence[SignalDefinition], findings: list[SignalFinding], scope: WithheldScope
+) -> tuple[list[SignalFinding], bool]:
+    """A signal not found in data the policy thinned is "not checked", never "not found"; a
+    signal found anyway stands. Returns the findings and whether any was left unchecked."""
+    marked, unchecked = [], False
+    for s, f in zip(signals, findings, strict=True):
+        if not f.present and _withheld_from(s, scope):
+            marked.append(f.model_copy(update={"reason": WITHHELD_REASON, "count": None}))
+            unchecked = True
+        else:
+            marked.append(f)
+    return marked, unchecked
 
 
 @dataclass(frozen=True)
@@ -90,12 +156,14 @@ def _basis(findings: Sequence[SignalFinding]) -> list[EvidenceItem]:
     ]
 
 
-def _choose(
+def _choose(  # noqa: PLR0911 - one return per outcome
     gate: SafetyGateResult,
     excluded: bool | None,
     decision: Decision,
     completeness: Sequence[DataCompleteness],
     sources_readable: bool,
+    *,
+    hold: bool = False,
 ) -> RecommendationCode:
     if gate.status is SafetyGateStatus.POSITIVE:
         return RecommendationCode.ADDRESS_SAFETY_GATE_FIRST
@@ -103,6 +171,9 @@ def _choose(
         return RecommendationCode.INSUFFICIENT_DATA
     if excluded is True:
         return RecommendationCode.ALREADY_IN_CARE
+    if hold:
+        # An exclusion may apply and needs a clinician to check (peer review 01, C4).
+        return RecommendationCode.INSUFFICIENT_DATA
     if decision.recommend:
         return RecommendationCode.CONSIDER_REFERRAL
     # A record with nothing in it: every category empty, or not offered by the server.
@@ -133,7 +204,30 @@ async def assess(
     as_of: date,
     *,
     site: SiteCodes,
+    withheld: Callable[[], WithheldScope] = WithheldScope,
 ) -> Assessment:
+    """``withheld`` says, once every read is done, what the privacy policy removed."""
+    patient = await records.patient(patient_id)
+    outside = outside_population(patient, as_of, plugin.ruleset.min_age_years)
+    gate_call = assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site))
+    if outside is not None:
+        gate, gate_notes = await gate_call
+        if gate.status is not SafetyGateStatus.POSITIVE:
+            return Assessment(
+                gate=gate,
+                exclusions=ExclusionResult(excluded=None, checks=[], data_completeness=[]),
+                findings=[],
+                decision=Decision(recommend=False, rules=[]),
+                recommendation=RecommendationCode.OUTSIDE_INTENDED_POPULATION,
+                basis=[],
+                notes=[load_wording().notes[outside]],
+                data_completeness=merge_completeness(gate_notes),
+                # Reported as always (no findings to score); it never changes the result.
+                scorer=run_scorer(plugin.scorer, []) if plugin.scorer is not None else None,
+            )
+        # A positive gate comes first even here: run the whole assessment as usual.
+        gate_call = assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site))
+
     async def no_exclusions() -> ExclusionResult:
         return ExclusionResult(excluded=False, checks=[], data_completeness=[])
 
@@ -143,7 +237,7 @@ async def assess(
         else no_exclusions()
     )
     gate_result, exclusions, problems, psychosocial, utilization, medication = await asyncio.gather(
-        assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site)),
+        gate_call,
         exclusions_call,
         assemble_problem_list(records, patient_id, as_of, load_problem_list_content()),
         assemble_psychosocial(records, patient_id, as_of, load_psychosocial_content(site)),
@@ -186,19 +280,29 @@ async def assess(
         ),
     )
     findings = evaluate_signals(plugin.catalog.signals, evidence, as_of)
-    decision = decide(findings, plugin.ruleset)
-    sources_readable = None not in (
+    findings, unchecked = _mark_withheld(plugin.catalog.signals, findings, withheld())
+    decision = decide(
+        findings,
+        plugin.ruleset,
+        _units(plugin.catalog.signals, findings, utilization.encounter_of),
+    )
+    sources_readable = not unchecked and None not in (
         evidence.problem_families,
         evidence.utilization_events,
         evidence.distinct_agents,
     )
-    recommendation = _choose(gate, exclusions.excluded, decision, completeness, sources_readable)
+    recommendation = _choose(
+        gate, exclusions.excluded, decision, completeness, sources_readable, hold=exclusions.hold
+    )
     notes = [
         plugin.note_texts[f.signal]
         for f in findings
         if f.present and f.weight == "note" and f.signal in plugin.note_texts
     ]
     notes += exclusions.notes
+    if outside is not None:
+        # A positive gate for a record outside the population: say so beside the findings.
+        notes.insert(0, load_wording().notes[outside])
     scorer = run_scorer(plugin.scorer, findings) if plugin.scorer is not None else None
     return Assessment(
         gate=gate,

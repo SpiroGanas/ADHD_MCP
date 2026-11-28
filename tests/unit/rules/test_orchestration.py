@@ -80,9 +80,10 @@ async def test_types_a_server_does_not_offer_do_not_make_every_assessment_insuff
     assert result.exclusions.excluded is None
     assert result.recommendation is RecommendationCode.NO_RECOMMENDATION
     statuses = {n.category: n.status for n in result.data_completeness}
-    # QuestionnaireResponse is not read at all: the PHQ-9 check waits for LOINC verification.
+    # QuestionnaireResponse is read too: a PHQ-9 answer recorded there under an unverified
+    # code would stop the gate (peer review 01, S2).
     not_offered = {c for c, s in statuses.items() if s is DataStatus.NOT_SUPPORTED}
-    assert not_offered == NOT_ON_LIGHTHOUSE - {"QuestionnaireResponse"}
+    assert not_offered == NOT_ON_LIGHTHOUSE
 
 
 async def test_an_empty_record_on_a_server_lacking_types_is_still_insufficient_data() -> None:
@@ -173,3 +174,15 @@ def test_merged_completeness_keeps_the_least_complete_note() -> None:
         ("Condition", DataStatus.FAILED),
         ("Encounter", DataStatus.EMPTY),
     ]
+
+
+async def test_psychosocial_signals_are_unreadable_not_absent_when_conditions_fail() -> None:
+    # Peer review 01, T8: "unreadable, not absent" was asserted for other sources only.
+    p = PersonaBuilder("t66", gender="female", birth_date="1990-01-01")
+    p.condition("Z65.1", "x", recorded="2025-01-01")
+    records = PatientRecords(FailingAdapter(p, {"Condition"}))
+    result = await assess(adhd_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    reasons = {f.signal: f.reason for f in result.findings}
+    for signal in ("legal_problems", "housing_problems", "education_occupation_problems"):
+        assert reasons[signal] == "Not checked: the data it needs could not be read."
+    assert result.recommendation is RecommendationCode.INSUFFICIENT_DATA

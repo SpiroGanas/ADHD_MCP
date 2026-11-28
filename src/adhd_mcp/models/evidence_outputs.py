@@ -31,8 +31,19 @@ class ProblemEntry(_Frozen):
     onset: date | None = Field(description="Earliest onset date recorded, if any")
     first_recorded: date | None = Field(description="Earliest recorded date, if any")
     last_recorded: date | None = Field(description="Latest recorded date, if any")
+    last_date: date | None = Field(
+        default=None,
+        description="Latest date any record of this code carries (recorded, onset or "
+        "abatement), if any",
+    )
     clinical_status: str | None = Field(description="Clinical status of the latest record")
     resolved: bool = Field(description="True when the latest record is resolved or inactive")
+    current: bool = Field(
+        default=False,
+        description="True when the latest record is an active problem-list item with no "
+        "abatement on or before the as-of date, and the code is not a single-day event: it "
+        "then counts as current whatever its date. Otherwise the entry counts by its last date",
+    )
     onset_order: int | None = Field(
         description="Rank by first known date (onset or recorded), 1 = earliest; equal dates "
         "share a rank; null when undated"
@@ -217,6 +228,12 @@ class UtilizationEvent(_Frozen):
     kind: Literal["acute_care_visit", "injury_visit", "crash_as_driver", "psychiatric_stay"]
     date: dt.date | None = Field(description="Visit or admission date; null when undated")
     end: dt.date | None = Field(default=None, description="Discharge date of a stay, if known")
+    follow_up: bool = Field(
+        default=False,
+        description="Injury visits only: true when every injury code on the visit is a "
+        "subsequent-encounter or sequela code (seventh character other than A, B or C), so "
+        "the visit is not a new injury and is not counted as one",
+    )
     references: list[ResourceRef] = Field(
         min_length=1, description="The encounter first, then the conditions coding it"
     )

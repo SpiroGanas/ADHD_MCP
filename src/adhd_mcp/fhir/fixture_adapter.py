@@ -14,7 +14,13 @@ from adhd_mcp.fhir.port import (
     SearchWarning,
     validate_patient_id,
 )
-from adhd_mcp.fhir.search import MEDICATION_TYPES, matches_since, matches_updated_since
+from adhd_mcp.fhir.search import (
+    MEDICATION_TYPES,
+    Codes,
+    matches_filters,
+    matches_since,
+    matches_updated_since,
+)
 
 _DEFAULT_LAST_UPDATED = datetime(2026, 1, 1, tzinfo=UTC)
 
@@ -64,6 +70,8 @@ class FixtureFhirAdapter:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> SearchResult:
         validate_patient_id(patient_id)
         subject = f"Patient/{patient_id}"
@@ -74,6 +82,7 @@ class FixtureFhirAdapter:
             and (r.get("subject") or {}).get("reference") == subject
             and (since is None or matches_since(r, since))
             and (updated_since is None or matches_updated_since(r, updated_since))
+            and matches_filters(r, categories, codes)
         ]
         if resource_type in MEDICATION_TYPES:
             found += self._referenced_medications(found)

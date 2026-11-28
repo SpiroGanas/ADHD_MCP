@@ -17,7 +17,7 @@ Decided with the project owner on 2026-11-26.
 | Data | Synthetic FHIR R4 for all development and testing. A FHIR abstraction layer and SMART on FHIR authentication keep VA Lighthouse and Oracle Health connectable in Phase 8 |
 | Stack | Python and FastMCP |
 
-**In scope:** the nine tools in the architecture document, MCP resources and prompts, the rules engine, audit logging, authentication, a synthetic evaluation suite, and release 1.0.
+**In scope:** the tools in the architecture document (nine planned; ten built, with `get_server_info`), MCP resources and prompts, the rules engine, audit logging, authentication, a synthetic evaluation suite, and release 1.0.
 
 **Out of scope for this plan:** note text extraction (`find_note_evidence`), model training, CDS Hooks, production deployment inside a health system, any clinical validation or trial, and any patient-facing feature. These are listed under [Future work](#future-work).
 

@@ -105,6 +105,11 @@ async def test_the_token_is_reused_until_shortly_before_it_expires() -> None:
         httpx2.Response(
             200, json={"access_token": "x", "token_type": "bearer", "expires_in": "soon"}
         ),
+        # Peer review 01, D4: a body that is not JSON, or not an object, or a token type that
+        # is not a string, escaped as an internal error.
+        httpx2.Response(200, text="<html>not json</html>"),
+        httpx2.Response(200, json=["access_token", "x"]),
+        httpx2.Response(200, json={"access_token": "x", "token_type": 7}),
     ],
 )
 async def test_a_refused_or_odd_token_response_is_an_error(response: httpx2.Response) -> None:

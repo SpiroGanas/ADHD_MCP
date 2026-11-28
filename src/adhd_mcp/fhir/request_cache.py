@@ -12,6 +12,7 @@ from datetime import date, datetime
 from typing import Any
 
 from adhd_mcp.fhir.port import FhirReadPort, RawResource, SearchResult, SearchType
+from adhd_mcp.fhir.search import Codes
 
 
 class RequestCachedPort:
@@ -44,12 +45,19 @@ class RequestCachedPort:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> SearchResult:
-        key = ("search", resource_type, patient_id, since, updated_since)
+        key = ("search", resource_type, patient_id, since, updated_since, categories, codes)
         result: SearchResult = await self._once(
             key,
             lambda: self._inner.search(
-                resource_type, patient_id, since=since, updated_since=updated_since
+                resource_type,
+                patient_id,
+                since=since,
+                updated_since=updated_since,
+                categories=categories,
+                codes=codes,
             ),
         )
         return result

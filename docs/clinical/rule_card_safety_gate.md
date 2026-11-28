@@ -7,7 +7,7 @@
 | Status | Draft |
 | Author | Claude Code agent, under the project owner's decisions of 2026-11-26 and 2026-11-27 |
 | Clinical reviewer and date | None yet (open question 1). The human spot-check of the `safety.*` value sets is waived for development and is a release blocker |
-| Server versions that can load it | 0.1.0 and later, including release candidate 1.0.0rc1 (tool contract 0.2.0 and later) |
+| Server versions that can load it | 0.1.0 and later, including 0.9.0 (tool contract 0.2.0 and later) |
 
 ## Intended use
 
@@ -31,8 +31,8 @@ Look-back: coded signals and screening results count if dated within **365 days*
 | Non-suicidal self-harm (`nonsuicidal_self_harm_code`) | `safety.nonsuicidal_self_harm` (R45.88); 365 days | Research report | As above |
 | History of suicidal behavior or self-harm (`self_harm_history_code`) | `safety.history_suicidal_behavior` (Z91.51), `safety.history_nonsuicidal_self_harm` (Z91.52); 365 days by recorded date | Research report | As above |
 | Psychiatric discharge (`psychiatric_discharge`) | Encounter mapped by the site as psychiatric inpatient or residential; discharge (period end) within 90 days (signal `psychiatric_discharge_within_90_days`, presented first) or 365 days; a stay discharged after the as-of date, or with no discharge date and not finished, counts as current; a finished stay with no discharge date is dated by its start. Planned or cancelled encounters do not count | Research report (Britton 2017; Luxton 2013) | Site mapping (`data/site_codes/`); only the synthetic site exists |
-| PHQ-9 item 9 (`phq9_item9`) | LOINC 44260-8, value at or above 1, as an Observation, a panel component, or a mapped QuestionnaireResponse item; 365 days | Research report (Louzon 2016) | **No**: LOINC unverified (F2). Check reported as not performed |
-| C-SSRS risk level (`cssrs_risk_level`) | LOINC 93374-7 answered Moderate (LA6751-7) or High (LA9193-9); 365 days | Research report | **No**: LOINC unverified (F2). Check reported as not performed |
+| PHQ-9 item 9 (`phq9_item9`) | LOINC 44260-8, value at or above 1, as an Observation, a panel component, or a mapped QuestionnaireResponse item; 365 days | Research report (Louzon 2016) | **No**: LOINC unverified (F2). Not scored; any result under the code within 365 days fails the check (see below) |
+| C-SSRS risk level (`cssrs_risk_level`) | LOINC 93374-7 answered Moderate (LA6751-7) or High (LA9193-9); 365 days | Research report | **No**: LOINC unverified (F2). Not scored; any result under the code within 365 days fails the check (see below) |
 | High-risk flag (`high_risk_flag`) | Flag mapped by the site as high risk for suicide, status active and not ended before the as-of date | Research report | Site mapping; only the synthetic site exists |
 
 A negative PHQ-9 item 9 never clears the gate: each check is independent, and any positive check makes the gate positive.
@@ -47,6 +47,8 @@ A negative PHQ-9 item 9 never clears the gate: each check is independent, and an
 | `clear` | Every check ran and found nothing |
 
 Today the two LOINC-based checks are not performed, so no gate is plain `clear`.
+
+**A result under an unverified code stops the gate** (peer review 01, S2; owner decision 2026-11-28). The two LOINC-based checks still look for results under the codes their instrument files list (PHQ-9 item 9: 44260-8 as an Observation, a panel component or a mapped QuestionnaireResponse item; C-SSRS risk level: 93374-7). Any such result inside the 365-day look-back, whatever its value, fails the check with the reason "A result is recorded under this check's code, but the code or cutoff is not verified yet" and cites the resource; the gate is then `data_unavailable` and no referral is suggested. An unreadable Observation or QuestionnaireResponse category fails these checks for the same reason. The unverified code is used only to stop, never to score or to clear. Until LOINC is verified (open question 14), any patient with a PHQ-9 or C-SSRS result in the past year is `insufficient_data`. Persona p15 covers this case.
 
 ## Exclusions
 
@@ -72,7 +74,7 @@ From the research report, safety gate section: prior self-harm is the strongest 
 
 | Item | Result |
 |---|---|
-| Cohort used | Synthetic persona catalog (10 personas), plus unit tests per signal |
+| Cohort used | Synthetic persona catalog (16 personas), plus unit tests per signal and an encoding-varied property test |
 | Agreement with intended outcomes | All personas match `tests/personas/catalog.toml`, with today's content and with all checks active |
 | Recommendation rate by sex | Not applicable |
 | Recommendation rate by age band | Not applicable |
@@ -83,7 +85,7 @@ From the research report, safety gate section: prior self-harm is the strongest 
 ## Known limitations and biases
 
 - Depends on coding: self-harm is under-coded, and much of it lives in note text, which is out of scope.
-- The PHQ-9 item 9 and C-SSRS checks are inactive until LOINC is verified, so the gate currently relies on codes, discharges and flags only.
+- The PHQ-9 item 9 and C-SSRS checks cannot be scored until LOINC is verified: a recorded result stops the gate (`data_unavailable`) instead, and a record without one relies on codes, discharges and flags only.
 - Psychiatric encounters and flags depend on each site's local codes; a site without a mapping gets those checks as not performed.
 - An old suicide attempt (over 365 days) does not make the gate positive; it is listed as history for the clinician.
 - C-SSRS screener item answers (without a risk level) are not read; no LOINC code for a screener result was found.
@@ -96,4 +98,4 @@ From the research report, safety gate section: prior self-harm is the strongest 
 | Version | Date | Change | Reason |
 |---|---|---|---|
 | 0.1.0 | 2026-11-27 | First draft, revised after the clinical safety review (unreadable resources limit the gate; finished stays without a discharge date dated by their start) | Phase 3 |
-| 0.1.0 (server 1.0.0rc1) | 2026-11-27 | A check whose data was read only in part now fails (gate `data_unavailable`, no referral suggestion) instead of reporting not found with a limited gate. Gate definition data unchanged; the behaviour is in `evidence/safety_gate.py` | Phase 7 clinical safety review; owner decision (open question 19) |
+| 0.1.0 (server 1.0.0rc1) | 2026-11-27 | A check whose data was read only in part now fails (gate `data_unavailable`, no referral suggestion) instead of reporting not found with a limited gate. Gate definition data unchanged; the behaviour is in `evidence/safety_gate.py` | Phase 7 clinical safety review; owner decision 2026-11-27 on partly read data |

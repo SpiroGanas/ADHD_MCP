@@ -131,6 +131,16 @@ def test_unreadable_resources_make_a_category_incomplete(
     assert ("unreadable_resources" in note.warnings) is (status is DataStatus.INCOMPLETE)
 
 
+def test_an_unrecognized_coding_makes_a_category_incomplete_with_its_own_warning() -> None:
+    # Peer review 01, S1: a condition no value set can match must not look like a clean read.
+    skipped = (Skipped(ref=None, resource_type="Condition", reason=SkipReason.UNRECOGNIZED_CODING),)
+    result = ReadResult[ConditionRecord](records=(condition("c1"),), skipped=skipped)
+    note = completeness("Condition", result)
+    assert note.status is DataStatus.INCOMPLETE
+    assert note.warnings == ["unrecognized_coding"]
+    assert note.skipped == 1
+
+
 def test_an_unreadable_resource_alone_is_not_an_empty_category() -> None:
     skipped = (Skipped(ref=None, resource_type="Condition", reason=SkipReason.MALFORMED),)
     note = completeness("Condition", ReadResult[ConditionRecord](records=(), skipped=skipped))

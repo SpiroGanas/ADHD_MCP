@@ -24,7 +24,7 @@ from adhd_mcp.tools import (
     server_info,
     utilization,
 )
-from adhd_mcp.tools.common import SCOPES
+from adhd_mcp.tools.common import SCOPES, TOOL_NAMES
 from adhd_mcp.tools.context import ToolContext, context_from_environment
 
 INSTRUCTIONS = (
@@ -73,7 +73,7 @@ def create_server(context: ToolContext | None = None, auth: AuthProvider | None 
         auth=auth,
     )
     if context.audit_sink is not None:
-        mcp.add_middleware(AuditMiddleware(context.audit_sink, context.clock))
+        mcp.add_middleware(AuditMiddleware(context.audit_sink, context.clock, TOOL_NAMES))
     server_info.register(mcp)
     safety_gate.register(mcp, context)
     problem_list.register(mcp, context)
@@ -93,7 +93,7 @@ def main() -> None:  # pragma: no cover - process entry point
     """Run the server over stdio or HTTP, as configured. Refuses to start on bad settings."""
     try:
         settings = load_settings(os.environ)
-        context = context_from_environment(os.environ)
+        context = context_from_environment(os.environ, settings=settings)
     except ConfigError as exc:
         print(f"adhd-mcp: configuration error: {exc}", file=sys.stderr)  # noqa: T201
         raise SystemExit(2) from None

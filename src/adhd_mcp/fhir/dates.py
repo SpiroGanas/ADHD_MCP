@@ -1,8 +1,10 @@
 """Normalize FHIR date, dateTime, instant and Period values to one representation.
 
 A dateTime or instant keeps the calendar date as written in its own offset; times and
-time zones are not used by any rule. Partial dates become ranges: ``2024`` covers the
-whole year and ``2024-02`` the whole month.
+time zones are not used by any rule. A time written without an offset, which FHIR forbids
+but real feeds send, is accepted for the same reason: its calendar date is kept (peer
+review 01, D3). Partial dates become ranges: ``2024`` covers the whole year and ``2024-02``
+the whole month.
 """
 
 import calendar
@@ -15,7 +17,7 @@ from pydantic import BaseModel, ConfigDict
 
 _DATE = re.compile(
     r"^(?P<y>\d{4})(?:-(?P<m>\d{2})(?:-(?P<d>\d{2})"
-    r"(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2}))?)?)?$"
+    r"(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?)?)?$"
 )
 
 

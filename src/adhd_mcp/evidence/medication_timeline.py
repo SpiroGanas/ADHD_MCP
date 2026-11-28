@@ -281,11 +281,11 @@ async def assemble_medication_timeline(
                         references=[m.ref],
                     )
                 )
-            dates = [(s.start, s.end) for s in supplies] + [
-                (_start(m), _start(m)) for m in ingredient_requests
-            ]
+            # Distinct agents are agents with exposure (peer review 01, C5): orders count only
+            # when the record holds no dispensing data at all, and then as supplies above.
+            dates = [(s.start, s.end) for s in supplies]
             if dates:
-                refs = [s.ref for s in supplies] + [m.ref for m in ingredient_requests]
+                refs = [s.ref for s in supplies]
                 agents.append(
                     AgentSummary(
                         ingredient=_ingredient(ingredient),

@@ -172,3 +172,24 @@ async def test_canary_clinical_content_never_reaches_audit_or_logs(
     assert len(path.read_text(encoding="utf-8").splitlines()) == 2 * len(ALL_TOOLS)
     for canary in (CANARY_TEXT, str(CANARY_VALUE), CANARY_NAME, "F15.10", "V43.52XA"):
         assert canary not in written, canary
+
+
+async def test_a_failed_call_records_what_it_read_before_failing() -> None:
+    # Peer review 01, T8: the resources read during a failed call were never asserted.
+    class BrokenEncounters(FixtureFhirAdapter):
+        async def search(self, resource_type, patient_id, **kw):  # type: ignore[no-untyped-def]
+            if resource_type == "Encounter":
+                raise RuntimeError("an unexpected defect")
+            return await super().search(resource_type, patient_id, **kw)
+
+    sink = MemoryAuditSink()
+    ctx = dataclasses.replace(context(sink), port=BrokenEncounters(all_resources()))
+    async with Client(create_server(ctx)) as client:
+        result = await client.call_tool(
+            "check_safety_gate", {"patient_id": "p01-patient"}, raise_on_error=False
+        )
+    assert result.is_error is True
+    (record,) = sink.records
+    assert (record.outcome, record.error_code) == ("error", "internal_error")
+    assert ("Patient", "p01-patient") in {(r.resource_type, r.id) for r in record.resources_read}
+    assert record.resources_read_count == len(record.resources_read)

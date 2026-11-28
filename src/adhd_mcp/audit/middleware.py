@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, get_args
 
+from fastmcp.exceptions import NotFoundError
 from fastmcp.server.dependencies import get_access_token
 from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
@@ -25,10 +26,16 @@ from adhd_mcp.fhir.port import (
     SearchType,
     validate_patient_id,
 )
+from adhd_mcp.fhir.search import Codes
 from adhd_mcp.models.domain import ResourceRef, ResourceType
 
 _KNOWN_TYPES = frozenset(get_args(ResourceType))
 _ERROR_CODE = re.compile(r"^([a-z_]{3,40}):")
+
+
+#: Above this many resources an audit record holds their count and a hash, not the list
+#: (peer review 01, D1: one long record can mean tens of thousands of references).
+MAX_LISTED_RESOURCES = 500
 
 
 @dataclass
@@ -47,6 +54,23 @@ class CallAudit:
         return [
             ResourceRef(resource_type=k, id=i, version=v) for (k, i), v in sorted(self.refs.items())
         ]
+
+    def resource_summary(self) -> tuple[list[ResourceRef], int, str | None]:
+        """(the list, its count, None), or for a long list ([], its count, the sha256 of the
+        sorted references, one ``Type/id/version`` per line)."""
+        refs = self.resources()
+        if len(refs) <= MAX_LISTED_RESOURCES:
+            return refs, len(refs), None
+        lines = "\n".join(f"{r.resource_type}/{r.id}/{r.version or ''}" for r in refs)
+        return [], len(refs), hashlib.sha256(lines.encode("utf-8")).hexdigest()
+
+    def record_fields(self) -> dict[str, Any]:
+        listed, count, digest = self.resource_summary()
+        return {
+            "resources_read": listed,
+            "resources_read_count": count,
+            "resources_read_sha256": digest,
+        }
 
 
 current_audit: ContextVar[CallAudit | None] = ContextVar("current_audit", default=None)
@@ -71,9 +95,16 @@ class AuditingPort:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> SearchResult:
         found = await self._inner.search(
-            resource_type, patient_id, since=since, updated_since=updated_since
+            resource_type,
+            patient_id,
+            since=since,
+            updated_since=updated_since,
+            categories=categories,
+            codes=codes,
         )
         if (audit := current_audit.get()) is not None:
             for raw in found.resources:
@@ -112,10 +143,23 @@ def output_hash(structured: Any) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def _error_code(exc: Exception, tool: str, known_tools: frozenset[str]) -> str:
+    """The audited error code. FastMCP answers "Unknown tool" both for a tool that does not
+    exist and for one the caller's token lacks the scope for; the two are told apart here
+    (peer review 01, P4: a refusal was audited as an internal error)."""
+    if isinstance(exc, NotFoundError):
+        return "not_authorized" if tool in known_tools else "unknown_tool"
+    match = _ERROR_CODE.match(str(exc))
+    return match[1] if match else "internal_error"
+
+
 class AuditMiddleware(Middleware):
-    def __init__(self, sink: AuditSink, clock: Clock) -> None:
+    def __init__(
+        self, sink: AuditSink, clock: Clock, known_tools: frozenset[str] = frozenset()
+    ) -> None:
         self.sink = sink
         self.clock = clock
+        self.known_tools = known_tools
 
     async def on_call_tool(
         self,
@@ -136,18 +180,18 @@ class AuditMiddleware(Middleware):
             "server_version": versions.server_version(),
             "tool_contract_version": versions.TOOL_CONTRACT_VERSION,
             "ruleset": versions.ACTIVE_RULESET_VERSION,
+            "clinical_content": versions.clinical_content_sha256(),
             "patient": _patient(params.arguments),
         }
         try:
             result = await call_next(context)
         except Exception as exc:
-            match = _ERROR_CODE.match(str(exc))
             self.sink.write(
                 AuditRecord(
                     **base,
                     outcome="error",
-                    error_code=match[1] if match else "internal_error",
-                    resources_read=audit.resources(),
+                    error_code=_error_code(exc, params.name, self.known_tools),
+                    **audit.record_fields(),
                 )
             )
             raise
@@ -163,7 +207,7 @@ class AuditMiddleware(Middleware):
                 outcome="success",
                 scorer=found_versions.get("scorer"),
                 privacy_policy=privacy.get("policy"),
-                resources_read=audit.resources(),
+                **audit.record_fields(),
                 recommendation=structured.get("recommendation"),
                 output_sha256=output_hash(structured),
             )

@@ -16,9 +16,10 @@ jobs:
   checks:
     name: Lint, types, tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: "0.11.32"
           enable-cache: true
@@ -34,10 +35,15 @@ jobs:
         run: uv run python scripts/check_synthetic_data.py
       - name: Tests with coverage
         run: uv run pytest --cov --cov-report=term --cov-report=xml
+      - name: Every branch of the rules, safety gate, orchestration and privacy covered
+        run: >-
+          uv run coverage report --fail-under=100 --skip-covered
+          --include='*/adhd_mcp/rules/*,*/adhd_mcp/evidence/safety_gate.py,*/adhd_mcp/orchestration/*,*/adhd_mcp/privacy/*'
 
   integration:
     name: Integration (local FHIR server)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     services:
       fhir:
         image: hapiproject/hapi:v8.12.0-2
@@ -52,8 +58,8 @@ jobs:
           hapi.fhir.max_page_size: "200"
           spring.datasource.url: "jdbc:h2:mem:hapi"
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: "0.11.32"
           enable-cache: true
@@ -67,8 +73,9 @@ jobs:
   container:
     name: Container image (build and smoke test; not published)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Build
         run: docker build -t adhd-mcp:ci .
       - name: Smoke test with the sample data
@@ -85,14 +92,42 @@ jobs:
                   print("container smoke test passed")
           asyncio.run(main())
           '
+      - name: The real entry point refuses a bad setting with a configuration error
+        run: |
+          set +e
+          out=$(docker run --rm -e ADHD_MCP_TRANSPORT=bogus adhd-mcp:ci 2>&1)
+          code=$?
+          set -e
+          echo "$out"
+          test "$code" -eq 2
+          echo "$out" | grep -q "configuration error"
+      - name: The real entry point serves HTTP
+        run: |
+          docker run -d --name adhd --network host \
+            -e ADHD_MCP_TRANSPORT=http -e ADHD_MCP_ALLOW_UNAUTHENTICATED_HTTP=1 \
+            -e ADHD_MCP_AUDIT_FILE=/tmp/audit.jsonl -e ADHD_MCP_FIXTURE_DIR=/app/sample-data \
+            adhd-mcp:ci
+          for i in $(seq 1 30); do
+            if curl -fsS -o /tmp/init.txt -X POST http://127.0.0.1:8000/mcp \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json, text/event-stream" \
+              -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"ci","version":"0"}}}'; then
+              break
+            fi
+            sleep 1
+          done
+          docker logs adhd
+          grep -q "adhd-mcp" /tmp/init.txt
+          docker rm -f adhd
 
   secret-scan:
     name: Secret scan
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

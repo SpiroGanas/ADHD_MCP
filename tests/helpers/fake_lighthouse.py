@@ -28,7 +28,15 @@ OFFERED = frozenset({"Condition", "Observation", "Encounter", "Procedure", "Medi
 #: Search parameters the fake accepts, per type (a subset of the recorded statement).
 PARAMS = {
     "Condition": {"patient", "_count", "recorded-date", "_lastUpdated", "-pageToken"},
-    "Observation": {"patient", "_count", "date", "_lastUpdated", "-pageToken"},
+    "Observation": {
+        "patient",
+        "_count",
+        "date",
+        "_lastUpdated",
+        "-pageToken",
+        "category",
+        "code",
+    },
     "Encounter": {"patient", "_count", "date", "_lastUpdated", "-pageToken"},
     "Procedure": {"patient", "_count", "date", "_lastUpdated", "-pageToken"},
     "MedicationRequest": {"patient", "_count", "_lastUpdated", "-pageToken"},

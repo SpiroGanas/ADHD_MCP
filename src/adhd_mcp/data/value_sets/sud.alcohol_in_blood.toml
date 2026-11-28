@@ -3,6 +3,10 @@ version = "0.1.0"
 title = "Finding of alcohol in blood"
 description = ""
 
+# A measurement on one day: never an ongoing problem (peer review 01, C1; owner decision
+# 2026-11-28).
+point_in_time = true
+
 [[entries]]
 system = "http://hl7.org/fhir/sid/icd-10-cm"
 match = "exact"

@@ -4,11 +4,82 @@ All notable changes to this project. Format: [Keep a Changelog](https://keepacha
 
 The tool is not clinically validated, and no version of it diagnoses.
 
-## [Unreleased]
+## [0.9.0] - not yet tagged
+
+Relabelled from 1.0.0rc1 (peer review 01, G3; owner decision 2026-11-28): the server stays at 0.x until a clinician has signed the rule cards, the model-in-the-loop evaluation has passed with a real model, and the server has read at least one real sandbox. A 0.x version, like a pre-release, may carry draft rulesets; `scripts/release_check.py` enforces released rulesets and a 1.x tool contract only from 1.0.0. 1.0.0rc1 was never tagged.
+
+### Peer review 01 fixes
+
+Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 2026-11-28. Tool contract 0.4.0 to 0.5.0. The clinical-logic changes are drafts for the clinical reviewer.
+
+#### Fixed (safety gate)
+
+- **S1.** A Condition coded in no system the value sets cover (for example SNOMED CT only, or text only) was silently "not found". It is now reported as skipped (`unrecognized_coding`), the Condition category is `incomplete`, and the safety gate fails closed (`data_unavailable`). ICD-10-CM codes sent without the dot (`R45851`) are normalized to `R45.851`.
+- **S2.** A PHQ-9 item 9 or C-SSRS risk-level result recorded within 365 days under its listed but unverified LOINC code now fails its check and makes the gate `data_unavailable`, citing the result (`SafetyCheck.references`, new). Before, the check was "not performed" and a referral could be suggested. Persona p15 added; the PHQ-9 results of p01 and p02 moved outside the look-back so they keep their roles.
+
+#### Added (clinical logic, drafts for the clinical reviewer)
+
+- **C3.** New recommendation `outside_intended_population`: a patient under 18 at the as-of date (ruleset field `min_age_years`), without a usable birth date, or recorded as deceased gets it before any signal is evaluated or rule run, with a note saying why. The safety gate still runs and a positive gate still comes first. Before, a child's record could get an adult screening suggestion. Patient records now read `deceasedBoolean` and `deceasedDateTime`. Persona p16 added.
+
+- **C1.** The look-back window did not limit unresolved conditions, and the reason "Found within 1095 days." was given for codes sixteen years old. Now only an active problem-list item with no abatement by the as-of date counts as current whatever its date; encounter diagnoses, conditions without a status and single-day event codes (value sets marked `point_in_time`: Y90, R78.0) count by their last date, abatement dates included. Reasons give the dates. Problem-list entries gain `last_date` and `current`.
+
+- **C2.** Related findings were counted as independent signals: one crash visit with a blood-alcohol code fired `two_high_classes` by itself, two crash visits were also "two injuries", and a fracture and its re-check were "two injuries". High-weight classes now count only as far as they rest on separate visits or records, and an injury visit whose injury codes are all subsequent-encounter or sequela codes is a follow-up (`follow_up`), not a new injury.
+
+- **C4.** Current ADHD medication was ignored by the exclusion check: a patient with recent methylphenidate dispenses and no ADHD code got a suggestion. Exposure to a stimulant or non-stimulant ADHD medication, not for narcolepsy, ending within 90 days of the as-of date now makes `excluded` unknown, adds the exclusion check `adhd_medication_exposure` and a note, and gives `insufficient_data`.
+- **C5.** Orders never filled counted toward "three or more distinct antidepressants". With dispensing data in the record, only agents with exposure (dispenses or statements) count, as the rule card says; an agent's references are its exposure records.
+
+- **Clinical safety review of these fixes.** Before this pull request a review of the branch found, and this change fixes: D1's code filter had lost a PHQ-9 item 9 result recorded as a component of a local panel (E17 again; now `combo-code`, system-less, unfiltered where a server lacks it); the C4 medication check failed open when medication data could not be read (now `excluded` unknown with the "exclusions incomplete" note); with a hold, that note was dropped; a record outside the population with a positive gate had no population note; a malformed `deceasedDateTime` or `birthDate` made every tool fail (now the patient stays readable and is outside the population); the seventh-character rule moved into `utilization.toml`.
+
+#### Fixed (privacy)
+
+- **P1.** Under a `withhold` policy, signals whose records were withheld read "Not found in the record" and the result could be `no_recommendation`. They now read "Not checked: records it needs were withheld by the privacy policy", and with no rule fired the result is `insufficient_data`.
+
+#### Fixed (data access and start-up)
+
+- **D2.** A 404 or 410 answer to a search crashed the tool with a masked internal error. It is now a failed read: the category is `failed` and the gate `data_unavailable`. Fault injection covers it, and covers Observation and QuestionnaireResponse as active gate inputs.
+- **D3.** A `dateTime` with a time but no offset (`2026-05-01T10:00:00`) made its resource unreadable and could block a patient's assessment. Its calendar date is now kept; values that are truly malformed are still skipped.
+- **D4.** A bad `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_SITE_CODES` gave a traceback; both are now configuration errors, and `ADHD_MCP_SITE_CODES` must name a packaged mapping. A non-JSON or non-object SMART token response is a failed request, not an internal error. Settings are read once at start-up.
+
+- **P2.** A FHIR server that is not on this machine needs an explicit `ADHD_MCP_PRIVACY_POLICY` (a file, or `packaged`); the configuration guide says what `cite` does and does not hide.
+- **P4.** A call refused for insufficient scope was audited as `internal_error`, like a crash. It is now `not_authorized`, and an unknown tool `unknown_tool`. Every tool's scope is tested with three tokens (T6). The deployment guide says failed authentication is logged at the gateway.
+- **P5.** Plain http to a FHIR server or public URL that is not on this machine is refused unless `ADHD_MCP_ALLOW_PLAIN_HTTP=1`. The audit file is created with mode 0600.
+
+#### Changed (data access)
+
+- **D1.** Observation searches were unfiltered: every laboratory result and vital sign was read to find a few screening and social-history codes. They are now searched by category (`social-history`, `survey`, `sdoh`), by the codes the instrument files list as the code or any component's code (`combo-code`, sent without a system; the safety gate and the screening history), and by the site's military separation codes; a server profile without `combo-code` (Lighthouse) is read unfiltered for those codes, so a result recorded as a component of a local panel or under an aliased code system is never lost (clinical safety review of these fixes, B1); the reader filters again when a server ignores the parameters, and a resource too malformed to filter is kept so it is reported. The request budget is 14 (Patient, one search per type, two more Observation searches). `scripts/benchmark.py --large N` assesses one long synthetic record. An audit record above 500 resources holds `resources_read_count` and `resources_read_sha256` instead of the list. Other types are still read whole: the safety gate counts undated items.
+
+#### Added
+
+- **X2.** Every output's `versions` and every audit record carry `clinical_content`, the sha256 of all packaged clinical data (rulesets, catalogs, value sets, drug classes, instruments, site codes, definitions, privacy policy, wording). A released ruleset pins it beside its own hash (`content_sha256` in `released_rulesets.toml`), so the catalog and value sets can no longer change under a "released" ruleset. The evaluation report uses the same fingerprint.
+- `ADHD_MCP_SITE_CODES_FILE`: a site's own code mapping file, loaded strictly (S2).
+
+#### Tests and CI
+
+- **T2.** A property test generates one recent self-harm fact in many FHIR encodings (code system aliases, no system, dotless or lower-case codes, SNOMED CT only or beside ICD-10-CM, dates with and without offsets, onset periods, unconfirmed statuses) and requires the gate to be positive or `data_unavailable`, never clear.
+- **T3, T6, T8.** New tests for a 404 on a search, the audit of refusals and of failed calls, `withhold` through the assessment, start-up errors, every tool's scope, reason-code classification, redaction of coded answers and ingredients, a flag ending on the as-of date and unreadable psychosocial signals.
+- **T5.** `./scripts/check` and CI require 100% branch coverage of the rules, safety gate, orchestration and privacy modules (the plan's rule was not enforced). CI jobs have time limits, third-party actions are pinned by commit, and the container job runs the real `adhd-mcp` entry point (a configuration error, and HTTP mode answering `initialize`). The ICD-10-CM verification script's `check` is tested.
+- **T7.** The synthetic-data guard walks every JSON object (arrays, contained resources, Parameters), reads `.jsonl` and JSON by content, checks every resource with a name or identifier, flags undashed SSN-shaped identifiers, fails closed on unparseable JSON, unreadable files and FHIR XML, and ships an optional pre-commit hook (`scripts/pre-commit`; see CONTRIBUTING.md).
+- **T10.** Tests clear `ADHD_MCP_*` settings from the shell (they made the contract tests fail, and could have written a wrong snapshot), and the evaluation report is also stale when the decision logic changes (`logic_sha256`).
+
+#### Documentation
+
+- **X1.** The ADHD rule card's evidence column said "No" (not inference) for ten counted signals. It now says, per signal, whether the evidence shows the signal precedes an ADHD diagnosis: at most two (stimulant and alcohol, from one prediction model, with wider value sets than the model's codes); every weight is an inference.
+- **X3.** Claims stronger than the evidence corrected: the threat model no longer says model-side risks are covered by an evaluation no real model has run; the README no longer says every planned feature is built and evaluated, or that ADHD is under-diagnosed "especially in veterans"; the risk register calls the cohort's look-alike result a consistency check, not specificity, and rates "no clinician available" as having happened.
+- **X4.** architecture.md: gate signals, high-weight signals, exclusions and the population as built; the tool table (what each tool reads, including that `draft_referral_proposal` runs the whole assessment); what `cite` discloses.
+- **X5, X7, C6, C7.** The rule card lists the questions the review raised for the clinical reviewer: expected flag rate and nicotine dependence, driver codes for pickups and heavy vehicles, anxiety codes, unconfirmed diagnoses, as-of statuses, the exclusion's scope, equity, falls in older adults, history-of codes, the positive-gate wording, differential notes, annual code updates and signals that cannot be evaluated on Lighthouse.
+- **X6.** Stale numbers and statuses: persona count, tool count, contract versions, ADR 0014's status, the risk register's review date, the two meanings of "open question 19".
+- **P3.** The threat model records patient-level authorization as a trust assumption (T19) with the audit trail as the compensating control.
+- **S1.** ADR 0007 and the Lighthouse notes no longer say dotless codes are not repaired, or that the main signal source "works as designed" with SNOMED CT codings.
+
+#### Changed
+
+- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`; utilization events gain `follow_up`; `versions` gains `clinical_content`.
+
+### Phase 8
 
 Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
 
-### Added
+#### Added
 
 - Data-completeness status `not_supported`: the FHIR server does not offer a resource type at all (for example VA Lighthouse has no Flag, QuestionnaireResponse, ServiceRequest, CarePlan, MedicationDispense or MedicationStatement). A safety gate or exclusion check that needs such a type is "not performed" with the reason, never "not found"; an assessment proceeds without dispenses and statements when medication orders were read. `HttpFhirAdapter(profile=...)` refuses types its server profile does not offer, without a request.
 
@@ -18,12 +89,12 @@ Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
 
 - VA Lighthouse Patient Health API support (`ADHD_MCP_FHIR_SERVER_PROFILE=lighthouse`), built from the public sandbox CapabilityStatement and OpenAPI: FHIR server profiles (`fhir/profiles.py`, `data/fhir_servers/`); the HTTP adapter searches only offered types, filters `since` itself where the server has no date search, and reads referenced Medication resources by id when `_include` is not offered; `LighthouseCcgAuth` with patient-scoped tokens (`launch`) and a configurable assertion audience (`ADHD_MCP_SMART_AUDIENCE`). Not yet run against the sandbox (no credentials). [Integration notes](docs/integration/lighthouse.md).
 
-### Fixed
+#### Fixed
 
 - Absolute FHIR references (`https://.../Medication/123`) are now understood; before, their medication codes and encounter links were silently lost.
 - An empty record on a server that does not offer some types is `insufficient_data`, not `no_recommendation`.
 
-### Changed
+#### Changed
 
 - Tool contract 0.3.0 to 0.4.0: the `status` enum of every `data_completeness` entry gains `not_supported`; the assessment's `scorer` gains `failed`; the `condition` argument's description names experimental stubs.
 - A scorer that raises no longer fails the assessment: it gives no score and `failed: true`.

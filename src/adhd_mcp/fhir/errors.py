@@ -12,6 +12,10 @@ class FhirError(Exception):
 class ResourceNotFoundError(FhirError):
     """The requested resource does not exist: missing data, not a failed request."""
 
+    def __init__(self, message: str, *, status: int | None = None) -> None:
+        super().__init__(message)
+        self.status = status
+
 
 class FhirRequestError(FhirError):
     """A request failed. ``transient`` is true when retries were exhausted on a

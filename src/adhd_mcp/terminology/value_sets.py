@@ -15,6 +15,7 @@ In strict mode a value set with any unverified entry is refused (standing invari
 import datetime as dt
 import re
 import tomllib
+from functools import cache
 from importlib.resources import files
 from pathlib import Path
 from typing import Literal, Self
@@ -76,6 +77,10 @@ class ValueSet(BaseModel):
     version: str
     title: str
     description: str | None = None
+    #: Codes that record one event on one day (a blood alcohol level, for example). An entry
+    #: from such a set always counts by its date, never as an ongoing problem (peer review
+    #: 01, C1).
+    point_in_time: bool = False
     entries: tuple[ValueSetEntry, ...]
 
     def matches(self, coding: Coding) -> ValueSetEntry | None:
@@ -112,6 +117,15 @@ def load_value_set_file(path: Path, *, strict: bool) -> ValueSet:
 def packaged_value_set_ids() -> list[str]:
     root = files("adhd_mcp.data.value_sets")
     return sorted(p.name.removesuffix(".toml") for p in root.iterdir() if p.name.endswith(".toml"))
+
+
+@cache
+def covered_systems() -> frozenset[str]:
+    """Every code system some packaged value set uses. A record coded in none of them can
+    never match a value set (peer review 01, S1)."""
+    return frozenset(
+        e.system for v in packaged_value_set_ids() for e in load_value_set(v, strict=False).entries
+    )
 
 
 def load_value_set(value_set_id: str, *, strict: bool = True) -> ValueSet:

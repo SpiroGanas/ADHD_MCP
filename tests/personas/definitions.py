@@ -72,7 +72,9 @@ def p01() -> PersonaBuilder:
     p.condition("F10.10", "Alcohol abuse, uncomplicated", onset="2024", recorded="2024-08-14")
     p.condition("G47.00", "Insomnia, unspecified", recorded="2025-06-01")
     p.condition("Z56.0", "Unemployment, unspecified", recorded="2025-12-01")
-    _phq9_panel(p, "2026-02-01T10:00:00Z", item9=0, total=8)
+    # Outside the gate's 365-day look-back: an unverified screening code inside it would stop
+    # the gate (peer review 01 S2; p15 covers that case).
+    _phq9_panel(p, "2025-04-01T10:00:00Z", item9=0, total=8)
     return p
 
 
@@ -100,7 +102,7 @@ def p02() -> PersonaBuilder:
         p.medication_dispense(request, code, name, when, days=90)
     p.questionnaire_response(
         PHQ9_QUESTIONNAIRE,
-        "2026-01-20",
+        "2025-05-20",
         {"1": 2, "2": 2, "3": 3, "4": 2, "5": 1, "6": 1, "7": 2, "8": 0, "9": 0, "total": 13},
     )
     p.observation("75626-2", "AUDIT-C total score", "2026-01-20T10:00:00Z", value=3)
@@ -340,6 +342,25 @@ def p14() -> PersonaBuilder:
     return p
 
 
+def p15() -> PersonaBuilder:
+    """A recent PHQ-9 item 9 result under a LOINC code not yet verified (peer review 01, S2)."""
+    p = PersonaBuilder("p15", gender="male", birth_date="1988-08-08")
+    p.condition("F10.20", "Alcohol dependence, uncomplicated", recorded="2025-10-01")
+    p.condition("F32.9", "Major depressive disorder, single episode", recorded="2025-11-12")
+    p.condition("G47.00", "Insomnia, unspecified", recorded="2026-01-15")
+    p.observation("44260-8", "PHQ-9 item 9", "2026-06-01T09:00:00Z", value=3)
+    return p
+
+
+def p16() -> PersonaBuilder:
+    """An adolescent: outside the adult intended population (peer review 01, C3)."""
+    p = PersonaBuilder("p16", gender="female", birth_date="2010-03-03")
+    p.condition("F10.10", "Alcohol abuse, uncomplicated", recorded="2026-02-14")
+    p.condition("F32.9", "Major depressive disorder, single episode", recorded="2025-12-01")
+    p.condition("G47.00", "Insomnia, unspecified", recorded="2026-01-20")
+    return p
+
+
 PERSONAS: dict[str, Callable[[], PersonaBuilder]] = {
     "p01": p01,
     "p02": p02,
@@ -355,6 +376,8 @@ PERSONAS: dict[str, Callable[[], PersonaBuilder]] = {
     "p12": p12,
     "p13": p13,
     "p14": p14,
+    "p15": p15,
+    "p16": p16,
 }
 
 

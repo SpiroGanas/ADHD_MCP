@@ -1,6 +1,6 @@
 # Tool reference
 
-Generated from the contract snapshots in `tests/contract/snapshots/` by `uv run python scripts/build_tool_reference.py`; do not edit by hand. Tool contract version **0.4.0**.
+Generated from the contract snapshots in `tests/contract/snapshots/` by `uv run python scripts/build_tool_reference.py`; do not edit by hand. Tool contract version **0.5.0**.
 
 Every tool is read-only. No result is a diagnosis: every patient tool returns `is_diagnosis: false` and a notice. The tool is not clinically validated.
 
@@ -19,7 +19,7 @@ Every tool is read-only. No result is a diagnosis: every patient tool returns `i
 
 ## assess_referral_need
 
-Suggest whether a clinician should consider referring a patient for formal adult ADHD screening, with the evidence behind it. Runs the safety gate first: if self-harm signals are found the result is address_safety_gate_first and no screening referral is suggested. Then checks whether the patient is already in ADHD care, reads diagnoses, psychosocial codes, visits and medications, and applies the versioned ADHD ruleset (one high-weight signal with two or more modifiers, or two high-weight signal classes, within 1095 days). Returns one of consider_referral_for_formal_screening, no_recommendation, address_safety_gate_first, already_in_care or insufficient_data; the safety gate; every signal checked with its FHIR resources; each rule and whether it fired; exclusions; notes; and data completeness. Read-only. The ruleset is a starting heuristic from published research, not clinically validated. The result is never a diagnosis; a clinician decides.
+Suggest whether a clinician should consider referring a patient for formal adult ADHD screening, with the evidence behind it. Runs the safety gate first: if self-harm signals are found the result is address_safety_gate_first and no screening referral is suggested. A patient under 18 at the as-of date, without a birth date, or recorded as deceased gets outside_intended_population and no rule is applied. Then checks whether the patient is already in ADHD care, reads diagnoses, psychosocial codes, visits and medications, and applies the versioned ADHD ruleset (one high-weight signal with two or more modifiers, or two high-weight signal classes, within 1095 days). Returns one of consider_referral_for_formal_screening, no_recommendation, address_safety_gate_first, already_in_care, insufficient_data or outside_intended_population; the safety gate; every signal checked with its FHIR resources; each rule and whether it fired; exclusions; notes; and data completeness. Read-only. The ruleset is a starting heuristic from published research, not clinically validated. The result is never a diagnosis; a clinician decides.
 
 **Inputs**
 
@@ -45,7 +45,7 @@ Suggest whether a clinician should consider referring a patient for formal adult
 | `notice` | string | yes | The standard notice: a suggestion, never a diagnosis |
 | `patient_id` | string | yes |  |
 | `privacy` | object | yes | What the sensitive-data policy withheld or restricted |
-| `recommendation` | `consider_referral_for_formal_screening` \| `no_recommendation` \| `address_safety_gate_first` \| `already_in_care` \| `insufficient_data` | yes |  |
+| `recommendation` | `consider_referral_for_formal_screening` \| `no_recommendation` \| `address_safety_gate_first` \| `already_in_care` \| `insufficient_data` \| `outside_intended_population` | yes |  |
 | `recommendation_text` | string | yes | The recommendation in approved wording |
 | `ruleset` | string | yes | Ruleset id, version and status; never clinically validated |
 | `safety_gate` | object | yes | The gate's status agrees with its checks (owner decision 2026-11-27): * positive if and only if a check found a signal; * otherwise data_unavailable if a check failed; * otherwise clear only if every check ran; clear_limited_data is used when a check was not performed or the record holds too little data. |

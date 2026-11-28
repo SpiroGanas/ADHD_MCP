@@ -5,6 +5,11 @@ codes come from the site code mapping. Content that cannot be loaded strictly (u
 codes or cutoffs, or concepts the site does not map) leaves its check "not performed", and
 the gate then never reports a plain "clear" (owner decision 2026-11-27).
 
+An unverified instrument check still looks for results under the codes its instrument file
+lists. A result inside the look-back window, or an unreadable category that could hide one,
+fails the check, so the gate is "data unavailable" and no referral is suggested. The code is
+used only to stop, never to score (owner decision 2026-11-28, peer review 01 S2).
+
 This module reports what the record contains. It never assesses suicide risk.
 """
 
@@ -50,7 +55,7 @@ from adhd_mcp.models.domain import (
     SafetyGateStatus,
 )
 from adhd_mcp.terminology import UnverifiedContentError, ValueSet, load_value_set
-from adhd_mcp.terminology.instruments import Instrument, load_instrument
+from adhd_mcp.terminology.instruments import Instrument, instrument_codes, load_instrument
 from adhd_mcp.terminology.site_codes import QuestionnaireMapping, SiteCodes
 from adhd_mcp.wording import load_wording
 
@@ -124,6 +129,10 @@ _UNVERIFIED = (
     "listed by get_screening_history for clinician review."
 )
 _UNMAPPED = "Not performed: no local codes are mapped for it at this site."
+_UNVERIFIED_RESULT = (
+    "A result is recorded under this check's code, but the code or cutoff is not verified "
+    "yet, so it cannot be interpreted. Review the listed result before any screening referral."
+)
 
 
 @dataclass(frozen=True)
@@ -137,6 +146,9 @@ class GateContent:
     phq9: Instrument | None = None
     cssrs: Instrument | None = None
     not_performed: dict[str, str] = field(default_factory=dict)
+    #: Unverified instruments by check id: their listed codes are searched only so that a
+    #: recorded result stops the gate.
+    unverified: dict[str, Instrument] = field(default_factory=dict)
 
 
 def _instrument(instrument_id: str, strict: bool) -> Instrument | None:
@@ -158,15 +170,20 @@ def load_gate_content(site: SiteCodes, *, strict: bool = True) -> GateContent:
             not_performed[check.id] = _UNVERIFIED
     if not any(site.maps(c) for c in definition.discharge.concepts):
         not_performed[definition.discharge.id] = _UNMAPPED
+    unverified: dict[str, Instrument] = {}
     phq9 = _instrument(definition.phq9_item9.instrument, strict)
     if phq9 is None:
         not_performed[definition.phq9_item9.id] = _UNVERIFIED
+        unverified[definition.phq9_item9.id] = load_instrument(
+            definition.phq9_item9.instrument, strict=False
+        )
     cssrs = _instrument(definition.cssrs.instrument, strict)
     if cssrs is None:
         not_performed[definition.cssrs.id] = _UNVERIFIED
+        unverified[definition.cssrs.id] = load_instrument(definition.cssrs.instrument, strict=False)
     if not site.maps(definition.flag.concept):
         not_performed[definition.flag.id] = _UNMAPPED
-    return GateContent(definition, site, value_sets, phq9, cssrs, not_performed)
+    return GateContent(definition, site, value_sets, phq9, cssrs, not_performed, unverified)
 
 
 # --- evaluation ----------------------------------------------------------------------
@@ -336,6 +353,34 @@ def _cssrs_hits(
     return hits
 
 
+def _unverified_results(
+    check_id: str,
+    instrument: Instrument,
+    code: tuple[str, str],
+    *,
+    observations: Sequence[ObservationRecord],
+    responses: Sequence[QuestionnaireResponseRecord] = (),
+    site: SiteCodes | None = None,
+    item: str | None = None,
+    as_of: date,
+    days: int,
+) -> _Hits:
+    """Any result under an unverified instrument's listed code, whatever its value: such a
+    result cannot be interpreted, so it must stop the gate rather than be passed over."""
+    hits = _Hits()
+    for o in observations:
+        if _observation_values(o, *code):
+            _sort_by_window(hits, check_id, o.ref, o.effective, as_of=as_of, days=days)
+    for r in responses:
+        mapping = site.questionnaire(r.questionnaire) if site is not None else None
+        if mapping is None or mapping.instrument != instrument.id or item is None:
+            continue
+        link_id = mapping.items.get(item)
+        if any(i.link_id == link_id and i.answers for i in r.items):
+            _sort_by_window(hits, check_id, r.ref, r.authored, as_of=as_of, days=days)
+    return hits
+
+
 def _flag_hits(
     definition: FlagDef, site: SiteCodes, flags: Sequence[FlagRecord], as_of: date
 ) -> _Hits:
@@ -364,10 +409,9 @@ def _needed_categories(content: GateContent) -> set[str]:
         needed |= {"Condition", "Encounter"}
     if d.discharge.id not in skip:
         needed.add("Encounter")
-    if d.phq9_item9.id not in skip:
-        needed |= {"Observation", "QuestionnaireResponse"}
-    if d.cssrs.id not in skip:
-        needed.add("Observation")
+    # The instrument checks either run or look for results under their unverified codes
+    # (peer review 01, S2), so their data is always read.
+    needed |= {"Observation", "QuestionnaireResponse"}
     if d.flag.id not in skip:
         needed.add("Flag")
     return needed
@@ -391,8 +435,20 @@ def _check(
     *,
     failed: list[str],
     not_offered: list[str],
+    unread: _Hits | None = None,
 ) -> SafetyCheck:
-    if check_id in content.not_performed:
+    if unread is not None and unread.current:
+        refs = sorted({ref for _, ref, _ in unread.current}, key=lambda r: (r.resource_type, r.id))
+        return SafetyCheck(
+            id=check_id,
+            description=description,
+            outcome=CheckOutcome.FAILED,
+            reason=_UNVERIFIED_RESULT,
+            references=refs,
+        )
+    if unread is not None and failed:
+        outcome, reason = CheckOutcome.FAILED, f"Could not read {', '.join(failed)}"
+    elif check_id in content.not_performed:
         outcome, reason = CheckOutcome.NOT_PERFORMED, content.not_performed[check_id]
     elif hits is not None and hits.current:
         outcome, reason = CheckOutcome.FOUND, None
@@ -417,7 +473,12 @@ async def assess_safety_gate(
     raw = await asyncio.gather(
         _maybe("Condition" in needed, lambda: records.conditions(patient_id)),
         _maybe("Encounter" in needed, lambda: records.encounters(patient_id)),
-        _maybe("Observation" in needed, lambda: records.observations(patient_id)),
+        # Only results under the instrument files' codes: laboratory results and vital signs
+        # are never read (peer review 01, D1).
+        _maybe(
+            "Observation" in needed,
+            lambda: records.observations(patient_id, codes=instrument_codes()),
+        ),
         _maybe(
             "QuestionnaireResponse" in needed,
             lambda: records.questionnaire_responses(patient_id),
@@ -449,7 +510,13 @@ async def assess_safety_gate(
     checks: list[SafetyCheck] = []
     all_hits: list[_Hits] = []
 
-    def record(check_id: str, description: str, hits: _Hits | None, *categories: str) -> None:
+    def record(
+        check_id: str,
+        description: str,
+        hits: _Hits | None,
+        *categories: str,
+        unread: _Hits | None = None,
+    ) -> None:
         unoffered = [c for c in categories if c in not_offered and c not in _ESSENTIAL]
         checks.append(
             _check(
@@ -459,6 +526,7 @@ async def assess_safety_gate(
                 hits,
                 failed=failures(*categories),
                 not_offered=unoffered,
+                unread=unread,
             )
         )
         if hits is not None:
@@ -493,12 +561,26 @@ async def assess_safety_gate(
             as_of=as_of,
             days=d.lookback_days,
         )
+    phq9_unread = None
+    if (listed := content.unverified.get(d.phq9_item9.id)) is not None:
+        phq9_unread = _unverified_results(
+            d.phq9_item9.id,
+            listed,
+            listed.code_for("item", d.phq9_item9.item),
+            observations=_records(observations),
+            responses=_records(responses),
+            site=site,
+            item=d.phq9_item9.item,
+            as_of=as_of,
+            days=d.lookback_days,
+        )
     record(
         d.phq9_item9.id,
         d.phq9_item9.description,
         phq9_hits,
         "Observation",
         "QuestionnaireResponse",
+        unread=phq9_unread,
     )
 
     cssrs_hits = None
@@ -510,7 +592,17 @@ async def assess_safety_gate(
             as_of=as_of,
             days=d.lookback_days,
         )
-    record(d.cssrs.id, d.cssrs.description, cssrs_hits, "Observation")
+    cssrs_unread = None
+    if (listed := content.unverified.get(d.cssrs.id)) is not None:
+        cssrs_unread = _unverified_results(
+            d.cssrs.id,
+            listed,
+            listed.code_for("risk_level"),
+            observations=_records(observations),
+            as_of=as_of,
+            days=d.lookback_days,
+        )
+    record(d.cssrs.id, d.cssrs.description, cssrs_hits, "Observation", unread=cssrs_unread)
 
     flag_hits = None
     if d.flag.id not in content.not_performed:

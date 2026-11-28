@@ -1,6 +1,8 @@
 import pytest
 from fastmcp import Client
 
+from adhd_mcp.tools.common import TOOL_NAMES
+
 pytestmark = pytest.mark.anyio
 
 
@@ -18,3 +20,5 @@ async def test_server_lists_exactly_the_expected_tools(mcp_client: Client) -> No
         "get_server_info",
         "get_utilization_summary",
     ]
+    # The audit tells a scope refusal from an unknown tool by this list (peer review 01, P4).
+    assert {t.name for t in tools} == TOOL_NAMES

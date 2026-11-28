@@ -66,38 +66,66 @@ def _finding(s: SignalDefinition, present: bool, reason: str, **kw: object) -> S
 
 
 def _entry_interval(e: ProblemEntry) -> tuple[date | None, date | None]:
-    """When the condition was known: from its first date to its last record if resolved,
-    otherwise open-ended (still current)."""
+    """When the condition was known: from its first date to its last date, or open-ended
+    when the entry is current (an active problem-list item; peer review 01, C1)."""
     starts = [d for d in (e.onset, e.first_recorded) if d is not None]
     start = min(starts) if starts else None
-    end = (e.last_recorded or start) if e.resolved else None
+    end = None if e.current else (e.last_date or e.last_recorded or start)
     return start, end
 
 
 def _entries(s: SignalDefinition, entries: Sequence[ProblemEntry], as_of: date) -> SignalFinding:
+    """A condition signal. The reason states the dates it rests on, never a recency that is
+    not true (peer review 01, C1)."""
     if not entries:
         return _finding(s, False, _NOT_FOUND)
     window_start = as_of - timedelta(days=s.window_days)
-    current: list[tuple[date, ProblemEntry]] = []
+    dated: list[tuple[date, date, ProblemEntry]] = []
+    open_ended: list[tuple[date, ProblemEntry]] = []
+    outside: list[date] = []
     undated = 0
     for e in entries:
         start, end = _entry_interval(e)
         if start is None:
             undated += 1
-        elif start <= as_of and (end is None or end >= window_start):
-            current.append((start, e))
-    if not current:
-        if undated == len(entries):
+        elif start > as_of:
+            continue
+        elif end is None:
+            open_ended.append((start, e))
+        elif end >= window_start:
+            dated.append((start, min(end, as_of), e))
+        else:
+            outside.append(end)
+    if not dated and not open_ended:
+        if outside:
+            return _finding(
+                s,
+                False,
+                f"Last recorded {max(outside)}, outside the {s.window_days}-day window.",
+            )
+        if undated:
             return _finding(s, False, "Found, but undated, so not counted.")
-        return _finding(s, False, f"Found, but outside the {s.window_days}-day window.")
-    lasts = [e.last_recorded or start for start, e in current]
+        return _finding(s, False, _NOT_FOUND)
+    parts = []
+    if dated:
+        last = max(end for _, end, _ in dated)
+        parts.append(f"Last recorded {last}, within the {s.window_days}-day window.")
+    if open_ended:
+        first = min(start for start, _ in open_ended)
+        lead = "Also counted" if dated else "Counted"
+        parts.append(f"{lead} as current: an active problem-list entry since {first}.")
+    used = [e for _, _, e in dated] + [e for _, e in open_ended]
+    starts = [start for start, _, _ in dated] + [start for start, _ in open_ended]
+    lasts = [end for _, end, _ in dated] + [
+        min(e.last_date or start, as_of) for start, e in open_ended
+    ]
     return _finding(
         s,
         True,
-        f"Found within {s.window_days} days.",
-        first_date=min(start for start, _ in current),
+        " ".join(parts),
+        first_date=min(starts),
         last_date=max(lasts),
-        references=_refs([r for _, e in current for r in e.references]),
+        references=_refs([r for e in used for r in e.references]),
     )
 
 
@@ -161,10 +189,11 @@ def evaluate_signal(  # noqa: PLR0911 - one return per outcome
     if s.source == "events":
         if evidence.utilization_events is None:
             return _finding(s, False, _UNREADABLE)
+        # A follow-up visit for an injury already seen is not a new event (peer review 01, C2).
         events = [
             (e.date, e.date, e.references)
             for e in evidence.utilization_events
-            if e.kind == s.event and e.date is not None
+            if e.kind == s.event and e.date is not None and not e.follow_up
         ]
         return _counted(s, events, as_of)
     if evidence.distinct_agents is None:

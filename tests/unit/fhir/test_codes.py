@@ -52,3 +52,33 @@ def test_coding_without_a_system_is_kept_with_none() -> None:
 def test_missing_concept_is_empty() -> None:
     assert normalize_concept(None) == ()
     assert normalize_concept({"text": "only text"}) == ()
+
+
+def test_icd10cm_code_without_the_dot_gets_the_dot_after_the_category() -> None:
+    # Peer review 01, S1 (E8b): "R45851" must match the value set entry "R45.851".
+    assert normalize_coding({"system": ICD10CM, "code": "R45851"}) == Coding(
+        system=ICD10CM, code="R45.851"
+    )
+    assert normalize_coding({"system": ICD10CM, "code": "t1491xa"}) == Coding(
+        system=ICD10CM, code="T14.91XA"
+    )
+    assert normalize_coding({"system": ICD10CM, "code": "F3290"}) == Coding(
+        system=ICD10CM, code="F32.90"
+    )
+
+
+def test_icd10cm_category_and_dotted_codes_are_unchanged() -> None:
+    assert normalize_coding({"system": ICD10CM, "code": "F32"}) == Coding(
+        system=ICD10CM, code="F32"
+    )
+    assert normalize_coding({"system": ICD10CM, "code": "F32.9"}) == Coding(
+        system=ICD10CM, code="F32.9"
+    )
+
+
+def test_a_code_that_is_not_icd10cm_shaped_is_not_repaired() -> None:
+    # Too long, or not a letter and two characters: kept as sent, so it matches nothing.
+    assert normalize_coding({"system": ICD10CM, "code": "R458511X"}).code == "R458511X"  # type: ignore[union-attr]
+    assert normalize_coding({"system": ICD10CM, "code": "1234"}).code == "1234"  # type: ignore[union-attr]
+    # Other systems are never given a dot.
+    assert normalize_coding({"system": SNOMED, "code": "6471006"}).code == "6471006"  # type: ignore[union-attr]

@@ -17,13 +17,32 @@ from adhd_mcp.fhir.dates import DatePrecision, DateRange, parse_fhir_date, parse
         ("2024-03-05T10:15:00Z", date(2024, 3, 5), date(2024, 3, 5), DatePrecision.DAY),
         ("2024-03-05T23:30:00-05:00", date(2024, 3, 5), date(2024, 3, 5), DatePrecision.DAY),
         ("2024-03-05T00:30:00.123+09:00", date(2024, 3, 5), date(2024, 3, 5), DatePrecision.DAY),
+        # Peer review 01, D3 (E10): FHIR requires an offset with a time, but real feeds often
+        # omit it. Only the calendar date is used, so the date as written is kept.
+        ("2024-03-05T10:15:00", date(2024, 3, 5), date(2024, 3, 5), DatePrecision.DAY),
+        ("2024-03-05T10:15", date(2024, 3, 5), date(2024, 3, 5), DatePrecision.DAY),
+        ("2024-03-05T10:15:00.5", date(2024, 3, 5), date(2024, 3, 5), DatePrecision.DAY),
     ],
 )
 def test_each_fhir_date_variant(raw: str, start: date, end: date, precision: DatePrecision) -> None:
     assert parse_fhir_date(raw) == DateRange(start=start, end=end, precision=precision)
 
 
-@pytest.mark.parametrize("raw", ["", "24-01-01", "2024-13", "2024-02-30", "yesterday", "2024-1-5"])
+@pytest.mark.parametrize(
+    "raw",
+    [
+        "",
+        "24-01-01",
+        "2024-13",
+        "2024-02-30",
+        "yesterday",
+        "2024-1-5",
+        "2024-03-05T10",
+        "2024-03-05T",
+        "2024-03-05 10:15:00",
+        "2024-03-05T10:15:00+5",
+    ],
+)
 def test_malformed_dates_are_rejected(raw: str) -> None:
     with pytest.raises(ValueError, match="FHIR date"):
         parse_fhir_date(raw)

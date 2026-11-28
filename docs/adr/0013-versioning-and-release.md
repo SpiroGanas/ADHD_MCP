@@ -24,7 +24,9 @@ Phase 7, work item 9 asks for a versioning policy with three separate version li
 
 **A release:**
 
-1. Pre-releases (`1.0.0rc1`, PEP 440) may carry a draft ruleset; a final release requires every active ruleset to be released.
+1. Pre-releases (`1.0.0rc1`, PEP 440) and 0.x versions may carry a draft ruleset; a final release of 1.0.0 or later requires every active ruleset to be released.
+
+   **Amended 2026-11-28 (peer review 01, G3; owner decision):** the server was relabelled from 1.0.0rc1 to 0.9.0 and stays at 0.x until three things are true: a clinician has signed the rule cards, the model-in-the-loop evaluation has passed with a real model, and the server has read at least one real sandbox. "Release candidate" overstated readiness.
 2. `CHANGELOG.md` has a section for the version.
 3. The rule card of each active ruleset names its version and status, and its evaluation report (`docs/evaluation/`) matches the current content and cohort.
 4. Contract snapshots and the generated tool reference (`docs/reference/tools.md`) match the server.
@@ -44,6 +46,6 @@ Phase 7, work item 9 asks for a versioning policy with three separate version li
 
 ## Consequences
 
-- A clinician or auditor can tell from any output whether two results were produced by the same rules.
+- A clinician or auditor can tell from any output whether two results were produced by the same rules: every output's `versions` carries `clinical_content`, the sha256 of all packaged clinical content, and every audit record carries it too (peer review 01, X2).
 - Releasing takes a deliberate step per line; `scripts/release_check.py` catches the forgotten ones.
 - Releasing 1.0.0 still needs the owner's review of the clinical content (status.md, Next steps).

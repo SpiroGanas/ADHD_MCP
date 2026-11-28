@@ -24,6 +24,10 @@ class ServerProfile(BaseModel):
     offered: frozenset[str] = frozenset(SEARCHABLE_TYPES)
     no_date_search: frozenset[str] = frozenset()
     include_medications: bool = True
+    #: Whether Observation search offers ``combo-code`` (code or component code). Without
+    #: it, a code-filtered Observation search is sent unfiltered and filtered locally, so a
+    #: result recorded as a component is never lost (clinical safety review, B1).
+    component_code_search: bool = True
     max_page_size: int = Field(default=1000, ge=1)
 
     @field_validator("offered", "no_date_search")

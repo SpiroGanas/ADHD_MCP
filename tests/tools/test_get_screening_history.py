@@ -9,9 +9,9 @@ async def test_timeline_with_unapplied_cutoffs(persona_client: Client) -> None: 
     out = result.structured_content
     assert out is not None
     assert [(e["instrument"], e["measure"], e["score"]) for e in out["entries"]] == [
-        ("auditc", "total_score", 3),
         ("phq9", "item", 0),
         ("phq9", "total_score", 13),
+        ("auditc", "total_score", 3),
     ]
-    assert out["entries"][0]["cutoff"]["status"] == "not_applied_unverified"
-    assert out["entries"][0]["code_verified"] is False
+    assert out["entries"][2]["cutoff"]["status"] == "not_applied_unverified"
+    assert out["entries"][2]["code_verified"] is False

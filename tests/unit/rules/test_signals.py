@@ -45,15 +45,23 @@ def signal(**kw: object) -> SignalDefinition:
 
 
 def entry(
-    i: str, first: date | None, last: date | None = None, *, resolved: bool = False
+    i: str,
+    first: date | None,
+    last: date | None = None,
+    *,
+    resolved: bool = False,
+    current: bool | None = None,
 ) -> ProblemEntry:
+    """An entry; by default an active problem-list item (current) unless resolved."""
     return ProblemEntry(
         code=CodeRef(system="x", code="F43.10"),
         onset=None,
         first_recorded=first,
         last_recorded=last or first,
+        last_date=last or first,
         clinical_status="resolved" if resolved else "active",
         resolved=resolved,
+        current=(not resolved) if current is None else current,
         onset_order=None,
         references=[ref(i)],
     )
@@ -83,6 +91,42 @@ def test_a_resolved_condition_counts_only_if_last_recorded_in_the_window(
     if not present:
         assert "outside the 100-day window" in found.reason
         assert found.references == []
+
+
+def test_a_current_entry_says_why_it_counts_and_when_it_was_first_recorded() -> None:
+    # Peer review 01, C1 (E1): the reason said "Found within 1095 days." for 16-year-old codes.
+    found = evaluate_signal(signal(), families(entry("c1", ago(1000))), AS_OF)
+    assert found.reason == (f"Counted as current: an active problem-list entry since {ago(1000)}.")
+
+
+@pytest.mark.parametrize(("days", "present"), [(99, True), (100, True), (101, False)])
+def test_an_entry_that_is_not_current_counts_by_its_last_date(days: int, present: bool) -> None:
+    found = evaluate_signal(
+        signal(), families(entry("c1", ago(900), ago(days), current=False)), AS_OF
+    )
+    assert found.present is present
+    if present:
+        assert found.reason == f"Last recorded {ago(days)}, within the 100-day window."
+    else:
+        assert found.reason == f"Last recorded {ago(days)}, outside the 100-day window."
+        assert found.references == []
+
+
+def test_dated_and_current_entries_are_both_explained() -> None:
+    found = evaluate_signal(
+        signal(),
+        families(entry("c1", ago(900)), entry("c2", ago(300), ago(20), current=False)),
+        AS_OF,
+    )
+    assert found.reason == (
+        f"Last recorded {ago(20)}, within the 100-day window. Also counted as current: an "
+        f"active problem-list entry since {ago(900)}."
+    )
+
+
+def test_an_entry_first_known_after_the_as_of_date_is_not_counted() -> None:
+    found = evaluate_signal(signal(), families(entry("c1", AS_OF + timedelta(days=3))), AS_OF)
+    assert (found.present, found.reason) == (False, "Not found in the record.")
 
 
 def test_an_undated_condition_does_not_count() -> None:

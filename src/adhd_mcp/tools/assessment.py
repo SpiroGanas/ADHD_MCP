@@ -8,7 +8,7 @@ from pydantic import Field
 
 from adhd_mcp.models.assessment import AssessmentOutput
 from adhd_mcp.models.domain import RecommendationCode
-from adhd_mcp.orchestration.assess import Assessment, assess
+from adhd_mcp.orchestration.assess import Assessment, WithheldScope, assess
 from adhd_mcp.tools.common import (
     ASSESS_SCOPE,
     READ_ONLY,
@@ -30,11 +30,14 @@ DESCRIPTION = (
     "Suggest whether a clinician should consider referring a patient for formal adult ADHD "
     "screening, with the evidence behind it. Runs the safety gate first: if self-harm "
     "signals are found the result is address_safety_gate_first and no screening referral is "
-    "suggested. Then checks whether the patient is already in ADHD care, reads diagnoses, "
+    "suggested. A patient under 18 at the as-of date, without a birth date, or recorded as "
+    "deceased gets outside_intended_population and no rule is applied. Then checks whether "
+    "the patient is already in ADHD care, reads diagnoses, "
     "psychosocial codes, visits and medications, and applies the versioned ADHD ruleset "
     "(one high-weight signal with two or more modifiers, or two high-weight signal classes, "
     "within 1095 days). Returns one of consider_referral_for_formal_screening, "
-    "no_recommendation, address_safety_gate_first, already_in_care or insufficient_data; the "
+    "no_recommendation, address_safety_gate_first, already_in_care, insufficient_data or "
+    "outside_intended_population; the "
     "safety gate; every signal checked with its FHIR resources; each rule and whether it "
     "fired; exclusions; notes; and data completeness. Read-only. The ruleset is a starting "
     "heuristic from published research, not clinically validated. The result is never a "
@@ -108,6 +111,7 @@ async def run_assessment(
         request.patient_id,
         request.as_of,
         site=context.site_codes,
+        withheld=lambda: WithheldScope(*request.ledger.withheld_scope(context.privacy)),
     )
     return request, result
 
