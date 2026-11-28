@@ -107,6 +107,37 @@ async def test_unrelated_codes_do_not_trigger() -> None:
     assert (await gate(p)).status is SafetyGateStatus.CLEAR
 
 
+async def test_a_condition_coded_only_in_snomed_ct_makes_the_gate_fail_closed() -> None:
+    # Peer review 01, S1 (E8): recent suicidal thoughts and a suicide attempt coded only in
+    # SNOMED CT were "not found" with the Condition category "available" and no warning.
+    p = person()
+    for code, when in (("6471006", ago(45)), ("82313006", ago(75))):
+        p.resources.append(
+            {
+                "resourceType": "Condition",
+                "id": f"t01-snomed-{code}",
+                "subject": p.subject,
+                "code": {"coding": [{"system": "http://snomed.info/sct", "code": code}]},
+                "recordedDate": when,
+            }
+        )
+    records = PatientRecords(FixtureFhirAdapter(p.resources))
+    result, notes = await assess_safety_gate(records, p.patient_id, AS_OF, content())
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    [condition] = [n for n in notes if n.category == "Condition"]
+    assert condition.status is DataStatus.INCOMPLETE
+    assert "unrecognized_coding" in condition.warnings
+
+
+async def test_an_undotted_icd10cm_code_makes_the_gate_positive() -> None:
+    # Peer review 01, S1 (E8b).
+    p = person()
+    p.condition("R45851", "synthetic", recorded=ago(45))
+    result = await gate(p)
+    assert result.status is SafetyGateStatus.POSITIVE
+    assert outcome(result, "suicidal_ideation_code") is CheckOutcome.FOUND
+
+
 @pytest.mark.parametrize(("days", "found"), [(364, True), (365, True), (366, False)])
 async def test_coded_signal_look_back_boundary(days: int, found: bool) -> None:
     p = person()

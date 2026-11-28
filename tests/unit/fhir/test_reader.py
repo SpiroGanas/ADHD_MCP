@@ -125,3 +125,38 @@ async def test_search_warnings_are_passed_through() -> None:
     records = PatientRecords(FixtureFhirAdapter(all_resources(), warnings={"Flag": [warning]}))
     assert (await records.flags("p03-patient")).warnings == (warning,)
     assert (await records.conditions("p03-patient")).warnings == ()
+
+
+def _condition(cid: str, *codings: dict[str, str]) -> dict[str, object]:
+    return {
+        "resourceType": "Condition",
+        "id": cid,
+        "subject": {"reference": "Patient/t01-patient"},
+        "code": {"coding": list(codings), "text": "free text"},
+        "recordedDate": "2026-05-01",
+    }
+
+
+async def test_a_condition_coded_in_no_system_the_value_sets_cover_is_reported() -> None:
+    # Peer review 01, S1 (E8): a SNOMED-only condition was invisible and unreported.
+    snomed = {"system": "http://snomed.info/sct", "code": "6471006"}
+    icd = {"system": ICD10CM, "code": "R45.851"}
+    records = PatientRecords(
+        FixtureFhirAdapter(
+            [
+                {"resourceType": "Patient", "id": "t01-patient"},
+                _condition("snomed-only", snomed),
+                _condition("text-only"),
+                _condition("both", snomed, icd),
+            ]
+        )
+    )
+    result = await records.conditions("t01-patient")
+    assert [r.ref.id for r in result.records] == ["both"]
+    assert {(s.ref.id if s.ref else None, s.reason) for s in result.skipped} == {
+        ("snomed-only", SkipReason.UNRECOGNIZED_CODING),
+        ("text-only", SkipReason.UNRECOGNIZED_CODING),
+    }
+    # Filtering by a value set does not hide them.
+    filtered = await records.conditions("t01-patient", value_set=load_value_set("sud.stimulant"))
+    assert {s.ref.id for s in filtered.skipped if s.ref} == {"snomed-only", "text-only"}

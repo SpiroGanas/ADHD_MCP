@@ -20,6 +20,8 @@ from adhd_mcp.models.domain import DataCompleteness, DataStatus
 
 #: Completeness warning code for resources that could not be read.
 UNREADABLE = "unreadable_resources"
+#: Completeness warning code for conditions coded in no system the value sets cover.
+UNRECOGNIZED = "unrecognized_coding"
 
 
 @dataclass(frozen=True)
@@ -64,10 +66,14 @@ def completeness[R: BaseModel](category: str, result: Read[R]) -> DataCompletene
     if isinstance(result, NotSupported):
         return DataCompleteness(category=category, status=DataStatus.NOT_SUPPORTED)
     warnings = [w.code for w in result.warnings]
-    # A resource that could not be read (malformed, or no id) may hold a signal: the
-    # category is incomplete. Entered-in-error and refuted resources are not data.
-    if any(s.reason is not SkipReason.EXCLUDED_STATUS for s in result.skipped):
+    # A resource that could not be read (malformed, or no id) or a condition no value set
+    # can match may hold a signal: the category is incomplete. Entered-in-error and refuted
+    # resources are not data.
+    reasons = {s.reason for s in result.skipped}
+    if reasons - {SkipReason.EXCLUDED_STATUS, SkipReason.UNRECOGNIZED_CODING}:
         warnings.append(UNREADABLE)
+    if SkipReason.UNRECOGNIZED_CODING in reasons:
+        warnings.append(UNRECOGNIZED)
     if warnings:
         status = DataStatus.INCOMPLETE
     elif result.records:

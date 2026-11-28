@@ -164,6 +164,9 @@ class SkipReason(StrEnum):
     NO_ID = "no_id"
     MALFORMED = "malformed"
     UNSUPPORTED_TYPE = "unsupported_type"
+    #: A Condition with no coding in a system any value set covers (for example coded only
+    #: in SNOMED CT, or text only): no rule could ever match it.
+    UNRECOGNIZED_CODING = "unrecognized_coding"
 
 
 class Skipped(BaseModel):

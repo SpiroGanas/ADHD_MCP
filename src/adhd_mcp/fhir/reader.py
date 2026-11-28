@@ -26,8 +26,10 @@ from adhd_mcp.fhir.records import (
     Record,
     ServiceRequestRecord,
     Skipped,
+    SkipReason,
 )
 from adhd_mcp.terminology import ValueSet
+from adhd_mcp.terminology.value_sets import covered_systems
 
 
 class ReadResult[R: BaseModel](BaseModel):
@@ -57,6 +59,14 @@ def record_codes(record: Record) -> tuple[Coding, ...]:  # noqa: PLR0911
             return ()
 
 
+def _unrecognized(record: Record) -> bool:
+    """A Condition with no coding in a system the value sets cover: nothing can match it, so
+    it is reported as skipped rather than read as a record that matched nothing."""
+    return isinstance(record, ConditionRecord) and not any(
+        c.system in covered_systems() for c in record.codes
+    )
+
+
 class PatientRecords:
     def __init__(self, port: FhirReadPort) -> None:
         self._port = port
@@ -79,13 +89,23 @@ class PatientRecords:
     ) -> ReadResult[R]:
         found = await self._port.search(resource_type, patient_id, since=since)
         normalized = normalize_many(found.resources)
+        unrecognized = tuple(
+            Skipped(
+                ref=r.ref, resource_type=r.ref.resource_type, reason=SkipReason.UNRECOGNIZED_CODING
+            )
+            for r in normalized.records
+            if _unrecognized(r)
+        )
         records = tuple(
             r
             for r in normalized.records
             if isinstance(r, record_type)
+            and not _unrecognized(r)
             and (value_set is None or value_set.matching_codings(record_codes(r)))
         )
-        return ReadResult[R](records=records, skipped=normalized.skipped, warnings=found.warnings)
+        return ReadResult[R](
+            records=records, skipped=normalized.skipped + unrecognized, warnings=found.warnings
+        )
 
     async def conditions(
         self, patient_id: str, *, since: date | None = None, value_set: ValueSet | None = None
