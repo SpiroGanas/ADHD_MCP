@@ -21,6 +21,7 @@ from adhd_mcp.fhir.codes import Coding, normalize_coding
 from adhd_mcp.fhir.normalize import normalize
 from adhd_mcp.fhir.port import FhirReadPort, RawResource, SearchResult, SearchType
 from adhd_mcp.fhir.reader import record_codes
+from adhd_mcp.fhir.search import Codes
 from adhd_mcp.models.domain import PrivacyCount, PrivacyNote
 from adhd_mcp.terminology import ValueSet, load_value_set
 
@@ -188,15 +189,22 @@ class PrivacyPort:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> SearchResult:
         found = await self._inner.search(
-            resource_type, patient_id, since=since, updated_since=updated_since
+            resource_type,
+            patient_id,
+            since=since,
+            updated_since=updated_since,
+            categories=categories,
+            codes=codes,
         )
         kept: list[RawResource] = []
         for raw in found.resources:
             key = (str(raw.get("resourceType")), str(raw.get("id")))
-            categories = self._policy.classify(raw)
-            actions = {c: self._policy.action(c) for c in categories}
+            protected = self._policy.classify(raw)
+            actions = {c: self._policy.action(c) for c in protected}
             withheld = sorted(c for c, a in actions.items() if a == "withhold")
             if withheld:
                 for c in withheld:

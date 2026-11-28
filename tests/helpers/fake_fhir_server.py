@@ -7,6 +7,8 @@ records every request so tests can prove the client never writes. Fault injectio
 """
 
 import asyncio
+import contextlib
+import json
 import math
 from collections.abc import Iterable
 from datetime import date, datetime
@@ -30,6 +32,8 @@ class FakeFhirServer:
         self.store = FixtureFhirAdapter(resources)
         self.page_size = page_size
         self.requests: list[httpx2.Request] = []
+        #: JSON bodies of the answers, in order (non-JSON answers are left out).
+        self.responses: list[Any] = []
         self.fail_next: list[int | Exception | httpx2.Response] = []
         self.next_link_base = base
 
@@ -47,7 +51,10 @@ class FakeFhirServer:
 
     async def handle(self, request: httpx2.Request) -> httpx2.Response:
         self.requests.append(request)
-        return await self.respond(request)
+        response = await self.respond(request)
+        with contextlib.suppress(ValueError):
+            self.responses.append(json.loads(response.content))
+        return response
 
     async def respond(self, request: httpx2.Request) -> httpx2.Response:  # noqa: PLR0911
         """Answer a request without recording it."""
@@ -81,6 +88,13 @@ class FakeFhirServer:
             params["patient"],
             since=date.fromisoformat(since.removeprefix("ge")) if since else None,
             updated_since=datetime.fromisoformat(updated.removeprefix("ge")) if updated else None,
+            categories=tuple(params["category"].split(",")) if params.get("category") else (),
+            codes=tuple(
+                tuple(c.split("|", 1))  # type: ignore[misc]
+                for c in params["code"].split(",")
+            )
+            if params.get("code")
+            else (),
         )
         results = found.resources
         count = int(params.get("_count", self.page_size))

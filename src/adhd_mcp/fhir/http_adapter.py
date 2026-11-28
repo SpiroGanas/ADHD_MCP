@@ -51,7 +51,7 @@ from adhd_mcp.fhir.port import (
     validate_patient_id,
 )
 from adhd_mcp.fhir.profiles import GENERIC, ServerProfile
-from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES, matches_since
+from adhd_mcp.fhir.search import DATE_SEARCH, MEDICATION_TYPES, Codes, matches_since
 from adhd_mcp.fhir.smart import FhirAuth
 
 _TRANSIENT_STATUSES = frozenset({429, 500, 502, 503, 504})
@@ -212,13 +212,17 @@ class HttpFhirAdapter:
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> SearchResult:
         validate_patient_id(patient_id)
         if resource_type not in DATE_SEARCH:
             raise ValueError(f"unsupported search type {resource_type!r}")
         if resource_type not in self._profile.offered:
             raise SearchNotSupportedError(resource_type)
-        params = self._search_params(resource_type, patient_id, since, updated_since)
+        params = self._search_params(
+            resource_type, patient_id, since, updated_since, categories=categories, codes=codes
+        )
         date_param = self._profile.date_param(resource_type)
         medications = resource_type in MEDICATION_TYPES
 
@@ -265,9 +269,16 @@ class HttpFhirAdapter:
         patient_id: str,
         since: date | None,
         updated_since: datetime | None,
+        *,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> dict[str, str]:
         """The first page's query: only parameters the server's profile offers."""
         params = {"patient": patient_id, "_count": str(self._page_size)}
+        if categories:
+            params["category"] = ",".join(categories)
+        if codes:
+            params["code"] = ",".join(f"{system}|{code}" for system, code in codes)
         date_param = self._profile.date_param(resource_type)
         if since is not None and date_param is not None:
             params[date_param] = f"ge{since.isoformat()}"

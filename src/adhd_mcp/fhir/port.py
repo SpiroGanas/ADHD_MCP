@@ -75,8 +75,13 @@ class FhirReadPort(Protocol):
         *,
         since: date | None = None,
         updated_since: datetime | None = None,
+        categories: tuple[str, ...] = (),
+        codes: tuple[tuple[str, str], ...] = (),
     ) -> SearchResult:
         """All resources of one type for a patient, following every page.
+
+        ``categories`` and ``codes`` restrict the search like FHIR's ``category`` and
+        ``code`` token parameters (peer review 01, D1); empty means no restriction.
 
         ``since`` keeps resources whose clinical date ends on or after that day
         (see ``adhd_mcp.fhir.search``). ``updated_since`` filters on ``meta.lastUpdated``.

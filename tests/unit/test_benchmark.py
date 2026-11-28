@@ -3,13 +3,15 @@
 server, by tests/integration/test_performance_live.py; unit tests read no clock."""
 
 import pytest
-from scripts.benchmark import REQUEST_BUDGET, CountingPort, percentile, summarize
+from scripts.benchmark import REQUEST_BUDGET, CountingPort, large_record, percentile, summarize
 
 from adhd_mcp.clock import FixedClock
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
+from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.terminology.site_codes import load_site_codes
 from adhd_mcp.tools.assessment import run_assessment
 from adhd_mcp.tools.context import ToolContext
+from tests.helpers.fake_fhir_server import BASE, FakeFhirServer, no_sleep
 from tests.personas import all_resources, persona_ids
 
 
@@ -40,3 +42,24 @@ async def test_an_assessment_stays_within_the_fhir_request_budget(
     context = ToolContext(port=port, clock=fixed_clock, site_codes=load_site_codes("synthetic"))
     await run_assessment(context, f"{persona_id}-patient", None, "adhd")
     assert 1 < port.requests <= REQUEST_BUDGET
+
+
+@pytest.mark.anyio
+async def test_a_large_record_is_assessed_without_reading_its_laboratory_results(
+    fixed_clock: FixedClock,
+) -> None:
+    # Peer review 01, D1: every search read the whole history, every lab and vital sign.
+    server = FakeFhirServer(large_record(2000), page_size=100)
+    async with HttpFhirAdapter(BASE, transport=server.transport(), sleep=no_sleep) as adapter:
+        port = CountingPort(adapter)
+        context = ToolContext(port=port, clock=fixed_clock, site_codes=load_site_codes("synthetic"))
+        await run_assessment(context, "b01-patient", None, "adhd")
+    assert port.requests <= REQUEST_BUDGET
+    observations = [
+        e["resource"]
+        for r in server.responses
+        if isinstance(r, dict) and r.get("resourceType") == "Bundle"
+        for e in r.get("entry", [])
+        if e["resource"]["resourceType"] == "Observation"
+    ]
+    assert observations == []

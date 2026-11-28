@@ -4,6 +4,9 @@ Usage:
   uv run python scripts/benchmark.py                       # in-process fixture data
   uv run python scripts/benchmark.py --url http://localhost:8080/fhir   # a FHIR server
                                                            # loaded with the personas
+  uv run python scripts/benchmark.py --large 20000         # one synthetic long-term record
+                                                           # (20,000 lab results) behind an
+                                                           # in-process HTTP server
 
 Calls ``assess_referral_need`` through an in-memory MCP client for every persona, ``--rounds``
 times, and prints the latency percentiles and FHIR requests per assessment. Exits non-zero
@@ -19,7 +22,7 @@ import sys
 import time
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -27,7 +30,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from fastmcp import Client  # noqa: E402
+from tests.helpers.fake_fhir_server import BASE, FakeFhirServer, no_sleep  # noqa: E402
 from tests.personas import all_resources, persona_ids  # noqa: E402
+from tests.personas.builder import PersonaBuilder  # noqa: E402
 
 from adhd_mcp.clock import FixedClock  # noqa: E402
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter  # noqa: E402
@@ -39,8 +44,10 @@ from adhd_mcp.tools.context import ToolContext  # noqa: E402
 
 #: Target for a full assessment against a local FHIR server (95th percentile).
 TARGET_P95_MS = 2000.0
-#: At most one read of the Patient and one search per resource type per assessment.
-REQUEST_BUDGET = 1 + len(SEARCHABLE_TYPES)
+#: At most one read of the Patient and one search per resource type per assessment, plus two
+#: more Observation searches: Observations are read by instrument code (the safety gate), by
+#: category and by the site's military separation codes (peer review 01, D1).
+REQUEST_BUDGET = 1 + len(SEARCHABLE_TYPES) + 2
 
 
 class CountingPort:
@@ -122,7 +129,35 @@ async def measure(port: FhirReadPort, patients: Sequence[str], rounds: int) -> t
     return latencies, requests
 
 
-async def run(url: str | None, rounds: int, target: float) -> Summary:
+def large_record(labs: int, visits: int = 200) -> list[RawResource]:
+    """One synthetic long-term record: many laboratory results and vital signs (which no tool
+    needs), routine visits, and a few coded conditions (peer review 01, D1)."""
+    p = PersonaBuilder("b01", gender="female", birth_date="1960-01-01")
+    for code in ("F32.9", "G47.00", "F10.10"):
+        p.condition(code, "synthetic", recorded="2025-01-01")
+    for i in range(labs):
+        day = date(2026, 6, 1) - timedelta(days=i % 3650)
+        oid = p.observation("2345-7", "Glucose", f"{day.isoformat()}T08:00:00Z", value=90 + i % 40)
+        resource = next(r for r in reversed(p.resources) if r["id"] == oid)
+        resource["category"][0]["coding"][0]["code"] = "laboratory" if i % 4 else "vital-signs"
+    for i in range(visits):
+        day = date(2026, 6, 1) - timedelta(days=7 * i)
+        p.encounter("AMB", f"{day.isoformat()}T09:00:00Z", f"{day.isoformat()}T09:30:00Z")
+    return p.resources
+
+
+async def run_large(labs: int, rounds: int, target: float) -> Summary:
+    server = FakeFhirServer(large_record(labs), page_size=100)
+    async with HttpFhirAdapter(BASE, transport=server.transport(), sleep=no_sleep) as adapter:
+        latencies, requests = await measure(adapter, ["b01-patient"], rounds)
+    return summarize(
+        f"large record ({labs} lab results)", latencies, requests, target_p95_ms=target
+    )
+
+
+async def run(url: str | None, rounds: int, target: float, large: int | None = None) -> Summary:
+    if large:
+        return await run_large(large, rounds, target)
     patients = [f"{p}-patient" for p in persona_ids()]
     if url:
         async with HttpFhirAdapter(url) as adapter:
@@ -140,8 +175,9 @@ def main() -> None:
     parser.add_argument("--url", help="FHIR base URL loaded with the personas")
     parser.add_argument("--rounds", type=int, default=5)
     parser.add_argument("--target-ms", type=float, default=TARGET_P95_MS)
+    parser.add_argument("--large", type=int, help="lab results in one synthetic long record")
     args = parser.parse_args()
-    summary = asyncio.run(run(args.url, args.rounds, args.target_ms))
+    summary = asyncio.run(run(args.url, args.rounds, args.target_ms, args.large))
     print(json.dumps(asdict(summary) | {"ok": summary.ok}, indent=2))
     if not summary.ok:
         raise SystemExit(1)

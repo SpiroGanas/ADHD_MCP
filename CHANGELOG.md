@@ -36,6 +36,10 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 - **D3.** A `dateTime` with a time but no offset (`2026-05-01T10:00:00`) made its resource unreadable and could block a patient's assessment. Its calendar date is now kept; values that are truly malformed are still skipped.
 - **D4.** A bad `ADHD_MCP_FHIR_BASE_URL` or `ADHD_MCP_SITE_CODES` gave a traceback; both are now configuration errors, and `ADHD_MCP_SITE_CODES` must name a packaged mapping. A non-JSON or non-object SMART token response is a failed request, not an internal error. Settings are read once at start-up.
 
+#### Changed (data access)
+
+- **D1.** Observation searches were unfiltered: every laboratory result and vital sign was read to find a few screening and social-history codes. They are now searched by category (`social-history`, `survey`, `sdoh`), by the codes the instrument files list (the safety gate and the screening history), and by the site's military separation codes; the reader filters again when a server ignores the parameters, and a resource too malformed to filter is kept so it is reported. The request budget is 14 (Patient, one search per type, two more Observation searches). `scripts/benchmark.py --large N` assesses one long synthetic record. An audit record above 500 resources holds `resources_read_count` and `resources_read_sha256` instead of the list. Other types are still read whole: the safety gate counts undated items.
+
 #### Added
 
 - `ADHD_MCP_SITE_CODES_FILE`: a site's own code mapping file, loaded strictly (S2).

@@ -54,7 +54,7 @@ Keep the private key in a file readable only by the server's user, mounted from 
 
 ## 4. Audit and retention
 
-- Set `ADHD_MCP_AUDIT_FILE` (required over HTTP). Each tool call writes one record: time, trace id, tool, caller (token subject and client id), outcome and error code, patient reference, resource references read with versions, the server, contract, ruleset, scorer and privacy policy versions, the recommendation code and a sha256 of the output. Records never contain clinical values or free text ([ADR 0011](../adr/0011-audit-tracing-and-privacy.md)).
+- Set `ADHD_MCP_AUDIT_FILE` (required over HTTP). Each tool call writes one record: time, trace id, tool, caller (token subject and client id), outcome and error code, patient reference, resource references read with versions (above 500, their count and a sha256 instead), the server, contract, ruleset, scorer and privacy policy versions, the recommendation code and a sha256 of the output. Records never contain clinical values or free text ([ADR 0011](../adr/0011-audit-tracing-and-privacy.md)).
 - The file is append-only from the server's side but has no tamper evidence (risk P5). Ship it to the site's audit store (write-once storage, or a FHIR AuditEvent sink, which is future work) and restrict who can read it: references and hashes are still PHI-adjacent.
 - **Retention** follows the site's records schedule for clinical decision support audit trails. Keep records at least as long as the outputs could be questioned, and long enough to re-derive any output: with the record versions and the output hash, an output can be checked against a re-run on the same versions.
 - Correlate with the client's logs through the W3C `traceparent` trace id, which the server also sends to the FHIR API.

@@ -85,6 +85,15 @@ class SiteCodes(_Frozen):
         mapped = self.concepts.get(concept)
         return mapped is not None and mapped.matches(codings)
 
+    def exact_codes(self, concept: str) -> tuple[tuple[str, str], ...] | None:
+        """The concept's codes when every entry is an exact code (so a server can search by
+        them), else ``None``."""
+        mapped = self.concepts.get(concept)
+        entries = mapped.entries if mapped is not None else ()
+        if any(e.match != "exact" for e in entries):
+            return None
+        return tuple(sorted((e.system, e.code) for e in entries))
+
     def questionnaire(self, url: str | None) -> QuestionnaireMapping | None:
         canonical = (url or "").partition("|")[0]
         return next((q for q in self.questionnaires if q.url == canonical), None)

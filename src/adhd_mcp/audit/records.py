@@ -29,7 +29,15 @@ class AuditRecord(BaseModel):
     scorer: str | None = None
     privacy_policy: str | None = None
     patient: ResourceRef | None
-    resources_read: list[ResourceRef]
+    resources_read: list[ResourceRef] = Field(
+        description="Every resource read; empty when there were more than the listing limit"
+    )
+    resources_read_count: int = Field(default=0, description="How many resources were read")
+    resources_read_sha256: str | None = Field(
+        default=None,
+        description="When the list was too long to keep: sha256 of the sorted references, one "
+        "'Type/id/version' per line",
+    )
     recommendation: str | None = None
     output_sha256: str | None = None
 

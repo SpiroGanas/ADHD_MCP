@@ -28,6 +28,7 @@ from adhd_mcp.fhir.records import (
     Skipped,
     SkipReason,
 )
+from adhd_mcp.fhir.search import Codes, matches_filters
 from adhd_mcp.terminology import ValueSet
 from adhd_mcp.terminology.value_sets import covered_systems
 
@@ -38,6 +39,24 @@ class ReadResult[R: BaseModel](BaseModel):
     records: tuple[R, ...]
     skipped: tuple[Skipped, ...]
     warnings: tuple[SearchWarning, ...] = ()
+
+
+def merge_reads[R: BaseModel](*reads: ReadResult[R]) -> ReadResult[R]:
+    """Several reads of one type as one: records once each (by reference), every skip and
+    warning kept."""
+    seen: set[tuple[str, str]] = set()
+    records: list[R] = []
+    for read in reads:
+        for record in read.records:
+            ref = record.ref  # type: ignore[attr-defined]
+            if (ref.resource_type, ref.id) not in seen:
+                seen.add((ref.resource_type, ref.id))
+                records.append(record)
+    return ReadResult[R](
+        records=tuple(records),
+        skipped=tuple(s for r in reads for s in r.skipped),
+        warnings=tuple(w for r in reads for w in r.warnings),
+    )
 
 
 def record_codes(record: Record) -> tuple[Coding, ...]:  # noqa: PLR0911
@@ -86,9 +105,17 @@ class PatientRecords:
         patient_id: str,
         since: date | None,
         value_set: ValueSet | None,
+        *,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> ReadResult[R]:
-        found = await self._port.search(resource_type, patient_id, since=since)
-        normalized = normalize_many(found.resources)
+        found = await self._port.search(
+            resource_type, patient_id, since=since, categories=categories, codes=codes
+        )
+        # The filters again, locally: a server that ignores them must not widen the read.
+        normalized = normalize_many(
+            r for r in found.resources if matches_filters(r, categories, codes)
+        )
         unrecognized = tuple(
             Skipped(
                 ref=r.ref, resource_type=r.ref.resource_type, reason=SkipReason.UNRECOGNIZED_CODING
@@ -113,9 +140,25 @@ class PatientRecords:
         return await self._read("Condition", ConditionRecord, patient_id, since, value_set)
 
     async def observations(
-        self, patient_id: str, *, since: date | None = None, value_set: ValueSet | None = None
+        self,
+        patient_id: str,
+        *,
+        since: date | None = None,
+        value_set: ValueSet | None = None,
+        categories: tuple[str, ...] = (),
+        codes: Codes = (),
     ) -> ReadResult[ObservationRecord]:
-        return await self._read("Observation", ObservationRecord, patient_id, since, value_set)
+        """Observations, restricted to ``categories`` or ``codes`` when given (peer review
+        01, D1: laboratory results and vital signs are never needed)."""
+        return await self._read(
+            "Observation",
+            ObservationRecord,
+            patient_id,
+            since,
+            value_set,
+            categories=categories,
+            codes=codes,
+        )
 
     async def questionnaire_responses(
         self, patient_id: str, *, since: date | None = None

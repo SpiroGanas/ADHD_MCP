@@ -6,6 +6,7 @@ or cutoff is refused (standing invariant 6).
 
 import datetime as dt
 import tomllib
+from functools import cache
 from importlib.resources import files
 from pathlib import Path
 from typing import Literal, Self
@@ -123,6 +124,21 @@ def load_instrument_file(path: Path, *, strict: bool) -> Instrument:
 def packaged_instrument_ids() -> list[str]:
     root = files("adhd_mcp.data.instruments")
     return sorted(p.name.removesuffix(".toml") for p in root.iterdir() if p.name.endswith(".toml"))
+
+
+@cache
+def instrument_codes() -> tuple[tuple[str, str], ...]:
+    """Every (system, code) any packaged instrument file lists, verified or not: what the
+    gate and the screening history search Observations by (peer review 01, D1)."""
+    return tuple(
+        sorted(
+            {
+                (c.system, c.code)
+                for i in packaged_instrument_ids()
+                for c in load_instrument(i, strict=False).codes
+            }
+        )
+    )
 
 
 def load_instrument(instrument_id: str, *, strict: bool = True) -> Instrument:

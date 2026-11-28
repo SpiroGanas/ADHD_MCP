@@ -55,7 +55,7 @@ from adhd_mcp.models.domain import (
     SafetyGateStatus,
 )
 from adhd_mcp.terminology import UnverifiedContentError, ValueSet, load_value_set
-from adhd_mcp.terminology.instruments import Instrument, load_instrument
+from adhd_mcp.terminology.instruments import Instrument, instrument_codes, load_instrument
 from adhd_mcp.terminology.site_codes import QuestionnaireMapping, SiteCodes
 from adhd_mcp.wording import load_wording
 
@@ -474,7 +474,12 @@ async def assess_safety_gate(
     raw = await asyncio.gather(
         _maybe("Condition" in needed, lambda: records.conditions(patient_id)),
         _maybe("Encounter" in needed, lambda: records.encounters(patient_id)),
-        _maybe("Observation" in needed, lambda: records.observations(patient_id)),
+        # Only results under the instrument files' codes: laboratory results and vital signs
+        # are never read (peer review 01, D1).
+        _maybe(
+            "Observation" in needed,
+            lambda: records.observations(patient_id, codes=instrument_codes()),
+        ),
         _maybe(
             "QuestionnaireResponse" in needed,
             lambda: records.questionnaire_responses(patient_id),

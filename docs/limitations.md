@@ -23,6 +23,7 @@ What ADHD_MCP 1.0.0rc1 cannot do, and why. Every item here is also in the releva
 
 ## Operational
 
+- **What is read.** Observations are searched by category (social history, survey, SDOH), by the codes the instrument files list, and by the site's military separation codes; laboratory results and vital signs are never read. An Observation with none of those categories and none of those codes (for example an uncategorized SDOH answer) is not seen. Other resource types are read whole: the safety gate counts undated items, so a date filter would hide them. A server that ignores the filters is filtered again locally.
 - **Synthetic data only so far.** The server has never read real patient data. Hosting it for real use needs a site's privacy, security and governance review.
 - **Audit file.** The development audit file has no tamper evidence (risk P5, accepted); rate limiting is left to the hosting gateway (risk S6, accepted). See the [threat model](security/threat_model.md).
 - **Model use not yet evaluated live.** How real language models use the tools has been tested only with scripted stand-ins ([model-in-the-loop](evaluation/model_in_the_loop.md)).

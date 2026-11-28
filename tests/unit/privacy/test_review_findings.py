@@ -147,6 +147,18 @@ async def test_psychosocial_signal_explains_an_observation_only_finding() -> Non
             "resourceType": "Observation",
             "id": "t82-sdoh-1",
             "status": "final",
+            # Since peer review 01 (D1) only social-history, survey and SDOH Observations are
+            # read for psychosocial context.
+            "category": [
+                {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "social-history",
+                        }
+                    ]
+                }
+            ],
             "code": {"coding": [{"system": "urn:adhd-mcp:synthetic-local-code", "code": "x"}]},
             "subject": {"reference": f"Patient/{p.patient_id}"},
             "effectiveDateTime": "2026-01-01",
