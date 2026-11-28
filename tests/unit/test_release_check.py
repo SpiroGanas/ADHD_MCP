@@ -39,6 +39,15 @@ def test_the_rule_card_file_is_named_by_major_and_minor_version() -> None:
     assert rc.rule_card_path(RULESET).exists()
 
 
+def test_a_0_x_version_may_carry_draft_rulesets() -> None:
+    # Peer review 01, G3 (owner decision 2026-11-28): 0.x until a clinician has signed the
+    # rule cards, a real model has passed the harness and a real sandbox has been read.
+    assert rc.check_final_release("0.9.0", [RULESET], "0.5.0") == []
+    assert rc.needs_released_content("0.9.0") is False
+    assert rc.needs_released_content("1.0.0rc1") is False
+    assert rc.needs_released_content("1.0.0") is True
+
+
 def test_a_final_release_needs_released_rulesets_and_a_1_x_contract() -> None:
     assert rc.check_final_release("1.0.0rc1", [RULESET], "0.3.0") == []
     problems = rc.check_final_release("1.0.0", [RULESET], "0.3.0")
@@ -72,6 +81,7 @@ def test_a_missing_report_for_a_new_ruleset_version_is_caught() -> None:
     assert rc.check_evaluation_report(newer) == [f"no evaluation report for ruleset {newer.label}"]
 
 
-def test_the_repository_passes_its_release_check_as_a_pre_release() -> None:
-    assert rc.is_pre_release(rc.project_version())
+def test_the_repository_passes_its_release_check_before_1_0() -> None:
+    # A 0.x version since peer review 01 (G3); it was the pre-release 1.0.0rc1 before.
+    assert not rc.needs_released_content(rc.project_version())
     assert rc.run_checks() == []

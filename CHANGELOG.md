@@ -4,7 +4,9 @@ All notable changes to this project. Format: [Keep a Changelog](https://keepacha
 
 The tool is not clinically validated, and no version of it diagnoses.
 
-## [Unreleased]
+## [0.9.0] - not yet tagged
+
+Relabelled from 1.0.0rc1 (peer review 01, G3; owner decision 2026-11-28): the server stays at 0.x until a clinician has signed the rule cards, the model-in-the-loop evaluation has passed with a real model, and the server has read at least one real sandbox. A 0.x version, like a pre-release, may carry draft rulesets; `scripts/release_check.py` enforces released rulesets and a 1.x tool contract only from 1.0.0. 1.0.0rc1 was never tagged.
 
 ### Peer review 01 fixes
 

@@ -8,8 +8,9 @@ Fails, listing every problem, when for the version in pyproject.toml:
   is missing or stale;
 * the tool contract snapshots or the generated tool reference differ from the server;
 * the README does not state that the tool is not clinically validated;
-* the version is a final release while a ruleset is still a draft, or the tool contract is
-  still 0.x.
+* the version is a final release (1.0.0 or later, not a pre-release) while a ruleset is still
+  a draft, or the tool contract is still 0.x. A 0.x version, like a pre-release, may carry
+  draft rulesets (peer review 01, G3).
 """
 
 import asyncio
@@ -72,8 +73,13 @@ def check_rule_card(ruleset: Ruleset, card: str | None) -> list[str]:
     return problems
 
 
+def needs_released_content(version: str) -> bool:
+    """A final release of 1.0.0 or later. 0.x versions and pre-releases may ship drafts."""
+    return not is_pre_release(version) and int(version.split(".", maxsplit=1)[0]) >= 1
+
+
 def check_final_release(version: str, rulesets: Sequence[Ruleset], contract: str) -> list[str]:
-    if is_pre_release(version):
+    if not needs_released_content(version):
         return []
     problems = [
         f"ruleset {r.label} is not released; a final release needs released rulesets"
@@ -151,7 +157,12 @@ def run_checks(root: Path = ROOT) -> list[str]:
 def main() -> None:
     version = project_version()
     problems = run_checks()
-    kind = "pre-release" if is_pre_release(version) else "release"
+    if is_pre_release(version):
+        kind = "pre-release"
+    elif not needs_released_content(version):
+        kind = "0.x development release"
+    else:
+        kind = "release"
     if problems:
         print(f"{version} ({kind}) is not ready:")
         for p in problems:

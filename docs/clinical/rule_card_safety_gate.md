@@ -7,7 +7,7 @@
 | Status | Draft |
 | Author | Claude Code agent, under the project owner's decisions of 2026-11-26 and 2026-11-27 |
 | Clinical reviewer and date | None yet (open question 1). The human spot-check of the `safety.*` value sets is waived for development and is a release blocker |
-| Server versions that can load it | 0.1.0 and later, including release candidate 1.0.0rc1 (tool contract 0.2.0 and later) |
+| Server versions that can load it | 0.1.0 and later, including 0.9.0 (tool contract 0.2.0 and later) |
 
 ## Intended use
 

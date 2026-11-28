@@ -1,6 +1,6 @@
 # Limitations
 
-What ADHD_MCP 1.0.0rc1 cannot do, and why. Every item here is also in the relevant rule card, ADR or risk register entry.
+What ADHD_MCP 0.9.0 cannot do, and why. Every item here is also in the relevant rule card, ADR or risk register entry.
 
 ## Clinical
 

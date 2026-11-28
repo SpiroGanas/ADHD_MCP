@@ -1,6 +1,6 @@
 [project]
 name = "adhd-mcp"
-version = "1.0.0rc1"
+version = "0.9.0"
 description = "MCP server that suggests when a clinician might consider referral for formal adult ADHD screening. Decision support only; never a diagnosis."
 readme = "README.md"
 license = "MIT"

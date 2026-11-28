@@ -4,7 +4,7 @@ An MCP server that reads a patient's FHIR record and tells a clinician whether a
 
 > **This tool recommends referral for screening. It never diagnoses.** It is decision support for licensed clinicians, not a patient-facing product, and it is **not clinically validated**: its rules are a starting heuristic from published research, tested only on synthetic data. See the [intended use statement](docs/clinical/intended_use.md) and [limitations](docs/limitations.md).
 
-> **Status: release candidate 1.0.0rc1.** Every planned 1.0 feature is built and evaluated on synthetic data. Version 1.0.0 will be tagged after the project owner reviews the clinical content. See [status.md](status.md) and the [change log](CHANGELOG.md).
+> **Status: 0.9.0, in development.** The planned features are built and tested on synthetic data only. No clinician has reviewed the rules, no real language model has used the tools, and no real FHIR server has been read. Version 1.0.0 waits for all three ([peer review 01](peer_review_01.md), G3). See [status.md](status.md) and the [change log](CHANGELOG.md).
 
 ## What it does
 

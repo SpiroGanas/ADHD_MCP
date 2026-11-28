@@ -24,7 +24,9 @@ Phase 7, work item 9 asks for a versioning policy with three separate version li
 
 **A release:**
 
-1. Pre-releases (`1.0.0rc1`, PEP 440) may carry a draft ruleset; a final release requires every active ruleset to be released.
+1. Pre-releases (`1.0.0rc1`, PEP 440) and 0.x versions may carry a draft ruleset; a final release of 1.0.0 or later requires every active ruleset to be released.
+
+   **Amended 2026-11-28 (peer review 01, G3; owner decision):** the server was relabelled from 1.0.0rc1 to 0.9.0 and stays at 0.x until three things are true: a clinician has signed the rule cards, the model-in-the-loop evaluation has passed with a real model, and the server has read at least one real sandbox. "Release candidate" overstated readiness.
 2. `CHANGELOG.md` has a section for the version.
 3. The rule card of each active ruleset names its version and status, and its evaluation report (`docs/evaluation/`) matches the current content and cohort.
 4. Contract snapshots and the generated tool reference (`docs/reference/tools.md`) match the server.
