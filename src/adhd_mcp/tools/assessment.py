@@ -8,7 +8,7 @@ from pydantic import Field
 
 from adhd_mcp.models.assessment import AssessmentOutput
 from adhd_mcp.models.domain import RecommendationCode
-from adhd_mcp.orchestration.assess import Assessment, assess
+from adhd_mcp.orchestration.assess import Assessment, WithheldScope, assess
 from adhd_mcp.tools.common import (
     ASSESS_SCOPE,
     READ_ONLY,
@@ -108,6 +108,7 @@ async def run_assessment(
         request.patient_id,
         request.as_of,
         site=context.site_codes,
+        withheld=lambda: WithheldScope(*request.ledger.withheld_scope(context.privacy)),
     )
     return request, result
 

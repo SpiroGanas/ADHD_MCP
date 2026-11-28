@@ -21,6 +21,10 @@ Adults whose FHIR record the server can read. No age logic is applied; the evide
 
 The safety gate (rule card: [rule_card_safety_gate.md](rule_card_safety_gate.md)) runs first on every assessment. A positive gate gives `address_safety_gate_first` and withholds any referral suggestion; other findings are still listed. A gate that could not be evaluated (a check failed) gives `insufficient_data`.
 
+## Withheld data
+
+Under a `withhold` privacy policy, a signal not found in data the policy thinned for this patient is reported "Not checked: records it needs were withheld by the privacy policy": a condition signal when its protected category (substance use) lost records, a visit signal when an Encounter was withheld, a medication signal when a medication record was withheld. If no rule fires, the result is `insufficient_data`, not `no_recommendation` (peer review 01, P1; owner decision 2026-11-28). A rule that fires on the remaining signals still gives a suggestion.
+
 ## Exclusions
 
 | Exclusion | Definition | Rationale |

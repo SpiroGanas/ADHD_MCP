@@ -6,7 +6,8 @@ Order of precedence for the recommendation:
 2. a safety gate that could not be evaluated: insufficient data;
 3. already in care for the condition: already in care;
 4. a rule fired: consider referral for formal screening;
-5. an empty record, or a signal source that could not be read completely: insufficient data;
+5. an empty record, a signal source that could not be read completely, or a signal whose
+   records a withhold policy removed: insufficient data;
 6. otherwise: no recommendation.
 
 Every evidence assembler reads through one request-scoped cached port, so no FHIR query is
@@ -14,8 +15,8 @@ issued twice. Nothing here is specific to a condition.
 """
 
 import asyncio
-from collections.abc import Sequence
-from dataclasses import dataclass
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass, field
 from datetime import date
 
 from adhd_mcp.conditions.base import ConditionPlugin, ExclusionResult
@@ -38,6 +39,7 @@ from adhd_mcp.models.domain import (
     SafetyGateStatus,
     WeightClass,
 )
+from adhd_mcp.rules.catalog import SignalDefinition
 from adhd_mcp.rules.engine import Decision, decide
 from adhd_mcp.rules.scorer import run_scorer
 from adhd_mcp.rules.signals import SignalEvidence, evaluate_signals
@@ -52,6 +54,44 @@ _SEVERITY = {
     DataStatus.FAILED: 4,
 }
 _READABLE = frozenset({DataStatus.AVAILABLE, DataStatus.EMPTY})
+
+
+#: The reason of a signal whose records a withhold policy removed (peer review 01, P1).
+WITHHELD_REASON = "Not checked: records it needs were withheld by the privacy policy."
+_MEDICATION_TYPES = frozenset({"MedicationRequest", "MedicationDispense", "MedicationStatement"})
+
+
+@dataclass(frozen=True)
+class WithheldScope:
+    """What a withhold policy removed in this request: disclosed categories that lost records,
+    and the resource types of those records."""
+
+    categories: frozenset[str] = field(default_factory=frozenset)
+    types: frozenset[str] = field(default_factory=frozenset)
+
+
+def _withheld_from(s: SignalDefinition, scope: WithheldScope) -> bool:
+    """Whether a withhold policy may have removed records this signal is evaluated on."""
+    if s.source == "events":
+        return "Encounter" in scope.types
+    if s.source == "distinct_agents":
+        return bool(_MEDICATION_TYPES & scope.types)
+    return s.protected is not None and s.protected in scope.categories
+
+
+def _mark_withheld(
+    signals: Sequence[SignalDefinition], findings: list[SignalFinding], scope: WithheldScope
+) -> tuple[list[SignalFinding], bool]:
+    """A signal not found in data the policy thinned is "not checked", never "not found"; a
+    signal found anyway stands. Returns the findings and whether any was left unchecked."""
+    marked, unchecked = [], False
+    for s, f in zip(signals, findings, strict=True):
+        if not f.present and _withheld_from(s, scope):
+            marked.append(f.model_copy(update={"reason": WITHHELD_REASON, "count": None}))
+            unchecked = True
+        else:
+            marked.append(f)
+    return marked, unchecked
 
 
 @dataclass(frozen=True)
@@ -133,7 +173,10 @@ async def assess(
     as_of: date,
     *,
     site: SiteCodes,
+    withheld: Callable[[], WithheldScope] = WithheldScope,
 ) -> Assessment:
+    """``withheld`` says, once every read is done, what the privacy policy removed."""
+
     async def no_exclusions() -> ExclusionResult:
         return ExclusionResult(excluded=False, checks=[], data_completeness=[])
 
@@ -186,8 +229,9 @@ async def assess(
         ),
     )
     findings = evaluate_signals(plugin.catalog.signals, evidence, as_of)
+    findings, unchecked = _mark_withheld(plugin.catalog.signals, findings, withheld())
     decision = decide(findings, plugin.ruleset)
-    sources_readable = None not in (
+    sources_readable = not unchecked and None not in (
         evidence.problem_families,
         evidence.utilization_events,
         evidence.distinct_agents,

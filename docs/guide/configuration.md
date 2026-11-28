@@ -72,7 +72,7 @@ The server never forwards a caller's token to the FHIR server. Rate limiting is 
 | Variable | Meaning |
 |---|---|
 | `ADHD_MCP_AUDIT_FILE` | Append-only JSON Lines file, one record per tool call: caller, versions, resource references and an output hash, never clinical values ([ADR 0011](../adr/0011-audit-tracing-and-privacy.md)). Its directory must exist. Optional over stdio, required over HTTP |
-| `ADHD_MCP_PRIVACY_POLICY` | A site's sensitive-data policy file; default the packaged `src/adhd_mcp/data/privacy.toml` (substance use, HIV and sickle-cell data are cited by existence and date only) |
+| `ADHD_MCP_PRIVACY_POLICY` | A site's sensitive-data policy file; default the packaged `src/adhd_mcp/data/privacy.toml` (substance use, HIV and sickle-cell data are cited by existence and date only). Under `withhold`, a signal whose records were withheld for the patient reads "Not checked: records it needs were withheld by the privacy policy", and when no rule fires the result is `insufficient_data`, never `no_recommendation` |
 
 ## Examples
 

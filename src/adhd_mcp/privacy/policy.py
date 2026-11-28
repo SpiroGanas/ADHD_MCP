@@ -157,6 +157,12 @@ class PrivacyLedger:
             policy=policy.label, withheld=counts(self.withheld), restricted=counts(self.restricted)
         )
 
+    def withheld_scope(self, policy: PrivacyPolicy) -> tuple[frozenset[str], frozenset[str]]:
+        """Disclosed categories that lost records to a withhold policy in this request, and the
+        resource types those records were. Undisclosed categories are never named."""
+        categories = frozenset(c for c, n in self.withheld.items() if n and policy.disclosed(c))
+        return categories, frozenset(self.withheld_types)
+
     def count(self, kind: str, category: str, key: tuple[str, str]) -> None:
         # The same resource can be read twice in one request (several assemblers).
         if (kind, category, *key) not in self._seen:

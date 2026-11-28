@@ -15,6 +15,10 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 - **S1.** A Condition coded in no system the value sets cover (for example SNOMED CT only, or text only) was silently "not found". It is now reported as skipped (`unrecognized_coding`), the Condition category is `incomplete`, and the safety gate fails closed (`data_unavailable`). ICD-10-CM codes sent without the dot (`R45851`) are normalized to `R45.851`.
 - **S2.** A PHQ-9 item 9 or C-SSRS risk-level result recorded within 365 days under its listed but unverified LOINC code now fails its check and makes the gate `data_unavailable`, citing the result (`SafetyCheck.references`, new). Before, the check was "not performed" and a referral could be suggested. Persona p15 added; the PHQ-9 results of p01 and p02 moved outside the look-back so they keep their roles.
 
+#### Fixed (privacy)
+
+- **P1.** Under a `withhold` policy, signals whose records were withheld read "Not found in the record" and the result could be `no_recommendation`. They now read "Not checked: records it needs were withheld by the privacy policy", and with no rule fired the result is `insufficient_data`.
+
 #### Fixed (data access and start-up)
 
 - **D2.** A 404 or 410 answer to a search crashed the tool with a masked internal error. It is now a failed read: the category is `failed` and the gate `data_unavailable`. Fault injection covers it, and covers Observation and QuestionnaireResponse as active gate inputs.
