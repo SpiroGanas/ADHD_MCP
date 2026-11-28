@@ -300,6 +300,9 @@ async def assess(
         if f.present and f.weight == "note" and f.signal in plugin.note_texts
     ]
     notes += exclusions.notes
+    if outside is not None:
+        # A positive gate for a record outside the population: say so beside the findings.
+        notes.insert(0, load_wording().notes[outside])
     scorer = run_scorer(plugin.scorer, findings) if plugin.scorer is not None else None
     return Assessment(
         gate=gate,

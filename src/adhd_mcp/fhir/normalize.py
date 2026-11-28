@@ -134,14 +134,25 @@ def _check_status(raw: Raw) -> None:
         raise _ExcludedError
 
 
+def _lenient_date(raw: Raw, key: str) -> tuple[DateRange | None, bool]:
+    """(the date, whether one was written). A malformed value is (None, True): the patient
+    stays readable, so no tool loses its answer to one bad field (clinical safety review)."""
+    try:
+        return _date(raw, key), bool(raw.get(key))
+    except (ValueError, TypeError):
+        return None, True
+
+
 def _patient(raw: Raw) -> PatientRecord:
-    deceased_date = _date(raw, "deceasedDateTime")
+    deceased_date, deceased_written = _lenient_date(raw, "deceasedDateTime")
     flag = raw.get("deceasedBoolean")
-    deceased = True if deceased_date is not None else (bool(flag) if flag is not None else None)
+    # A deceasedDateTime, even an unreadable one, records a death.
+    deceased = True if deceased_written else (bool(flag) if flag is not None else None)
+    birth_date, _ = _lenient_date(raw, "birthDate")
     return PatientRecord(
         ref=_ref(raw),
         administrative_gender=raw.get("gender"),
-        birth_date=_date(raw, "birthDate"),
+        birth_date=birth_date,
         deceased=deceased,
         deceased_date=deceased_date,
     )

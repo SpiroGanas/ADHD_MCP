@@ -13,10 +13,11 @@ import pytest
 from fastmcp import Client
 
 from adhd_mcp.clock import FixedClock
+from adhd_mcp.fhir.errors import FhirRequestError
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.server import create_server
 from adhd_mcp.terminology.site_codes import load_site_codes
-from adhd_mcp.tools.context import ToolContext
+from adhd_mcp.tools.context import NO_SITE_CODES, ToolContext
 from tests.helpers.wording import assert_no_diagnostic_language
 from tests.personas.builder import PersonaBuilder
 
@@ -112,3 +113,47 @@ async def test_without_any_dispensing_data_orders_still_count() -> None:
     out = await call(e3(with_dispense=False))
     agents = next(s for s in out["signals_checked"] if s["signal"] == "multiple_antidepressants")
     assert (agents["present"], agents["count"]) == (True, 3)
+
+
+# --- clinical safety review of the peer review 01 fixes --------------------------------
+
+
+class _FailingDispenses(FixtureFhirAdapter):
+    async def search(self, resource_type, patient_id, **kw):  # type: ignore[no-untyped-def]
+        if resource_type == "MedicationDispense":
+            raise FhirRequestError("search MedicationDispense: failed", status=503, transient=True)
+        return await super().search(resource_type, patient_id, **kw)
+
+
+async def test_an_unreadable_medication_check_leaves_the_exclusion_unknown() -> None:
+    # B2: the check failed, yet `excluded` stayed false and no note said so. The dispense is
+    # the only record of the medication, and it cannot be read.
+    p = PersonaBuilder("t96", gender="male", birth_date="1985-01-01")
+    for code in ("F10.20", "F32.9", "G47.00"):
+        p.condition(code, "x", recorded="2026-01-10")
+    p.medication_dispense(None, "6901", "methylphenidate", "2026-05-02")
+    context = ToolContext(
+        port=_FailingDispenses(p.resources), clock=CLOCK, site_codes=load_site_codes("synthetic")
+    )
+    async with Client(create_server(context)) as client:
+        result = await client.call_tool("assess_referral_need", {"patient_id": p.patient_id})
+    out = cast(dict[str, Any], result.structured_content)
+    assert check(out)["outcome"] == "failed"
+    assert out["excluded"] is None
+    assert any("existing-care check could be completed" in n for n in out["notes"])
+
+
+async def test_a_held_suggestion_keeps_the_incomplete_exclusions_note() -> None:
+    # Review point 3: with a hold, the "exclusions incomplete" note was dropped, and the hold
+    # note said "no ADHD code is recorded" although the code check had not run completely.
+    p = e4()
+    context = ToolContext(
+        port=FixtureFhirAdapter(p.resources), clock=CLOCK, site_codes=NO_SITE_CODES
+    )
+    async with Client(create_server(context)) as client:
+        result = await client.call_tool("assess_referral_need", {"patient_id": p.patient_id})
+    out = cast(dict[str, Any], result.structured_content)
+    assert out["recommendation"] == "insufficient_data"
+    assert any("existing-care check could be completed" in n for n in out["notes"])
+    (hold,) = [n for n in out["notes"] if "ADHD medication" in n]
+    assert "no ADHD code was found" in hold

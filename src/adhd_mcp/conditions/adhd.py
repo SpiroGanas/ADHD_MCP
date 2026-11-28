@@ -84,11 +84,15 @@ async def adhd_exclusions(
     medication = _medication_check(content, timeline, as_of)
     excluded = care.excluded
     hold = False
+    if excluded is not True and medication.outcome is CheckOutcome.FAILED:
+        # A check that could not run never leaves "not in care" standing (clinical safety
+        # review, B2).
+        excluded = None
     if medication.outcome is CheckOutcome.FOUND and excluded is not True:
         # Current ADHD medication without an ADHD code: perhaps in care elsewhere (C4).
         excluded, hold = None, True
         notes.append(wording.notes["adhd_medication_without_code"])
-    elif care.excluded is None:
+    if care.excluded is None or medication.outcome is CheckOutcome.FAILED:
         notes.append(wording.notes["exclusions_incomplete"])
     if care.narcolepsy is not None and care.narcolepsy.medication_for_narcolepsy:
         notes.append(wording.notes["narcolepsy_medication"])

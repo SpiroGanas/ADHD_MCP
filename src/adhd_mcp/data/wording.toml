@@ -38,7 +38,7 @@ outside_intended_population = "This tool is meant for adults alive at the as-of 
 tbi_overlap = "Traumatic brain injury codes are recorded. TBI can produce attention problems that resemble ADHD; if screening is pursued, consider neuropsychological evaluation to tell them apart."
 narcolepsy_medication = "Medication ordered for narcolepsy is recorded. It is not counted as an ADHD signal."
 # Peer review 01, C4 (drafted 2026-11-28 by the agent for owner review).
-adhd_medication_without_code = "An ADHD medication was dispensed or taken recently, not for narcolepsy, and no ADHD code is recorded. The patient may already be in ADHD care elsewhere, so no screening referral is suggested until a clinician checks the record."
+adhd_medication_without_code = "An ADHD medication was dispensed or taken recently, not for narcolepsy, and no ADHD code was found. The patient may already be in ADHD care elsewhere, so no screening referral is suggested until a clinician checks the record."
 exclusions_incomplete = "Not every existing-care check could be completed, so an existing ADHD referral or evaluation may be missed. Check the record before referring."
 heuristic = "This suggestion comes from a starting rule taken from published research. The rule has not been clinically validated."
 # Why a record is outside the intended population (peer review 01, C3; drafted 2026-11-28 by

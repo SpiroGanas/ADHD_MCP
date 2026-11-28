@@ -54,6 +54,7 @@ class UtilizationDefinition(BaseModel):
     injury_value_sets: tuple[str, ...]
     self_harm_value_sets: tuple[str, ...]
     driver_value_set: str
+    initial_encounter_characters: tuple[str, ...]
     psychiatric_concepts: tuple[str, ...]
     windows: tuple[Window, ...]
 
@@ -97,14 +98,10 @@ class UtilizationResult:
     encounter_of: dict[str, str] = field(default_factory=dict)
 
 
-#: ICD-10-CM seventh characters of an initial encounter (B and C: open fractures).
-_INITIAL = frozenset("ABC")
-
-
-def _initial(coding: Coding) -> bool:
+def _initial(coding: Coding, initial: tuple[str, ...]) -> bool:
     """Whether a code is a new injury: no seventh character, or an initial-encounter one."""
     code = coding.code.replace(".", "")
-    return len(code) < 7 or code[6] in _INITIAL
+    return len(code) < 7 or code[6] in initial
 
 
 def _any(value_sets: Sequence[ValueSet], codes: tuple[Coding, ...]) -> bool:
@@ -228,7 +225,9 @@ async def assemble_utilization(
                     UtilizationEvent(
                         kind="injury_visit",
                         date=_start(e),
-                        follow_up=not any(_initial(x) for x in injury_codes),
+                        follow_up=not any(
+                            _initial(x, d.initial_encounter_characters) for x in injury_codes
+                        ),
                         references=[e.ref, *_sorted(injury_refs)],
                     )
                 )

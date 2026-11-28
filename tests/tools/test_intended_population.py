@@ -108,3 +108,38 @@ async def test_no_draft_referral_outside_the_intended_population() -> None:
     out = await call(person("2017-01-01"), "draft_referral_proposal")
     assert out["draft"] is None
     assert out["recommendation"] == OUTSIDE
+
+
+# --- clinical safety review of the peer review 01 fixes --------------------------------
+
+
+async def test_a_positive_gate_for_a_child_still_says_the_record_is_outside_the_population() -> (
+    None
+):
+    # Review point 2: the output showed a fired rule and an ADHD basis with no population note.
+    p = person("2012-01-01")
+    p.condition("R45.851", "x", recorded="2026-05-01")
+    out = await call(p)
+    assert out["recommendation"] == "address_safety_gate_first"
+    assert any("under 18" in n for n in out["notes"])
+
+
+@pytest.mark.parametrize(
+    ("patient", "note"),
+    [
+        ({"deceasedDateTime": "not a date"}, "deceased"),
+        ({"birthDate": "1980-13-45"}, "birth date"),
+    ],
+)
+async def test_a_malformed_patient_date_does_not_stop_every_tool(
+    patient: dict[str, Any], note: str
+) -> None:
+    # Review point 4: the Patient could not be normalized, so every tool, the safety gate
+    # included, failed with "fhir_unavailable".
+    p = person("1980-01-01")
+    p.resources[0].update(patient)
+    gate = await call(p, "check_safety_gate")
+    assert gate["safety_gate"]["status"] == "clear_limited_data"
+    out = await call(p)
+    assert out["recommendation"] == OUTSIDE
+    assert any(note in n for n in out["notes"])
