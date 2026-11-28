@@ -409,10 +409,9 @@ def _needed_categories(content: GateContent) -> set[str]:
         needed |= {"Condition", "Encounter"}
     if d.discharge.id not in skip:
         needed.add("Encounter")
-    if d.phq9_item9.id not in skip or d.phq9_item9.id in content.unverified:
-        needed |= {"Observation", "QuestionnaireResponse"}
-    if d.cssrs.id not in skip or d.cssrs.id in content.unverified:
-        needed.add("Observation")
+    # The instrument checks either run or look for results under their unverified codes
+    # (peer review 01, S2), so their data is always read.
+    needed |= {"Observation", "QuestionnaireResponse"}
     if d.flag.id not in skip:
         needed.add("Flag")
     return needed

@@ -51,6 +51,14 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 - **X2.** Every output's `versions` and every audit record carry `clinical_content`, the sha256 of all packaged clinical data (rulesets, catalogs, value sets, drug classes, instruments, site codes, definitions, privacy policy, wording). A released ruleset pins it beside its own hash (`content_sha256` in `released_rulesets.toml`), so the catalog and value sets can no longer change under a "released" ruleset. The evaluation report uses the same fingerprint.
 - `ADHD_MCP_SITE_CODES_FILE`: a site's own code mapping file, loaded strictly (S2).
 
+#### Tests and CI
+
+- **T2.** A property test generates one recent self-harm fact in many FHIR encodings (code system aliases, no system, dotless or lower-case codes, SNOMED CT only or beside ICD-10-CM, dates with and without offsets, onset periods, unconfirmed statuses) and requires the gate to be positive or `data_unavailable`, never clear.
+- **T3, T6, T8.** New tests for a 404 on a search, the audit of refusals and of failed calls, `withhold` through the assessment, start-up errors, every tool's scope, reason-code classification, redaction of coded answers and ingredients, a flag ending on the as-of date and unreadable psychosocial signals.
+- **T5.** `./scripts/check` and CI require 100% branch coverage of the rules, safety gate, orchestration and privacy modules (the plan's rule was not enforced). CI jobs have time limits, third-party actions are pinned by commit, and the container job runs the real `adhd-mcp` entry point (a configuration error, and HTTP mode answering `initialize`). The ICD-10-CM verification script's `check` is tested.
+- **T7.** The synthetic-data guard walks every JSON object (arrays, contained resources, Parameters), reads `.jsonl` and JSON by content, checks every resource with a name or identifier, flags undashed SSN-shaped identifiers, fails closed on unparseable JSON, unreadable files and FHIR XML, and ships an optional pre-commit hook (`scripts/pre-commit`; see CONTRIBUTING.md).
+- **T10.** Tests clear `ADHD_MCP_*` settings from the shell (they made the contract tests fail, and could have written a wrong snapshot), and the evaluation report is also stale when the decision logic changes (`logic_sha256`).
+
 #### Changed
 
 - Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`; utilization events gain `follow_up`; `versions` gains `clinical_content`.

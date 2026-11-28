@@ -174,3 +174,15 @@ def test_merged_completeness_keeps_the_least_complete_note() -> None:
         ("Condition", DataStatus.FAILED),
         ("Encounter", DataStatus.EMPTY),
     ]
+
+
+async def test_psychosocial_signals_are_unreadable_not_absent_when_conditions_fail() -> None:
+    # Peer review 01, T8: "unreadable, not absent" was asserted for other sources only.
+    p = PersonaBuilder("t66", gender="female", birth_date="1990-01-01")
+    p.condition("Z65.1", "x", recorded="2025-01-01")
+    records = PatientRecords(FailingAdapter(p, {"Condition"}))
+    result = await assess(adhd_plugin(), records, records, p.patient_id, AS_OF, site=SITE)
+    reasons = {f.signal: f.reason for f in result.findings}
+    for signal in ("legal_problems", "housing_problems", "education_occupation_problems"):
+        assert reasons[signal] == "Not checked: the data it needs could not be read."
+    assert result.recommendation is RecommendationCode.INSUFFICIENT_DATA

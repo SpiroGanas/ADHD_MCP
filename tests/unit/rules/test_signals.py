@@ -124,6 +124,11 @@ def test_dated_and_current_entries_are_both_explained() -> None:
     )
 
 
+def test_an_entry_first_known_after_the_as_of_date_is_not_counted() -> None:
+    found = evaluate_signal(signal(), families(entry("c1", AS_OF + timedelta(days=3))), AS_OF)
+    assert (found.present, found.reason) == (False, "Not found in the record.")
+
+
 def test_an_undated_condition_does_not_count() -> None:
     found = evaluate_signal(signal(), families(entry("c1", None)), AS_OF)
     assert found.present is False

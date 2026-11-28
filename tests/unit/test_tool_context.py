@@ -1,5 +1,7 @@
 """The server builds its tool context from environment variables."""
 
+import os
+
 from adhd_mcp.fhir.fixture_adapter import FixtureFhirAdapter
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.tools.context import context_from_environment
@@ -52,3 +54,8 @@ def test_the_dummy_scorer_can_be_switched_on() -> None:
     plugin = context_from_environment({"ADHD_MCP_SCORER": "dummy"}).conditions.get("adhd")
     assert plugin.scorer is not None
     assert plugin.scorer.id == "dummy-not-a-model"
+
+
+def test_tests_never_see_server_settings_from_the_shell() -> None:
+    # Peer review 01, T10. Run as `ADHD_MCP_TRANSPORT=http uv run pytest` to see it matter.
+    assert not [n for n in os.environ if n.startswith("ADHD_MCP_")]

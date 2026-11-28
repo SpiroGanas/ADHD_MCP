@@ -457,6 +457,29 @@ async def test_a_flag_starting_after_the_as_of_date_is_ignored() -> None:
     assert (result.status, result.history) == (SafetyGateStatus.CLEAR, [])
 
 
+@pytest.mark.parametrize(("ended_days_ago", "current"), [(0, True), (1, False)])
+async def test_a_flag_ending_on_the_as_of_date_still_counts(
+    ended_days_ago: int, current: bool
+) -> None:
+    # Peer review 01, T8: the boundary of "ended before the as-of date" was untested.
+    p = person()
+    fid = p.flag("high-risk-for-suicide", ago(30))
+    next(r for r in p.resources if r["id"] == fid)["period"]["end"] = ago(ended_days_ago)
+    result = await gate(p)
+    assert (outcome(result, "high_risk_flag") is CheckOutcome.FOUND) is current
+    assert bool(result.history) is not current
+
+
+async def test_an_unmapped_or_unanswered_questionnaire_does_not_stop_the_gate() -> None:
+    # Strict content: only a mapped PHQ-9 response with an item 9 answer stops the gate.
+    p = person()
+    p.questionnaire_response("urn:adhd-mcp:synthetic-questionnaire:other", ago(10), {"9": 3})
+    p.questionnaire_response(PHQ9_QUESTIONNAIRE, ago(10), {"1": 2, "total": 9})
+    result = await gate(p, strict=True)
+    assert outcome(result, "phq9_item9") is CheckOutcome.NOT_PERFORMED
+    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
+
+
 async def test_other_flags_do_not_count() -> None:
     p = person()
     p.flag("fall-risk", ago(10))

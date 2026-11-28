@@ -8,6 +8,7 @@ cohort it was computed from, so a stale report is detectable without re-running 
 import hashlib
 import json
 from collections.abc import Sequence
+from importlib.resources import files
 from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any
@@ -44,6 +45,34 @@ def _content_files() -> list[tuple[str, Traversable]]:
     return clinical_content_files()
 
 
+#: Source that decides outcomes: a change here can change the report's figures even when no
+#: data file changes (peer review 01, T10).
+LOGIC_PACKAGES = ("rules", "orchestration", "evidence", "conditions", "terminology")
+LOGIC_MODULES = ("fhir/codes.py", "fhir/dates.py", "fhir/normalize.py", "fhir/reader.py",
+                 "fhir/search.py")  # fmt: skip
+
+
+def logic_files() -> list[tuple[str, Traversable]]:
+    root = files("adhd_mcp")
+    found: list[tuple[str, Traversable]] = []
+    for package in LOGIC_PACKAGES:
+        found += [
+            (f"{package}/{f.name}", f)
+            for f in root.joinpath(package).iterdir()
+            if f.name.endswith(".py")
+        ]
+    found += [(m, root.joinpath(m)) for m in LOGIC_MODULES]
+    return sorted(found, key=lambda pair: pair[0])
+
+
+def logic_fingerprint() -> str:
+    """sha256 over the source of every module that decides an outcome."""
+    digest = hashlib.sha256()
+    for path, f in logic_files():
+        digest.update(path.encode() + b"\0" + f.read_bytes() + b"\0")
+    return digest.hexdigest()
+
+
 def content_fingerprint() -> str:
     """sha256 over every packaged clinical data file (by path and content)."""
     return clinical_content_sha256()
@@ -78,6 +107,7 @@ def identity(patients: Sequence[CohortPatient]) -> dict[str, Any]:
         "ruleset": plugin.ruleset.label,
         "catalog": f"{plugin.catalog.id} {plugin.catalog.version}",
         "content_sha256": content_fingerprint(),
+        "logic_sha256": logic_fingerprint(),
         "cohort_version": COHORT_VERSION,
         "cohort_sha256": cohort_fingerprint(patients),
         "as_of": AS_OF.isoformat(),
@@ -191,6 +221,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         [
             ("Ruleset", f"`{ident['ruleset']}`, catalog `{ident['catalog']}`"),
             ("Clinical content sha256", f"`{ident['content_sha256'][:16]}...`"),
+            ("Decision logic sha256", f"`{ident['logic_sha256'][:16]}...`"),
             ("Cohort", f"version {ident['cohort_version']}, "
              f"sha256 `{ident['cohort_sha256'][:16]}...`"),
             ("As-of date", ident["as_of"]),
