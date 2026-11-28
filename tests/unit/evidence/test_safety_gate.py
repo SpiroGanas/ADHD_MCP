@@ -487,9 +487,9 @@ async def test_every_check_is_listed_with_a_description() -> None:
 
 
 async def test_strict_content_leaves_the_unverified_loinc_checks_not_performed() -> None:
+    # With no result recorded under their codes. A recorded result stops the gate (S2 tests).
     p = person()
     p.condition("I10", "Essential hypertension", recorded=ago(10))
-    phq9_item9(p, 3)
     result = await gate(p, strict=True)
     assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
     for check_id in ("phq9_item9", "cssrs_risk_level"):
