@@ -2,9 +2,9 @@
 
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
-**Last updated:** 2026-11-27
-**Current phase:** Phase 8 (VA readiness and extensibility) merged into `main` (PR #7) except the live Lighthouse run (no credentials). Peer review 01 done 2026-11-27: [peer_review_01.md](peer_review_01.md) (findings only, no code changed). Release candidate 1.0.0rc1; tagging 1.0.0 waits for the owner's review of the clinical content and of the peer review findings.
-**Branch:** `claude/eloquent-carson-q3di0y` (peer review document only)
+**Last updated:** 2026-11-28
+**Current phase:** Fixing the findings of peer review 01 ([peer_review_01.md](peer_review_01.md), merged in PR #8). Phase 8 is merged except the live Lighthouse run (no credentials). No release is tagged; tagging waits for a named clinical reviewer (G1).
+**Branch:** `claude/intelligent-bardeen-359drg` (peer review 01 fixes, one commit per finding)
 
 ## Summary
 
@@ -21,12 +21,12 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 
 ## In progress
 
-- Nothing is being built. The peer review pull request [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) is open, mergeable, and CI is green on all four jobs; it waits for the owner.
+- **Peer review 01 fixes** on `claude/intelligent-bardeen-359drg`, one commit per finding, test-first, following the owner decisions of 2026-11-28 below. Order: S1, S2, D2-D4, P1, C3, C1, C2, C4-C5, D1, P2/P4/P5, X2/G3, the T findings, then documents.
 
 ## Next steps
 
-1. **Project owner: read [peer_review_01.md](peer_review_01.md) and decide which findings to accept.** Its "Recommended order of work" lists them. Nothing below should start before that decision.
-2. If accepted, fix the confirmed defects test-first, one finding per pull request, starting with the safety gate: S1 (conditions coded only in SNOMED CT, or ICD-10-CM without the dot, are silently "not found") and S2 (a recorded PHQ-9 item 9 score does not stop a suggestion). Then P1 (withheld data reads "Not found"), C3 (no age check), D2 (a 404 from a search crashes the tool), D3 (a timestamp without a time zone blocks the patient). Appendix A of the review gives the inputs for each failing test.
+1. Continue the peer review 01 fixes in the order under "In progress". Appendix A of the review gives the inputs for each failing test.
+2. Owner actions the code cannot do (G1, G2): protect `main` with a required human review; name a clinical reviewer; do the waived `safety.*` spot-check.
 3. Clinical decisions that need a clinical reviewer (open question 1), raised by the review: the look-back rule for unresolved conditions (C1), counting related findings once (C2), current ADHD medication (C4), unfilled prescriptions (C5), value-set scope (C7), the evidence column of the rule card (X1).
 4. Process decisions raised by the review: require a human review before merge; name a clinical reviewer; do the waived `safety.*` spot-check (G1, G2); reconsider the 1.0.0rc1 label (G3).
 5. Earlier owner decisions still open before tagging 1.0.0 (open questions 1, 4, 14, 16, 17, 19): the signal catalog (`reviewed_by_owner = false`), the [rule card](docs/clinical/rule_card_adhd_1.0.md), the wording in `src/adhd_mcp/data/wording.toml`, drug-class curation, a sex-balance option, ADR 0013 and ADR 0014.
@@ -48,12 +48,26 @@ A FastMCP 4.2 server, version 1.0.0rc1, with ten read-only tools (tool contract 
 | 16 | Sex balance: ruleset 1.0.0 flags 8 of 40 internalizing suggestive presentations against 32 of 32 externalizing ones. Choose an option from the [sex-balance review](docs/evaluation/sex_balance_review.md): A no change (proposed for 1.0.0), B a sex-blind "four or more modifiers" rule as draft ruleset 1.1.0, or another | Before release |
 | 17 | Approve [ADR 0013](docs/adr/0013-versioning-and-release.md): three version lines, the tool contract becoming 1.0.0 with server 1.0.0, release steps and the release check | Before release |
 | 19 | Accept [ADR 0014](docs/adr/0014-server-profiles-and-unoffered-data.md) (server profiles, `not_supported`, patient-scoped tokens); still "Proposed" after PR #7 merged | Before release |
-| 20 | Peer review 01: which findings to accept, and in what order? ([peer_review_01.md](peer_review_01.md)) | Now |
 | 18 | Publish the package or container image anywhere (PyPI, a container registry)? Proposal: not for 1.0; build in CI only | Before release |
 
 ## Decisions
 
 Scope decisions made 2026-11-26 are recorded in [project_plan.md](project_plan.md#scope). Architecture decisions are in [docs/adr/](docs/adr/README.md).
+
+Owner decisions 2026-11-28 (peer review 01, former open question 20). The clinical-logic changes are built as drafts for the clinical reviewer to confirm or reverse:
+
+- S1: a Condition with no coding in a system the value sets cover makes the Condition category `incomplete` (warning `unrecognized_coding`), so the gate fails closed. Dotless ICD-10-CM codes are normalized.
+- S2: a result under a code the instrument file lists for a gate check, verified or not, stops the gate (`data_unavailable`); the unverified code is used only to stop, never to score.
+- C3: new recommendation `outside_intended_population` (under 18 at the as-of date, no birth date, or deceased); tool contract 0.5.0.
+- C1: encounter diagnoses and event codes count by their latest date; only an active problem-list item is open-ended; abatement is used; the reason gives the dates.
+- C2: injury episodes, not visits (seventh character D or S is not a new injury); one encounter supplies at most one high-weight signal.
+- C4: current exposure to an ADHD medication without a narcolepsy reason makes `excluded` unknown, with a note.
+- C5: with complete dispensing data, only antidepressants with exposure count.
+- P1: a signal whose category had records withheld for this patient reads "Not checked: withheld by the privacy policy"; with no rule fired the result is `insufficient_data`.
+- D1: filtered searches now, with a large-record benchmark and a capped audit reference list.
+- P2: a non-local FHIR server needs an explicit privacy policy. P5: plain http to a non-local host is refused unless explicitly allowed; the audit file is 0600.
+- G3: server version 0.9.0 until the release conditions in the review are met. X2: a fingerprint of all clinical content in every output's `versions`.
+- Not now: splitting the `verified` flag (G2), a dependency audit job in CI.
 
 Owner decisions 2026-11-27 (start of Phase 8):
 
@@ -108,4 +122,4 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#5](https://github.com/SpiroGanas/ADHD_MCP/pull/5) | Phases 4-6: evidence tools II, rules engine and recommendation, audit, privacy and security | Merged |
 | [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 | Merged |
 | [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Merged |
-| [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) | Peer review 01: findings only, no code changes | Open |
+| [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) | Peer review 01: findings only, no code changes | Merged |
