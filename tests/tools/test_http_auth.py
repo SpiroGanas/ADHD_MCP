@@ -20,7 +20,7 @@ from adhd_mcp.config import AuthSettings
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.server import build_auth, create_server
 from adhd_mcp.terminology.site_codes import load_site_codes
-from adhd_mcp.tools.common import ASSESS_SCOPE, EVIDENCE_SCOPE
+from adhd_mcp.tools.common import ASSESS_SCOPE, EVIDENCE_SCOPE, TOOL_NAMES
 from adhd_mcp.tools.context import ToolContext
 from tests.helpers.fake_fhir_server import BASE, FakeFhirServer, no_sleep
 from tests.personas import all_resources
@@ -156,3 +156,54 @@ async def test_insufficient_scope_is_refused(harness: Harness) -> None:
             "assess_referral_need", {"patient_id": "p01-patient"}, raise_on_error=False
         )
     assert denied.is_error is True
+
+
+# --- peer review 01, T6 and P4: every tool's scope, and the audit of each refusal -------
+
+#: tool -> the scope it needs (None: any authenticated caller).
+SCOPES_NEEDED = {
+    "get_server_info": None,
+    "check_safety_gate": EVIDENCE_SCOPE,
+    "get_mh_problem_list": EVIDENCE_SCOPE,
+    "get_screening_history": EVIDENCE_SCOPE,
+    "check_existing_care": EVIDENCE_SCOPE,
+    "get_medication_timeline": EVIDENCE_SCOPE,
+    "get_utilization_summary": EVIDENCE_SCOPE,
+    "get_psychosocial_context": EVIDENCE_SCOPE,
+    "assess_referral_need": ASSESS_SCOPE,
+    "draft_referral_proposal": ASSESS_SCOPE,
+}
+GRANTS = {"no-scope": [], "evidence": [EVIDENCE_SCOPE], "assess": [ASSESS_SCOPE]}
+
+
+def test_the_scope_table_names_every_tool() -> None:
+    assert set(SCOPES_NEEDED) == set(TOOL_NAMES)
+
+
+@pytest.mark.parametrize("grant", sorted(GRANTS))
+@pytest.mark.parametrize("tool", sorted(SCOPES_NEEDED))
+async def test_each_tool_is_allowed_exactly_with_its_scope(
+    harness: Harness, tool: str, grant: str
+) -> None:
+    # A mutation probe removed the scope check from three tools and no test noticed (T6).
+    needed = SCOPES_NEEDED[tool]
+    allowed = needed is None or needed in GRANTS[grant]
+    arguments = {} if tool == "get_server_info" else {"patient_id": "p01-patient"}
+    async with harness.running(), harness.client(token(scopes=GRANTS[grant])) as client:
+        result = await client.call_tool(tool, arguments, raise_on_error=False)
+    assert result.is_error is (not allowed)
+    (record,) = harness.sink.records
+    if allowed:
+        assert record.outcome == "success"
+    else:
+        # P4 (E16): audited as internal_error, like a crash.
+        assert (record.outcome, record.error_code) == ("error", "not_authorized")
+        assert harness.fhir.requests == []
+
+
+async def test_an_unknown_tool_is_audited_as_such(harness: Harness) -> None:
+    async with harness.running(), harness.client(token()) as client:
+        result = await client.call_tool("no_such_tool", {}, raise_on_error=False)
+    assert result.is_error is True
+    (record,) = harness.sink.records
+    assert (record.outcome, record.error_code) == ("error", "unknown_tool")

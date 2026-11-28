@@ -21,7 +21,10 @@ from files named by a variable, never from the variable itself.
 | ``ADHD_MCP_SMART_AUDIENCE`` | The client assertion's audience (default: the token URL; |
 |  | required for ``lighthouse``) |
 | ``ADHD_MCP_AUDIT_FILE`` | Append-only JSON Lines audit file; required for HTTP |
-| ``ADHD_MCP_PRIVACY_POLICY`` | A site's privacy policy file (default: packaged policy) |
+| ``ADHD_MCP_PRIVACY_POLICY`` | A site's privacy policy file, or ``packaged`` for the packaged |
+|  | policy. Required with a FHIR server that is not on this machine |
+| ``ADHD_MCP_ALLOW_PLAIN_HTTP`` | ``1``: allow http (not https) to a FHIR server or public URL |
+|  | that is not on this machine, for a private network the site trusts |
 | ``ADHD_MCP_SITE_CODES`` | A packaged site code mapping, by name (``synthetic``) |
 | ``ADHD_MCP_SITE_CODES_FILE`` | A site's own code mapping file (loaded strictly); not with |
 |  | ``ADHD_MCP_SITE_CODES`` |
@@ -86,6 +89,21 @@ class Settings:
     site_codes_file: Path | None = None
 
 
+_LOCAL_HOSTS = frozenset({"localhost", "127.0.0.1", "::1"})
+
+
+def _host(value: str) -> str | None:
+    try:
+        return httpx2.URL(value).host or None
+    except Exception:
+        return None
+
+
+def is_local(value: str) -> bool:
+    """Whether a URL names this machine."""
+    return _host(value) in _LOCAL_HOSTS
+
+
 def _url(env: Mapping[str, str], name: str, *, https: bool = False) -> str:
     value = env.get(name, "")
     try:
@@ -94,9 +112,31 @@ def _url(env: Mapping[str, str], name: str, *, https: bool = False) -> str:
         raise ConfigError(f"{name} is not a valid URL") from exc
     if url.scheme not in {"http", "https"} or not url.host:
         raise ConfigError(f"{name} must be an absolute http(s) URL")
-    if https and url.scheme != "https" and url.host not in {"localhost", "127.0.0.1"}:
+    if https and url.scheme != "https" and url.host not in _LOCAL_HOSTS:
         raise ConfigError(f"{name} must use https")
     return value
+
+
+def _plain_http_allowed(env: Mapping[str, str]) -> bool:
+    return env.get("ADHD_MCP_ALLOW_PLAIN_HTTP") == "1"
+
+
+def _privacy_policy(env: Mapping[str, str], base_url: str | None) -> Path | None:
+    """A site's policy file, or None for the packaged one. A FHIR server that is not on this
+    machine needs an explicit choice (peer review 01, P2: "cite" names the protected
+    category beside each reference, which may not be what a site wants)."""
+    value = env.get("ADHD_MCP_PRIVACY_POLICY", "")
+    if value == "packaged":
+        return None
+    if value:
+        return _file(env, "ADHD_MCP_PRIVACY_POLICY")
+    if base_url is not None and not is_local(base_url):
+        raise ConfigError(
+            "a FHIR server that is not on this machine needs ADHD_MCP_PRIVACY_POLICY: a site "
+            "policy file, or 'packaged' to accept the packaged policy (see the configuration "
+            "guide for what it does and does not hide)"
+        )
+    return None
 
 
 def _file(env: Mapping[str, str], name: str) -> Path:
@@ -129,7 +169,7 @@ def _auth(env: Mapping[str, str]) -> AuthSettings:
     return AuthSettings(
         issuer=issuer,
         audience=env["ADHD_MCP_AUTH_AUDIENCE"],
-        public_url=_url(env, "ADHD_MCP_PUBLIC_URL"),
+        public_url=_url(env, "ADHD_MCP_PUBLIC_URL", https=not _plain_http_allowed(env)),
         jwks_uri=_url(env, "ADHD_MCP_AUTH_JWKS_URI", https=True) if has_jwks else None,
         public_key_file=_file(env, "ADHD_MCP_AUTH_PUBLIC_KEY_FILE") if has_key else None,
         authorization_servers=servers,
@@ -219,7 +259,6 @@ def load_settings(env: Mapping[str, str]) -> Settings:
             auth = _auth(env)
         if audit is None:
             raise ConfigError("HTTP transport needs ADHD_MCP_AUDIT_FILE")
-    policy = _file(env, "ADHD_MCP_PRIVACY_POLICY") if env.get("ADHD_MCP_PRIVACY_POLICY") else None
     scorer = env.get("ADHD_MCP_SCORER", "rules-only")
     if scorer not in SCORERS:
         raise ConfigError(f"ADHD_MCP_SCORER must be one of: {', '.join(SCORERS)}")
@@ -232,7 +271,12 @@ def load_settings(env: Mapping[str, str]) -> Settings:
             + ", ".join(sorted(EXPERIMENTAL_CONDITIONS))
         )
     smart = _smart(env)
-    base_url = _url(env, "ADHD_MCP_FHIR_BASE_URL") if env.get("ADHD_MCP_FHIR_BASE_URL") else None
+    base_url = (
+        _url(env, "ADHD_MCP_FHIR_BASE_URL", https=not _plain_http_allowed(env))
+        if env.get("ADHD_MCP_FHIR_BASE_URL")
+        else None
+    )
+    policy = _privacy_policy(env, base_url)
     site_codes, site_codes_file = _site_codes(env)
     return Settings(
         transport=transport,  # type: ignore[arg-type]

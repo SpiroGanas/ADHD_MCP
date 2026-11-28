@@ -1,10 +1,12 @@
 """Startup configuration: missing or malformed settings are refused, and no message ever
 contains a setting's value (secrets are never printed)."""
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
+from adhd_mcp.audit.records import AuditRecord, JsonlAuditSink
 from adhd_mcp.config import ConfigError, load_settings
 from adhd_mcp.fhir.http_adapter import HttpFhirAdapter
 from adhd_mcp.fhir.lighthouse import LighthouseCcgAuth
@@ -111,6 +113,7 @@ def test_smart_settings_build_an_authenticated_fhir_adapter(tmp_path: Path) -> N
     key.write_text("unused until a token is requested")
     env = {
         "ADHD_MCP_FHIR_BASE_URL": "https://fhir.example.test/r4",
+        "ADHD_MCP_PRIVACY_POLICY": "packaged",
         "ADHD_MCP_SMART_TOKEN_URL": "https://auth.example.test/token",
         "ADHD_MCP_SMART_CLIENT_ID": "adhd-mcp",
         "ADHD_MCP_SMART_KEY_ID": "k1",
@@ -137,6 +140,7 @@ def lighthouse_env(key: Path) -> dict[str, str]:
     key.write_text("unused until a token is requested")
     return {
         "ADHD_MCP_FHIR_BASE_URL": "https://sandbox.lighthouse.test/services/fhir/v0/r4",
+        "ADHD_MCP_PRIVACY_POLICY": "packaged",
         "ADHD_MCP_FHIR_SERVER_PROFILE": "lighthouse",
         "ADHD_MCP_SMART_TOKEN_URL": "https://sandbox.lighthouse.test/oauth2/health/system/v1/token",
         "ADHD_MCP_SMART_AUDIENCE": "https://okta.lighthouse.test/oauth2/aus-test/v1/token",
@@ -238,3 +242,67 @@ def test_the_context_can_reuse_settings_already_loaded() -> None:
     plugin = context_from_environment(env, settings=settings).conditions.get("adhd")
     assert plugin.scorer is not None
     assert plugin.scorer.id == "dummy-not-a-model"
+
+
+# --- peer review 01, P2 and P5: settings for a real FHIR server -------------------------
+
+
+@pytest.mark.parametrize(
+    "url", ["http://ehr.internal.example/fhir", "http://10.0.0.5/fhir", "http://fhir:8080/fhir"]
+)
+def test_plain_http_to_a_non_local_fhir_server_is_refused(url: str) -> None:
+    # E13: accepted silently.
+    env = {"ADHD_MCP_FHIR_BASE_URL": url, "ADHD_MCP_PRIVACY_POLICY": "packaged"}
+    with pytest.raises(ConfigError, match="ADHD_MCP_FHIR_BASE_URL must use https"):
+        load_settings(env)
+    allowed = load_settings(env | {"ADHD_MCP_ALLOW_PLAIN_HTTP": "1"})
+    assert allowed.fhir_base_url == url
+
+
+@pytest.mark.parametrize("url", ["http://localhost:8080/fhir", "http://127.0.0.1/fhir"])
+def test_plain_http_to_a_local_fhir_server_is_allowed(url: str) -> None:
+    assert load_settings({"ADHD_MCP_FHIR_BASE_URL": url}).fhir_base_url == url
+
+
+def test_plain_http_public_url_is_refused(files: dict[str, str]) -> None:
+    env = http_env(files) | {"ADHD_MCP_PUBLIC_URL": "http://adhd-mcp.example.test"}
+    with pytest.raises(ConfigError, match="ADHD_MCP_PUBLIC_URL must use https"):
+        load_settings(env)
+    assert load_settings(env | {"ADHD_MCP_ALLOW_PLAIN_HTTP": "1"}).auth is not None
+
+
+def test_a_non_local_fhir_server_needs_an_explicit_privacy_policy(tmp_path: Path) -> None:
+    # P2: a site that set nothing got the permissive "cite" default.
+    env = {"ADHD_MCP_FHIR_BASE_URL": "https://fhir.example.test/r4"}
+    with pytest.raises(ConfigError, match="ADHD_MCP_PRIVACY_POLICY"):
+        load_settings(env)
+    assert load_settings(env | {"ADHD_MCP_PRIVACY_POLICY": "packaged"}).privacy_policy is None
+    policy = tmp_path / "site_privacy.toml"
+    policy.write_text("x")
+    chosen = load_settings(env | {"ADHD_MCP_PRIVACY_POLICY": str(policy)})
+    assert chosen.privacy_policy == policy
+
+
+def test_fixture_data_and_a_local_server_need_no_privacy_policy() -> None:
+    assert load_settings({"ADHD_MCP_FIXTURE_DIR": "tests/personas/bundles"}).privacy_policy is None
+    assert load_settings({"ADHD_MCP_FHIR_BASE_URL": "http://localhost:8080/fhir"}) is not None
+
+
+def test_the_audit_file_is_created_readable_by_its_owner_only(tmp_path: Path) -> None:
+    # P5: the file links patient ids to outcomes.
+    record = AuditRecord(
+        record_id="r1",
+        trace_id="t1",
+        time=datetime(2026, 6, 15, tzinfo=UTC),
+        caller="local",
+        tool="get_server_info",
+        outcome="success",
+        server_version="x",
+        tool_contract_version="x",
+        ruleset=None,
+        patient=None,
+        resources_read=[],
+    )
+    path = tmp_path / "audit.jsonl"
+    JsonlAuditSink(path).write(record)
+    assert path.stat().st_mode & 0o777 == 0o600

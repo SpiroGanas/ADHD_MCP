@@ -43,6 +43,22 @@ AsOfArg = Annotated[
     ),
 ]
 
+#: Every tool this server registers (a contract test keeps the list in step with the server).
+TOOL_NAMES = frozenset(
+    {
+        "get_server_info",
+        "check_safety_gate",
+        "get_mh_problem_list",
+        "get_screening_history",
+        "check_existing_care",
+        "get_medication_timeline",
+        "get_utilization_summary",
+        "get_psychosocial_context",
+        "assess_referral_need",
+        "draft_referral_proposal",
+    }
+)
+
 #: OAuth scopes (Phase 6). Evidence tools need the first; tools that produce a recommendation
 #: or a draft referral need the second.
 EVIDENCE_SCOPE = "adhd.evidence.read"

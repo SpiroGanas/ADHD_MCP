@@ -1,6 +1,7 @@
 """The audit record and its sinks."""
 
 import json
+import os
 import threading
 from datetime import datetime
 from pathlib import Path
@@ -65,5 +66,9 @@ class JsonlAuditSink:
 
     def write(self, record: AuditRecord) -> None:
         line = json.dumps(record.model_dump(mode="json"), sort_keys=True) + "\n"
-        with self._lock, self.path.open("a", encoding="utf-8") as f:
-            f.write(line)
+        with self._lock:
+            # Created readable by its owner only: it links patients to outcomes (peer review
+            # 01, P5). An existing file keeps the mode it has.
+            fd = os.open(self.path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o600)
+            with os.fdopen(fd, "a", encoding="utf-8") as f:
+                f.write(line)

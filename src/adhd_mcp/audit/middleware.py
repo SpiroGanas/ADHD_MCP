@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime
 from typing import Any, get_args
 
+from fastmcp.exceptions import NotFoundError
 from fastmcp.server.dependencies import get_access_token
 from fastmcp.server.middleware import CallNext, Middleware, MiddlewareContext
 from fastmcp.tools import ToolResult
@@ -142,10 +143,23 @@ def output_hash(structured: Any) -> str:
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
+def _error_code(exc: Exception, tool: str, known_tools: frozenset[str]) -> str:
+    """The audited error code. FastMCP answers "Unknown tool" both for a tool that does not
+    exist and for one the caller's token lacks the scope for; the two are told apart here
+    (peer review 01, P4: a refusal was audited as an internal error)."""
+    if isinstance(exc, NotFoundError):
+        return "not_authorized" if tool in known_tools else "unknown_tool"
+    match = _ERROR_CODE.match(str(exc))
+    return match[1] if match else "internal_error"
+
+
 class AuditMiddleware(Middleware):
-    def __init__(self, sink: AuditSink, clock: Clock) -> None:
+    def __init__(
+        self, sink: AuditSink, clock: Clock, known_tools: frozenset[str] = frozenset()
+    ) -> None:
         self.sink = sink
         self.clock = clock
+        self.known_tools = known_tools
 
     async def on_call_tool(
         self,
@@ -171,12 +185,11 @@ class AuditMiddleware(Middleware):
         try:
             result = await call_next(context)
         except Exception as exc:
-            match = _ERROR_CODE.match(str(exc))
             self.sink.write(
                 AuditRecord(
                     **base,
                     outcome="error",
-                    error_code=match[1] if match else "internal_error",
+                    error_code=_error_code(exc, params.name, self.known_tools),
                     **audit.record_fields(),
                 )
             )

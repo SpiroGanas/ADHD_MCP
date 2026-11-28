@@ -24,7 +24,7 @@ from adhd_mcp.tools import (
     server_info,
     utilization,
 )
-from adhd_mcp.tools.common import SCOPES
+from adhd_mcp.tools.common import SCOPES, TOOL_NAMES
 from adhd_mcp.tools.context import ToolContext, context_from_environment
 
 INSTRUCTIONS = (
@@ -73,7 +73,7 @@ def create_server(context: ToolContext | None = None, auth: AuthProvider | None 
         auth=auth,
     )
     if context.audit_sink is not None:
-        mcp.add_middleware(AuditMiddleware(context.audit_sink, context.clock))
+        mcp.add_middleware(AuditMiddleware(context.audit_sink, context.clock, TOOL_NAMES))
     server_info.register(mcp)
     safety_gate.register(mcp, context)
     problem_list.register(mcp, context)
