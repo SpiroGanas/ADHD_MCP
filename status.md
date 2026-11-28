@@ -3,7 +3,7 @@
 Read this first. Update it whenever the state of the work changes (rules in [CLAUDE.md](CLAUDE.md#keep-statusmd-current)).
 
 **Last updated:** 2026-11-28
-**Current phase:** Peer review 01 fixes built and pushed for review ([peer_review_01.md](peer_review_01.md); pull request listed below). Phase 8 is merged except the live Lighthouse run (no credentials). Version 0.9.0; no release is tagged. 1.0.0 waits for a clinician's sign-off, a real model run and a real sandbox read (G3).
+**Current phase:** Peer review 01 fixes built and in review in [SpiroGanas/ADHD_MCP#9](https://github.com/SpiroGanas/ADHD_MCP/pull/9) ([peer_review_01.md](peer_review_01.md)). Phase 8 is merged except the live Lighthouse run (no credentials). Version 0.9.0; no release is tagged. 1.0.0 waits for a clinician's sign-off, a real model run and a real sandbox read (G3).
 **Branch:** `claude/intelligent-bardeen-359drg` (peer review 01 fixes, one commit per finding)
 
 ## Summary
@@ -22,11 +22,11 @@ A FastMCP 4.2 server, version 0.9.0, with ten read-only tools (tool contract 0.5
 
 ## In progress
 
-- The peer review 01 fixes pull request waits for the owner's review (see "Pull requests"). Watch its CI: the container job's new entry-point steps and pinned actions have not run before.
+- [SpiroGanas/ADHD_MCP#9](https://github.com/SpiroGanas/ADHD_MCP/pull/9) (peer review 01 fixes) waits for the owner's review. Watch its CI: the container job's new entry-point steps, the coverage gate and the pinned actions have not run in CI before.
 
 ## Next steps
 
-1. **Project owner: review the peer review 01 fixes pull request.** In particular the drafted wording in `src/adhd_mcp/data/wording.toml` (`outside_intended_population`, the three `population_*` notes, `adhd_medication_without_code`; open question 21) and the choice of `insufficient_data` for a held suggestion (C4; open question 22).
+1. **Project owner: review [SpiroGanas/ADHD_MCP#9](https://github.com/SpiroGanas/ADHD_MCP/pull/9).** In particular the drafted wording in `src/adhd_mcp/data/wording.toml` (`outside_intended_population`, the three `population_*` notes, `adhd_medication_without_code`; open question 21) and the choice of `insufficient_data` for a held suggestion (C4; open question 22).
 2. **LOINC verification is now a blocker** (open question 14): until PHQ-9 item 9 and C-SSRS codes are verified, any patient with such a result in the past year gets `insufficient_data` (S2).
 3. Owner actions the code cannot do (G1, G2): protect `main` with a required human review; name a clinical reviewer (open question 1); have someone with security experience review the threat model and ADR 0012; do the waived `safety.*` spot-check (20 entries).
 4. Clinical reviewer: confirm or reverse the drafts C1 to C5, and answer the questions in the [rule card](docs/clinical/rule_card_adhd_1.0.md#open-questions-for-the-clinical-reviewer-peer-review-01) (flag rate and nicotine dependence C6; driver, anxiety and unconfirmed-diagnosis scope C7; exclusion scope X5; equity, falls, history-of codes, differential notes, annual code updates X7); decide SNOMED CT value sets or a terminology service for the safety concepts (S1 step 3).
@@ -129,3 +129,4 @@ Earlier decisions (Phases 1 to 3, 2026-11-26 and 2026-11-27): tooling in ADR 000
 | [SpiroGanas/ADHD_MCP#6](https://github.com/SpiroGanas/ADHD_MCP/pull/6) | Phase 7: evaluation, hardening and release candidate 1.0.0rc1 (relabelled 0.9.0 by peer review 01) | Merged |
 | [SpiroGanas/ADHD_MCP#7](https://github.com/SpiroGanas/ADHD_MCP/pull/7) | Phase 8: VA readiness and extensibility | Merged |
 | [SpiroGanas/ADHD_MCP#8](https://github.com/SpiroGanas/ADHD_MCP/pull/8) | Peer review 01: findings only, no code changes | Merged |
+| [SpiroGanas/ADHD_MCP#9](https://github.com/SpiroGanas/ADHD_MCP/pull/9) | Peer review 01 fixes | Open |
