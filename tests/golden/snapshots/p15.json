@@ -1,0 +1,542 @@
+{
+  "as_of": "2026-06-15",
+  "basis": [
+    {
+      "date": "2025-10-01",
+      "references": [
+        {
+          "id": "p15-cond-1",
+          "resource_type": "Condition",
+          "version": null
+        }
+      ],
+      "signal": "alcohol_involvement",
+      "weight_class": "high"
+    },
+    {
+      "date": "2025-11-12",
+      "references": [
+        {
+          "id": "p15-cond-2",
+          "resource_type": "Condition",
+          "version": null
+        }
+      ],
+      "signal": "depression_or_anxiety",
+      "weight_class": "modifier"
+    },
+    {
+      "date": "2026-01-15",
+      "references": [
+        {
+          "id": "p15-cond-3",
+          "resource_type": "Condition",
+          "version": null
+        }
+      ],
+      "signal": "insomnia",
+      "weight_class": "modifier"
+    }
+  ],
+  "condition_to_screen": "ADHD",
+  "data_completeness": [
+    {
+      "category": "Condition",
+      "records": 3,
+      "skipped": 0,
+      "status": "available",
+      "warnings": []
+    },
+    {
+      "category": "Encounter",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "Observation",
+      "records": 1,
+      "skipped": 0,
+      "status": "available",
+      "warnings": []
+    },
+    {
+      "category": "QuestionnaireResponse",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "Flag",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "ServiceRequest",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "Procedure",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "CarePlan",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "MedicationRequest",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "MedicationStatement",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    },
+    {
+      "category": "MedicationDispense",
+      "records": 0,
+      "skipped": 0,
+      "status": "empty",
+      "warnings": []
+    }
+  ],
+  "decision_trace": [
+    {
+      "description": "At least one high-weight signal with two or more modifiers",
+      "fired": true,
+      "high_signals": [
+        "alcohol_involvement"
+      ],
+      "modifier_signals": [
+        "depression_or_anxiety",
+        "insomnia"
+      ],
+      "reason": "1 high-weight (needs 1) and 2 modifiers (needs 2).",
+      "rule_id": "high_with_modifiers"
+    },
+    {
+      "description": "Two or more high-weight signal classes",
+      "fired": false,
+      "high_signals": [
+        "alcohol_involvement"
+      ],
+      "modifier_signals": [
+        "depression_or_anxiety",
+        "insomnia"
+      ],
+      "reason": "1 high-weight (needs 2) and 2 modifiers (needs 0).",
+      "rule_id": "two_high_classes"
+    }
+  ],
+  "excluded": false,
+  "exclusions_checked": [
+    {
+      "check": "adhd_diagnosis_code",
+      "description": "ADHD code (F90) on a Condition or as a medication reason",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
+    },
+    {
+      "check": "adhd_referral",
+      "description": "ADHD referral or evaluation request, open or completed within 365 days",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
+    },
+    {
+      "check": "adhd_evaluation_procedure",
+      "description": "ADHD evaluation in progress or completed within 365 days",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
+    },
+    {
+      "check": "adhd_care_plan",
+      "description": "ADHD care plan, open or completed within 365 days",
+      "outcome": "not_found",
+      "reason": null,
+      "references": []
+    }
+  ],
+  "is_diagnosis": false,
+  "notes": [],
+  "notice": "This is a suggestion to consider referral for formal screening. It is not a diagnosis. Review the listed evidence and use clinical judgment.",
+  "patient_id": "p15-patient",
+  "privacy": {
+    "policy": "privacy 0.2.0",
+    "restricted": [
+      {
+        "category": "substance_use",
+        "records": 1
+      }
+    ],
+    "withheld": []
+  },
+  "recommendation": "insufficient_data",
+  "recommendation_text": "Too little data could be read to make a suggestion. Review the record directly.",
+  "ruleset": "adhd 1.0.0 (draft)",
+  "safety_gate": {
+    "checks": [
+      {
+        "description": "Suicidal ideation code (ICD-10-CM R45.851)",
+        "id": "suicidal_ideation_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Suicide attempt or intentional self-harm code (T14.91, X71-X83)",
+        "id": "suicide_attempt_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Poisoning by intentional self-harm code (T36-T65, intent character 2)",
+        "id": "intentional_self_poisoning_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Poisoning of undetermined intent code (T36-T65, intent character 4)",
+        "id": "undetermined_intent_poisoning_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Asphyxiation by intentional self-harm code (T71.1x2, T71.2x2)",
+        "id": "self_harm_asphyxiation_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Non-suicidal self-harm code (R45.88)",
+        "id": "nonsuicidal_self_harm_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Personal history of suicidal behavior or self-harm code (Z91.51, Z91.52)",
+        "id": "self_harm_history_code",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "Psychiatric inpatient or residential discharge within 365 days (within 90 days is highest priority)",
+        "id": "psychiatric_discharge",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      },
+      {
+        "description": "PHQ-9 item 9 at or above the cutoff within 365 days",
+        "id": "phq9_item9",
+        "outcome": "failed",
+        "reason": "A result is recorded under this check's code, but the code or cutoff is not verified yet, so it cannot be interpreted. Review the listed result before any screening referral.",
+        "references": [
+          {
+            "id": "p15-obs-1",
+            "resource_type": "Observation",
+            "version": null
+          }
+        ]
+      },
+      {
+        "description": "C-SSRS screener risk level moderate or high within 365 days",
+        "id": "cssrs_risk_level",
+        "outcome": "not_performed",
+        "reason": "Not performed: its codes or cutoffs are not verified yet. Any recorded results are listed by get_screening_history for clinician review.",
+        "references": []
+      },
+      {
+        "description": "Active high-risk-for-suicide flag",
+        "id": "high_risk_flag",
+        "outcome": "not_found",
+        "reason": null,
+        "references": []
+      }
+    ],
+    "evidence": [],
+    "guidance": null,
+    "history": [],
+    "status": "data_unavailable"
+  },
+  "scorer": {
+    "failed": false,
+    "id": "rules-only",
+    "score": null,
+    "version": "1.0.0"
+  },
+  "signals_checked": [
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": "substance_use",
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "stimulant_related_disorder",
+      "title": "Stimulant-related disorder",
+      "weight": "high",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": "2025-10-01",
+      "last_date": "2025-10-01",
+      "present": true,
+      "protected": "substance_use",
+      "reason": "Found within 1095 days.",
+      "references": [
+        {
+          "id": "p15-cond-1",
+          "resource_type": "Condition",
+          "version": null
+        }
+      ],
+      "signal": "alcohol_involvement",
+      "title": "Alcohol involvement",
+      "weight": "high",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "crash_as_driver",
+      "title": "Motor-vehicle crash as driver",
+      "weight": "high",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "repeated_accidental_injury",
+      "title": "Two or more accidental injury visits",
+      "weight": "high",
+      "window_days": 730
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "tbi_overlap",
+      "title": "Traumatic brain injury (ADHD-like deficits; consider neuropsychological evaluation)",
+      "weight": "note",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": "substance_use",
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "other_substance_use",
+      "title": "Other substance use disorder",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "ptsd",
+      "title": "Post-traumatic stress disorder",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "intermittent_explosive_disorder",
+      "title": "Intermittent explosive disorder",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": "2025-11-12",
+      "last_date": "2025-11-12",
+      "present": true,
+      "protected": null,
+      "reason": "Found within 1095 days.",
+      "references": [
+        {
+          "id": "p15-cond-2",
+          "resource_type": "Condition",
+          "version": null
+        }
+      ],
+      "signal": "depression_or_anxiety",
+      "title": "Depression or generalized anxiety",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "multiple_antidepressants",
+      "title": "Three or more distinct antidepressants",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "borderline_personality",
+      "title": "Borderline personality disorder",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": "2026-01-15",
+      "last_date": "2026-01-15",
+      "present": true,
+      "protected": null,
+      "reason": "Found within 1095 days.",
+      "references": [
+        {
+          "id": "p15-cond-3",
+          "resource_type": "Condition",
+          "version": null
+        }
+      ],
+      "signal": "insomnia",
+      "title": "Chronic insomnia or delayed sleep phase",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "attention_symptoms",
+      "title": "Attention or executive-function symptom code",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "legal_problems",
+      "title": "Legal problems",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "education_occupation_problems",
+      "title": "Education or employment problems",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "housing_problems",
+      "title": "Homelessness or housing instability",
+      "weight": "modifier",
+      "window_days": 1095
+    },
+    {
+      "count": null,
+      "first_date": null,
+      "last_date": null,
+      "present": false,
+      "protected": null,
+      "reason": "Not found in the record.",
+      "references": [],
+      "signal": "family_history",
+      "title": "Family history of mental or behavioral disorder",
+      "weight": "modifier",
+      "window_days": 1095
+    }
+  ],
+  "suggested_next_step": null,
+  "versions": {
+    "ruleset": "adhd 1.0.0 (draft)",
+    "scorer": "rules-only 1.0.0",
+    "site_codes": "synthetic 0.2.0",
+    "tool_contract": "0.5.0"
+  }
+}

@@ -476,6 +476,55 @@
                   ],
                   "default": null,
                   "description": "Why the check was not performed or failed"
+                },
+                "references": {
+                  "description": "Resources a failed check found but could not interpret, for example a screening result recorded under a code not yet verified",
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "A pointer to the FHIR resource a fact came from.",
+                    "properties": {
+                      "id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "resource_type": {
+                        "enum": [
+                          "Patient",
+                          "Condition",
+                          "Observation",
+                          "QuestionnaireResponse",
+                          "MedicationRequest",
+                          "MedicationDispense",
+                          "MedicationStatement",
+                          "Medication",
+                          "Encounter",
+                          "Procedure",
+                          "ServiceRequest",
+                          "CarePlan",
+                          "Flag"
+                        ],
+                        "type": "string"
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null,
+                        "description": "meta.versionId when the server has one"
+                      }
+                    },
+                    "required": [
+                      "resource_type",
+                      "id"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
                 }
               },
               "required": [

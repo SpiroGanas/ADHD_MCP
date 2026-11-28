@@ -80,9 +80,10 @@ async def test_types_a_server_does_not_offer_do_not_make_every_assessment_insuff
     assert result.exclusions.excluded is None
     assert result.recommendation is RecommendationCode.NO_RECOMMENDATION
     statuses = {n.category: n.status for n in result.data_completeness}
-    # QuestionnaireResponse is not read at all: the PHQ-9 check waits for LOINC verification.
+    # QuestionnaireResponse is read too: a PHQ-9 answer recorded there under an unverified
+    # code would stop the gate (peer review 01, S2).
     not_offered = {c for c, s in statuses.items() if s is DataStatus.NOT_SUPPORTED}
-    assert not_offered == NOT_ON_LIGHTHOUSE - {"QuestionnaireResponse"}
+    assert not_offered == NOT_ON_LIGHTHOUSE
 
 
 async def test_an_empty_record_on_a_server_lacking_types_is_still_insufficient_data() -> None:

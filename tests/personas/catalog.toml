@@ -2,7 +2,7 @@
 # Expected outcomes are filled in as each phase defines them. "pending" means the phase that
 # decides it has not been built yet. All personas are synthetic.
 #
-# safety_gate: positive | clear | clear_limited_data      (Phase 3)
+# safety_gate: positive | clear | clear_limited_data | data_unavailable   (Phase 3)
 #   The expected gate with the content that is active today. LOINC codes are unverified
 #   (follow-up F2), so the PHQ-9 item 9 and C-SSRS checks are not performed and no gate can
 #   be plain "clear" yet (owner decision 2026-11-27).
@@ -20,7 +20,7 @@ as_of = "2026-06-15"
 [[personas]]
 id = "p01"
 title = "Clear ADHD-signal case"
-narrative = "Man in his thirties with a stimulant abuse code, an alcohol abuse code, three emergency visits for accidental injuries in two years (one as a car driver in a traffic crash), insomnia and unemployment. PHQ-9 item 9 is 0. No ADHD code."
+narrative = "Man in his thirties with a stimulant abuse code, an alcohol abuse code, three emergency visits for accidental injuries in two years (one as a car driver in a traffic crash), insomnia and unemployment. PHQ-9 item 9 was 0 in April 2025, outside the safety gate's one-year look-back. No ADHD code."
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
@@ -32,7 +32,7 @@ rules_fired = ["high_with_modifiers", "two_high_classes"]
 [[personas]]
 id = "p02"
 title = "Female presentation with depression and anxiety"
-narrative = "Woman in her late twenties with recurrent depression since 2018, generalized anxiety, insomnia, an attention and concentration deficit code, and five different antidepressants over six years. PHQ-9 recorded as a QuestionnaireResponse (item 9 is 0). AUDIT-C 3 (at the female cutoff in the research)."
+narrative = "Woman in her late twenties with recurrent depression since 2018, generalized anxiety, insomnia, an attention and concentration deficit code, and five different antidepressants over six years. PHQ-9 recorded as a QuestionnaireResponse in May 2025, outside the safety gate's one-year look-back (item 9 is 0). AUDIT-C 3 (at the female cutoff in the research)."
 safety_gate = "clear_limited_data"
 safety_gate_all_checks_active = "clear"
 existing_care = "none"
@@ -183,3 +183,16 @@ recommendation = "consider_referral_for_formal_screening"
 signals = ["alcohol_involvement", "borderline_personality", "family_history", "housing_problems", "intermittent_explosive_disorder", "multiple_antidepressants", "other_substance_use"]
 rules_fired = ["high_with_modifiers"]
 notes = "Covers the modifiers no other persona has."
+
+[[personas]]
+id = "p15"
+title = "Recent screening result under an unverified code"
+narrative = "Man in his late thirties with alcohol dependence, depression and insomnia codes, and a PHQ-9 item 9 score of 3 recorded two weeks before the as-of date. The LOINC code for PHQ-9 item 9 is not verified yet."
+safety_gate = "data_unavailable"
+safety_gate_all_checks_active = "positive"
+safety_gate_found_all_checks_active = ["phq9_item9"]
+existing_care = "none"
+recommendation = "insufficient_data"
+signals = ["alcohol_involvement", "depression_or_anxiety", "insomnia"]
+rules_fired = ["high_with_modifiers"]
+notes = "Peer review 01, S2 (experiment E17): before the fix the gate passed this record and a referral was suggested. A result under a listed code stops the gate even while the code is unverified (owner decision 2026-11-28); once the code is verified the gate is positive."

@@ -6,9 +6,24 @@ The tool is not clinically validated, and no version of it diagnoses.
 
 ## [Unreleased]
 
+### Peer review 01 fixes
+
+Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 2026-11-28. Tool contract 0.4.0 to 0.5.0. The clinical-logic changes are drafts for the clinical reviewer.
+
+#### Fixed (safety gate)
+
+- **S1.** A Condition coded in no system the value sets cover (for example SNOMED CT only, or text only) was silently "not found". It is now reported as skipped (`unrecognized_coding`), the Condition category is `incomplete`, and the safety gate fails closed (`data_unavailable`). ICD-10-CM codes sent without the dot (`R45851`) are normalized to `R45.851`.
+- **S2.** A PHQ-9 item 9 or C-SSRS risk-level result recorded within 365 days under its listed but unverified LOINC code now fails its check and makes the gate `data_unavailable`, citing the result (`SafetyCheck.references`, new). Before, the check was "not performed" and a referral could be suggested. Persona p15 added; the PHQ-9 results of p01 and p02 moved outside the look-back so they keep their roles.
+
+#### Changed
+
+- Tool contract 0.5.0: safety-gate checks gain `references`.
+
+### Phase 8
+
 Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
 
-### Added
+#### Added
 
 - Data-completeness status `not_supported`: the FHIR server does not offer a resource type at all (for example VA Lighthouse has no Flag, QuestionnaireResponse, ServiceRequest, CarePlan, MedicationDispense or MedicationStatement). A safety gate or exclusion check that needs such a type is "not performed" with the reason, never "not found"; an assessment proceeds without dispenses and statements when medication orders were read. `HttpFhirAdapter(profile=...)` refuses types its server profile does not offer, without a request.
 
@@ -18,12 +33,12 @@ Phase 8 (VA readiness and extensibility). Tool contract 0.4.0.
 
 - VA Lighthouse Patient Health API support (`ADHD_MCP_FHIR_SERVER_PROFILE=lighthouse`), built from the public sandbox CapabilityStatement and OpenAPI: FHIR server profiles (`fhir/profiles.py`, `data/fhir_servers/`); the HTTP adapter searches only offered types, filters `since` itself where the server has no date search, and reads referenced Medication resources by id when `_include` is not offered; `LighthouseCcgAuth` with patient-scoped tokens (`launch`) and a configurable assertion audience (`ADHD_MCP_SMART_AUDIENCE`). Not yet run against the sandbox (no credentials). [Integration notes](docs/integration/lighthouse.md).
 
-### Fixed
+#### Fixed
 
 - Absolute FHIR references (`https://.../Medication/123`) are now understood; before, their medication codes and encounter links were silently lost.
 - An empty record on a server that does not offer some types is `insufficient_data`, not `no_recommendation`.
 
-### Changed
+#### Changed
 
 - Tool contract 0.3.0 to 0.4.0: the `status` enum of every `data_completeness` entry gains `not_supported`; the assessment's `scorer` gains `failed`; the `condition` argument's description names experimental stubs.
 - A scorer that raises no longer fails the assessment: it gives no score and `failed: true`.

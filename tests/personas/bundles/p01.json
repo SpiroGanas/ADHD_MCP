@@ -592,7 +592,7 @@
         "subject": {
           "reference": "Patient/p01-patient"
         },
-        "effectiveDateTime": "2026-02-01T10:00:00Z",
+        "effectiveDateTime": "2025-04-01T10:00:00Z",
         "valueQuantity": {
           "value": 0,
           "unit": "{score}",
@@ -628,7 +628,7 @@
         "subject": {
           "reference": "Patient/p01-patient"
         },
-        "effectiveDateTime": "2026-02-01T10:00:00Z",
+        "effectiveDateTime": "2025-04-01T10:00:00Z",
         "valueQuantity": {
           "value": 8,
           "unit": "{score}",
@@ -664,7 +664,7 @@
         "subject": {
           "reference": "Patient/p01-patient"
         },
-        "effectiveDateTime": "2026-02-01T10:00:00Z",
+        "effectiveDateTime": "2025-04-01T10:00:00Z",
         "hasMember": [
           {
             "reference": "Observation/p01-obs-1"

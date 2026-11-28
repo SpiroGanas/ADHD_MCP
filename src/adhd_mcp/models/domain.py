@@ -80,6 +80,11 @@ class SafetyCheck(_Frozen):
     reason: str | None = Field(
         default=None, description="Why the check was not performed or failed"
     )
+    references: list[ResourceRef] = Field(
+        default_factory=list,
+        description="Resources a failed check found but could not interpret, for example a "
+        "screening result recorded under a code not yet verified",
+    )
 
     @model_validator(mode="after")
     def _reason_when_not_run(self) -> Self:

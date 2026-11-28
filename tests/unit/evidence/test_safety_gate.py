@@ -499,6 +499,66 @@ async def test_strict_content_leaves_the_unverified_loinc_checks_not_performed()
         assert "not verified" in check.reason
 
 
+# Peer review 01, S2 (E17): a result recorded under a code the instrument file lists for a
+# gate check stops the gate even while that code is unverified. The code is used only to
+# stop, never to score (owner decision 2026-11-28).
+
+
+@pytest.mark.parametrize("value", [0, 3])
+async def test_a_phq9_item9_result_under_an_unverified_code_stops_the_gate(value: int) -> None:
+    p = person()
+    oid = phq9_item9(p, value)
+    result = await gate(p, strict=True)
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.outcome is CheckOutcome.FAILED
+    assert check.reason is not None
+    assert "not verified" in check.reason
+    assert [r.id for r in check.references] == [oid]
+    assert_no_diagnostic_language(result.model_dump(mode="json"))
+
+
+async def test_a_phq9_item9_answer_in_a_mapped_questionnaire_stops_the_gate() -> None:
+    p = person()
+    qid = p.questionnaire_response(PHQ9_QUESTIONNAIRE, ago(10), {"9": 0, "total": 3})
+    result = await gate(p, strict=True)
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "phq9_item9")
+    assert check.outcome is CheckOutcome.FAILED
+    assert [r.id for r in check.references] == [qid]
+
+
+async def test_a_cssrs_risk_level_under_an_unverified_code_stops_the_gate() -> None:
+    p = person()
+    oid = p.observation(
+        "93374-7", "Suicide risk level", f"{ago(20)}T09:00:00Z", value_code=("LA9194-7", "Low")
+    )
+    result = await gate(p, strict=True)
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    check = next(c for c in result.checks if c.id == "cssrs_risk_level")
+    assert check.outcome is CheckOutcome.FAILED
+    assert [r.id for r in check.references] == [oid]
+
+
+@pytest.mark.parametrize(("days", "stops"), [(365, True), (366, False)])
+async def test_an_unverified_result_outside_the_look_back_does_not_stop_the_gate(
+    days: int, stops: bool
+) -> None:
+    p = person()
+    phq9_item9(p, 2, days)
+    result = await gate(p, strict=True)
+    assert (result.status is SafetyGateStatus.DATA_UNAVAILABLE) is stops
+    expected = CheckOutcome.FAILED if stops else CheckOutcome.NOT_PERFORMED
+    assert outcome(result, "phq9_item9") is expected
+
+
+async def test_an_observation_without_a_result_does_not_stop_the_gate() -> None:
+    p = person()
+    p.observation("44260-8", "PHQ-9 item 9", f"{ago(3)}T09:00:00Z", value=2, status="cancelled")
+    p.observation("44260-8", "PHQ-9 item 9", f"{ago(3)}T09:00:00Z")
+    assert outcome(await gate(p, strict=True), "phq9_item9") is CheckOutcome.NOT_PERFORMED
+
+
 async def test_strict_content_still_finds_verified_signals() -> None:
     p = person()
     p.condition("R45.851", "Suicidal ideations", recorded=ago(10))
@@ -685,11 +745,15 @@ async def test_completeness_covers_every_category_read() -> None:
     ]
 
 
-async def test_strict_content_does_not_read_categories_only_inactive_checks_need() -> None:
+async def test_strict_content_reads_observations_to_find_unverified_results() -> None:
+    # Peer review 01, S2: an unreadable Observation category could hide a recorded PHQ-9
+    # item 9 result, so the unverified instrument checks fail rather than pass.
     records = PatientRecords(FailingAdapter(person(), {"Observation", "QuestionnaireResponse"}))
     result, notes = await assess_safety_gate(records, "t01-patient", AS_OF, content(strict=True))
-    assert result.status is SafetyGateStatus.CLEAR_LIMITED_DATA
-    assert "Observation" not in [n.category for n in notes]
+    assert result.status is SafetyGateStatus.DATA_UNAVAILABLE
+    assert {"Observation", "QuestionnaireResponse"} <= {n.category for n in notes}
+    for check_id in ("phq9_item9", "cssrs_risk_level"):
+        assert outcome(result, check_id) is CheckOutcome.FAILED
 
 
 async def test_positive_output_wording_is_not_diagnostic() -> None:

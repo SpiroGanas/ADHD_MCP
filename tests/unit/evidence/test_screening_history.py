@@ -77,8 +77,8 @@ def summary(entries: list[ScreeningEntry]) -> list[tuple[Any, ...]]:
 async def test_panel_form_timeline_for_p01() -> None:
     result = await history("p01-patient")
     assert summary(result.entries) == [
-        (date(2026, 2, 1), "phq9", "item", "9", 0),
-        (date(2026, 2, 1), "phq9", "total_score", None, 8),
+        (date(2025, 4, 1), "phq9", "item", "9", 0),
+        (date(2025, 4, 1), "phq9", "total_score", None, 8),
     ]
     assert all(e.form == "observation" for e in result.entries)
     assert [r.id for r in result.entries[1].references] == ["p01-obs-2"]
@@ -87,11 +87,11 @@ async def test_panel_form_timeline_for_p01() -> None:
 async def test_questionnaire_form_for_p02() -> None:
     result = await history("p02-patient")
     assert summary(result.entries) == [
+        (date(2025, 5, 20), "phq9", "item", "9", 0),
+        (date(2025, 5, 20), "phq9", "total_score", None, 13),
         (date(2026, 1, 20), "auditc", "total_score", None, 3),
-        (date(2026, 1, 20), "phq9", "item", "9", 0),
-        (date(2026, 1, 20), "phq9", "total_score", None, 13),
     ]
-    phq9_total = result.entries[2]
+    phq9_total = result.entries[1]
     assert phq9_total.form == "questionnaire_response"
     assert phq9_total.code is not None
     assert phq9_total.code.code == "44261-6"
@@ -219,7 +219,7 @@ async def test_non_survey_observations_are_ignored() -> None:
 
 
 async def test_entries_after_the_as_of_date_are_left_out() -> None:
-    result = await history("p02-patient", as_of=date(2025, 12, 31))
+    result = await history("p02-patient", as_of=date(2025, 5, 19))
     assert result.entries == []
 
 
