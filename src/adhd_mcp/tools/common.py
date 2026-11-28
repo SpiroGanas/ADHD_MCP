@@ -171,4 +171,5 @@ def output_versions(context: ToolContext) -> Versions:
         tool_contract=versions.TOOL_CONTRACT_VERSION,
         ruleset=versions.ACTIVE_RULESET_VERSION,
         site_codes=f"{context.site_codes.id} {context.site_codes.version}",
+        clinical_content=versions.clinical_content_sha256(),
     )

@@ -487,6 +487,18 @@
       "versions": {
         "additionalProperties": false,
         "properties": {
+          "clinical_content": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "sha256 of all packaged clinical content (rulesets, catalogs, value sets, drug classes, instruments, site codes, safety gate and evidence definitions, privacy policy, wording): two outputs with the same value rest on the same content"
+          },
           "ruleset": {
             "anyOf": [
               {

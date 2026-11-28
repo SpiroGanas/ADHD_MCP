@@ -4,6 +4,7 @@ import hashlib
 
 import pytest
 
+from adhd_mcp import versions
 from adhd_mcp.rules.catalog import load_catalog
 from adhd_mcp.rules.ruleset import ReleasedRuleset, load_ruleset, parse_ruleset
 
@@ -50,7 +51,8 @@ def test_an_experimental_ruleset_needs_no_release_entry() -> None:
 def test_a_released_ruleset_must_match_its_pinned_hash() -> None:
     text = RULESET.format(status="released")
     digest = hashlib.sha256(text.encode()).hexdigest()
-    pinned = (ReleasedRuleset(id="x", version="1.0.0", sha256=digest),)
+    content = versions.clinical_content_sha256()
+    pinned = (ReleasedRuleset(id="x", version="1.0.0", sha256=digest, content_sha256=content),)
     assert parse_ruleset(text, released=pinned).status == "released"
     with pytest.raises(ValueError, match="not pinned"):
         parse_ruleset(text, released=())

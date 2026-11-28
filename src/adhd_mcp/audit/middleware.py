@@ -180,6 +180,7 @@ class AuditMiddleware(Middleware):
             "server_version": versions.server_version(),
             "tool_contract_version": versions.TOOL_CONTRACT_VERSION,
             "ruleset": versions.ACTIVE_RULESET_VERSION,
+            "clinical_content": versions.clinical_content_sha256(),
             "patient": _patient(params.arguments),
         }
         try:

@@ -27,6 +27,9 @@ class AuditRecord(BaseModel):
     server_version: str
     tool_contract_version: str
     ruleset: str | None
+    clinical_content: str | None = Field(
+        default=None, description="sha256 of the packaged clinical content (peer review 01, X2)"
+    )
     scorer: str | None = None
     privacy_policy: str | None = None
     patient: ResourceRef | None

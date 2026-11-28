@@ -44,6 +44,6 @@ Phase 7, work item 9 asks for a versioning policy with three separate version li
 
 ## Consequences
 
-- A clinician or auditor can tell from any output whether two results were produced by the same rules.
+- A clinician or auditor can tell from any output whether two results were produced by the same rules: every output's `versions` carries `clinical_content`, the sha256 of all packaged clinical content, and every audit record carries it too (peer review 01, X2).
 - Releasing takes a deliberate step per line; `scripts/release_check.py` catches the forgotten ones.
 - Releasing 1.0.0 still needs the owner's review of the clinical content (status.md, Next steps).

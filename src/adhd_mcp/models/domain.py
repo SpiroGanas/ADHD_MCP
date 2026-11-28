@@ -227,6 +227,12 @@ class Versions(_Frozen):
     site_codes: str | None = Field(
         default=None, description="Local code mapping in use: id and version"
     )
+    clinical_content: str | None = Field(
+        default=None,
+        description="sha256 of all packaged clinical content (rulesets, catalogs, value sets, "
+        "drug classes, instruments, site codes, safety gate and evidence definitions, privacy "
+        "policy, wording): two outputs with the same value rest on the same content",
+    )
 
 
 class Recommendation(_Frozen):

@@ -8,12 +8,12 @@ cohort it was computed from, so a stale report is detectable without re-running 
 import hashlib
 import json
 from collections.abc import Sequence
-from importlib.resources import files
 from importlib.resources.abc import Traversable
 from pathlib import Path
 from typing import Any
 
 from adhd_mcp.conditions.adhd import adhd_plugin
+from adhd_mcp.versions import clinical_content_files, clinical_content_sha256
 from tests.evals import harness as h
 from tests.evals.cohort import AS_OF, COHORT_VERSION, CohortPatient
 
@@ -40,28 +40,13 @@ LIMITATIONS = [
 
 
 def _content_files() -> list[tuple[str, Traversable]]:
-    """Every TOML file under the packaged data: ruleset, catalog, value sets, drug classes,
-    instruments, site codes, evidence-tool definitions, safety gate, privacy and wording. Any
-    of them can change an assessment."""
-    found: list[tuple[str, Traversable]] = []
-
-    def walk(folder: Traversable, prefix: str) -> None:
-        for item in folder.iterdir():
-            if item.is_dir():
-                walk(item, f"{prefix}{item.name}/")
-            elif item.name.endswith(".toml"):
-                found.append((f"{prefix}{item.name}", item))
-
-    walk(files("adhd_mcp.data"), "")
-    return sorted(found, key=lambda pair: pair[0])
+    """Every packaged clinical data file (``adhd_mcp.versions.clinical_content_files``)."""
+    return clinical_content_files()
 
 
 def content_fingerprint() -> str:
     """sha256 over every packaged clinical data file (by path and content)."""
-    digest = hashlib.sha256()
-    for path, f in _content_files():
-        digest.update(path.encode() + b"\0" + f.read_bytes() + b"\0")
-    return digest.hexdigest()
+    return clinical_content_sha256()
 
 
 def cohort_fingerprint(patients: Sequence[CohortPatient]) -> str:

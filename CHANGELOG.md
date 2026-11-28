@@ -46,11 +46,12 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 #### Added
 
+- **X2.** Every output's `versions` and every audit record carry `clinical_content`, the sha256 of all packaged clinical data (rulesets, catalogs, value sets, drug classes, instruments, site codes, definitions, privacy policy, wording). A released ruleset pins it beside its own hash (`content_sha256` in `released_rulesets.toml`), so the catalog and value sets can no longer change under a "released" ruleset. The evaluation report uses the same fingerprint.
 - `ADHD_MCP_SITE_CODES_FILE`: a site's own code mapping file, loaded strictly (S2).
 
 #### Changed
 
-- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`; utilization events gain `follow_up`.
+- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`; utilization events gain `follow_up`; `versions` gains `clinical_content`.
 
 ### Phase 8
 
