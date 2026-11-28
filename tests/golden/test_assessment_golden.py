@@ -62,4 +62,5 @@ def test_every_recommendation_has_a_persona() -> None:
         "address_safety_gate_first",
         "already_in_care",
         "insufficient_data",
+        "outside_intended_population",
     }

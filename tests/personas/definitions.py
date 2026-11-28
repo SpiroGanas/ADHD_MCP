@@ -352,6 +352,15 @@ def p15() -> PersonaBuilder:
     return p
 
 
+def p16() -> PersonaBuilder:
+    """An adolescent: outside the adult intended population (peer review 01, C3)."""
+    p = PersonaBuilder("p16", gender="female", birth_date="2010-03-03")
+    p.condition("F10.10", "Alcohol abuse, uncomplicated", recorded="2026-02-14")
+    p.condition("F32.9", "Major depressive disorder, single episode", recorded="2025-12-01")
+    p.condition("G47.00", "Insomnia, unspecified", recorded="2026-01-20")
+    return p
+
+
 PERSONAS: dict[str, Callable[[], PersonaBuilder]] = {
     "p01": p01,
     "p02": p02,
@@ -368,6 +377,7 @@ PERSONAS: dict[str, Callable[[], PersonaBuilder]] = {
     "p13": p13,
     "p14": p14,
     "p15": p15,
+    "p16": p16,
 }
 
 

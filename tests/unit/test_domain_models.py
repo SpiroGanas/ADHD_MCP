@@ -132,6 +132,7 @@ def test_recommendation_vocabulary_is_fixed() -> None:
         "address_safety_gate_first",
         "already_in_care",
         "insufficient_data",
+        "outside_intended_population",
     }
 
 

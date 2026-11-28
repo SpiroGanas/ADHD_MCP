@@ -46,6 +46,9 @@ class Ruleset(BaseModel):
         description="Always false: no ruleset in this project is clinically validated"
     )
     exclusions: tuple[str, ...]
+    min_age_years: int = Field(
+        ge=0, description="Youngest age, at the as-of date, the ruleset is meant for"
+    )
     citations: tuple[str, ...] = Field(min_length=1)
     rules: tuple[Rule, ...] = Field(min_length=1)
 

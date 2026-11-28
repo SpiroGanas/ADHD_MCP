@@ -3,12 +3,14 @@
 Order of precedence for the recommendation:
 
 1. a positive safety gate: address the safety gate first (other findings still reported);
-2. a safety gate that could not be evaluated: insufficient data;
-3. already in care for the condition: already in care;
-4. a rule fired: consider referral for formal screening;
-5. an empty record, a signal source that could not be read completely, or a signal whose
+2. a record outside the intended population (under the ruleset's minimum age, no birth date,
+   or deceased): outside the intended population, before any evidence is read or rule run;
+3. a safety gate that could not be evaluated: insufficient data;
+4. already in care for the condition: already in care;
+5. a rule fired: consider referral for formal screening;
+6. an empty record, a signal source that could not be read completely, or a signal whose
    records a withhold policy removed: insufficient data;
-6. otherwise: no recommendation.
+7. otherwise: no recommendation.
 
 Every evidence assembler reads through one request-scoped cached port, so no FHIR query is
 issued twice. Nothing here is specific to a condition.
@@ -39,11 +41,13 @@ from adhd_mcp.models.domain import (
     SafetyGateStatus,
     WeightClass,
 )
+from adhd_mcp.orchestration.population import outside_population
 from adhd_mcp.rules.catalog import SignalDefinition
 from adhd_mcp.rules.engine import Decision, decide
 from adhd_mcp.rules.scorer import run_scorer
 from adhd_mcp.rules.signals import SignalEvidence, evaluate_signals
 from adhd_mcp.terminology.site_codes import SiteCodes
+from adhd_mcp.wording import load_wording
 
 _SEVERITY = {
     DataStatus.AVAILABLE: 0,
@@ -176,6 +180,26 @@ async def assess(
     withheld: Callable[[], WithheldScope] = WithheldScope,
 ) -> Assessment:
     """``withheld`` says, once every read is done, what the privacy policy removed."""
+    patient = await records.patient(patient_id)
+    outside = outside_population(patient, as_of, plugin.ruleset.min_age_years)
+    gate_call = assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site))
+    if outside is not None:
+        gate, gate_notes = await gate_call
+        if gate.status is not SafetyGateStatus.POSITIVE:
+            return Assessment(
+                gate=gate,
+                exclusions=ExclusionResult(excluded=None, checks=[], data_completeness=[]),
+                findings=[],
+                decision=Decision(recommend=False, rules=[]),
+                recommendation=RecommendationCode.OUTSIDE_INTENDED_POPULATION,
+                basis=[],
+                notes=[load_wording().notes[outside]],
+                data_completeness=merge_completeness(gate_notes),
+                # Reported as always (no findings to score); it never changes the result.
+                scorer=run_scorer(plugin.scorer, []) if plugin.scorer is not None else None,
+            )
+        # A positive gate comes first even here: run the whole assessment as usual.
+        gate_call = assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site))
 
     async def no_exclusions() -> ExclusionResult:
         return ExclusionResult(excluded=False, checks=[], data_completeness=[])
@@ -186,7 +210,7 @@ async def assess(
         else no_exclusions()
     )
     gate_result, exclusions, problems, psychosocial, utilization, medication = await asyncio.gather(
-        assess_safety_gate(gate_records, patient_id, as_of, load_gate_content(site)),
+        gate_call,
         exclusions_call,
         assemble_problem_list(records, patient_id, as_of, load_problem_list_content()),
         assemble_psychosocial(records, patient_id, as_of, load_psychosocial_content(site)),

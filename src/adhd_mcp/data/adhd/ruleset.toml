@@ -14,6 +14,12 @@ validated = false
 # A recommendation is withheld when any of these exclusions applies.
 exclusions = ["existing_adhd_care"]
 
+# The intended population is adults alive at the as-of date (docs/clinical/intended_use.md).
+# Younger patients, patients without a birth date and deceased patients get
+# outside_intended_population before any rule runs (peer review 01, C3; owner decision
+# 2026-11-28).
+min_age_years = 18
+
 citations = [
   "Research report (research/veteran_self_harm_risk_screening.md), ADHD section: refer when one high-weight signal co-occurs with two or more modifiers, or when two or more high-weight classes appear within about three years, then calibrate against chart-reviewed cases.",
   "Owner decision 2026-11-27: every signal is looked for within 1095 days of the as-of date (repeated injuries within 730 days); TBI is a note only.",

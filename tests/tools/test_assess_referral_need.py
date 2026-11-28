@@ -133,6 +133,7 @@ catalog = "dummy.catalog"
 catalog_version = "1"
 validated = false
 exclusions = []
+min_age_years = 18
 citations = ["test only"]
 [[rules]]
 id = "one_high"

@@ -162,6 +162,9 @@ class RecommendationCode(StrEnum):
     ADDRESS_SAFETY_GATE_FIRST = "address_safety_gate_first"
     ALREADY_IN_CARE = "already_in_care"
     INSUFFICIENT_DATA = "insufficient_data"
+    #: Under the ruleset's minimum age at the as-of date, without a birth date, or deceased
+    #: (peer review 01, C3).
+    OUTSIDE_INTENDED_POPULATION = "outside_intended_population"
 
 
 class DataStatus(StrEnum):

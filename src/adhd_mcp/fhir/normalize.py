@@ -135,10 +135,15 @@ def _check_status(raw: Raw) -> None:
 
 
 def _patient(raw: Raw) -> PatientRecord:
+    deceased_date = _date(raw, "deceasedDateTime")
+    flag = raw.get("deceasedBoolean")
+    deceased = True if deceased_date is not None else (bool(flag) if flag is not None else None)
     return PatientRecord(
         ref=_ref(raw),
         administrative_gender=raw.get("gender"),
         birth_date=_date(raw, "birthDate"),
+        deceased=deceased,
+        deceased_date=deceased_date,
     )
 
 

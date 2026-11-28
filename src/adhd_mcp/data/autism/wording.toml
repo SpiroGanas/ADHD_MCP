@@ -10,3 +10,4 @@ no_recommendation = "Experimental stub, not for clinical use: the placeholder ru
 address_safety_gate_first = "Experimental stub, not for clinical use. Self-harm signals were found in the record. Follow the safety guidance first; no screening referral is suggested until the signals have been addressed."
 already_in_care = "Experimental stub, not for clinical use: an autism code is already recorded, so no new referral is suggested."
 insufficient_data = "Experimental stub, not for clinical use: too little data could be read to make a suggestion."
+outside_intended_population = "Experimental stub, not for clinical use: this record is outside the intended population (adults alive at the as-of date)."

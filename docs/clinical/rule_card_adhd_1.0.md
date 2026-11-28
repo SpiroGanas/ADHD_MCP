@@ -15,7 +15,7 @@
 
 ## Population
 
-Adults whose FHIR record the server can read. No age logic is applied; the evidence base is adult and largely civilian.
+Adults whose FHIR record the server can read. A patient under 18 at the as-of date (`min_age_years` in the ruleset), one whose birth date is missing or cannot rule that out (a birth year only), and one recorded as deceased on or before the as-of date get `outside_intended_population`, with a note giving the reason, before any signal is evaluated or rule run; the safety gate still runs and a positive gate still comes first (peer review 01, C3; owner decision 2026-11-28; persona p16). Beyond that no age logic is applied; the evidence base is adult and largely civilian.
 
 ## Safety gate
 

@@ -12,6 +12,7 @@
 # existing_care: none | excluded_adhd_diagnosis           (Phase 3)
 # recommendation: consider_referral_for_formal_screening | no_recommendation |
 #   address_safety_gate_first | already_in_care | insufficient_data   (Phase 5, ADHD ruleset 1.0.0)
+#   | outside_intended_population   (peer review 01, C3)
 # signals: ADHD catalog signals expected present as of the catalog date (Phase 5).
 # rules_fired: ruleset rules expected to fire (empty when none fires).
 
@@ -196,3 +197,15 @@ recommendation = "insufficient_data"
 signals = ["alcohol_involvement", "depression_or_anxiety", "insomnia"]
 rules_fired = ["high_with_modifiers"]
 notes = "Peer review 01, S2 (experiment E17): before the fix the gate passed this record and a referral was suggested. A result under a listed code stops the gate even while the code is unverified (owner decision 2026-11-28); once the code is verified the gate is positive."
+
+[[personas]]
+id = "p16"
+title = "Adolescent outside the intended population"
+narrative = "Girl aged 16 with an alcohol abuse code, a depression code and insomnia: codes that would give an adult a suggestion. The tool is for adults."
+safety_gate = "clear_limited_data"
+safety_gate_all_checks_active = "clear"
+existing_care = "none"
+recommendation = "outside_intended_population"
+signals = []
+rules_fired = []
+notes = "Peer review 01, C3 (experiment E7): before the fix a child's record got an adult screening suggestion. No signal is evaluated and no rule runs; the safety gate still runs."

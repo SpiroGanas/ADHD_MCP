@@ -29,6 +29,8 @@ no_recommendation = "No referral for formal ADHD screening is suggested from the
 address_safety_gate_first = "Self-harm signals were found in the record. Follow the safety guidance first; no screening referral is suggested until the signals have been addressed. Other findings are listed for later review."
 already_in_care = "An ADHD code, referral, evaluation or care plan is already recorded, so no new referral is suggested."
 insufficient_data = "Too little data could be read to make a suggestion. Review the record directly."
+# Peer review 01, C3 (drafted 2026-11-28 by the agent for owner review).
+outside_intended_population = "This tool is meant for adults alive at the as-of date. This record is outside that population, so no screening referral is suggested. See the notes for the reason."
 
 
 # Notes added to an assessment.
@@ -37,6 +39,11 @@ tbi_overlap = "Traumatic brain injury codes are recorded. TBI can produce attent
 narcolepsy_medication = "Medication ordered for narcolepsy is recorded. It is not counted as an ADHD signal."
 exclusions_incomplete = "Not every existing-care check could be completed, so an existing ADHD referral or evaluation may be missed. Check the record before referring."
 heuristic = "This suggestion comes from a starting rule taken from published research. The rule has not been clinically validated."
+# Why a record is outside the intended population (peer review 01, C3; drafted 2026-11-28 by
+# the agent for owner review).
+population_under_age = "The patient was under 18 on the as-of date, or the recorded birth date cannot rule that out."
+population_no_birth_date = "No birth date is recorded, so the patient's age cannot be checked."
+population_deceased = "The patient is recorded as deceased on or before the as-of date."
 
 # Phrasings that state or imply a diagnosis (standing invariant 1) or assess suicide risk
 # (the tool surfaces self-harm signals; it never assesses risk). Every tool output is scanned

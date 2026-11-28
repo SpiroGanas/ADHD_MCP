@@ -11,6 +11,7 @@ catalog_version = "0.0.1"
 validated = false
 
 exclusions = ["existing_autism_code"]
+min_age_years = 18
 
 citations = [
   "Placeholder only (owner decision 2026-11-27): a disabled stub to prove the plugin interface (ADR 0005). Not derived from or calibrated against any evidence.",

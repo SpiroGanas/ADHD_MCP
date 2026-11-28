@@ -42,6 +42,9 @@ class Value(BaseModel):
 class PatientRecord(_Record):
     administrative_gender: str | None
     birth_date: DateRange | None
+    #: ``deceasedBoolean``; true also when only ``deceasedDateTime`` is given.
+    deceased: bool | None = None
+    deceased_date: DateRange | None = None
 
 
 class ConditionRecord(_Record):

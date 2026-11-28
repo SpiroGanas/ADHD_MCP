@@ -15,6 +15,10 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 - **S1.** A Condition coded in no system the value sets cover (for example SNOMED CT only, or text only) was silently "not found". It is now reported as skipped (`unrecognized_coding`), the Condition category is `incomplete`, and the safety gate fails closed (`data_unavailable`). ICD-10-CM codes sent without the dot (`R45851`) are normalized to `R45.851`.
 - **S2.** A PHQ-9 item 9 or C-SSRS risk-level result recorded within 365 days under its listed but unverified LOINC code now fails its check and makes the gate `data_unavailable`, citing the result (`SafetyCheck.references`, new). Before, the check was "not performed" and a referral could be suggested. Persona p15 added; the PHQ-9 results of p01 and p02 moved outside the look-back so they keep their roles.
 
+#### Added (clinical logic, drafts for the clinical reviewer)
+
+- **C3.** New recommendation `outside_intended_population`: a patient under 18 at the as-of date (ruleset field `min_age_years`), without a usable birth date, or recorded as deceased gets it before any signal is evaluated or rule run, with a note saying why. The safety gate still runs and a positive gate still comes first. Before, a child's record could get an adult screening suggestion. Patient records now read `deceasedBoolean` and `deceasedDateTime`. Persona p16 added.
+
 #### Fixed (privacy)
 
 - **P1.** Under a `withhold` policy, signals whose records were withheld read "Not found in the record" and the result could be `no_recommendation`. They now read "Not checked: records it needs were withheld by the privacy policy", and with no rule fired the result is `insufficient_data`.
@@ -31,7 +35,7 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 #### Changed
 
-- Tool contract 0.5.0: safety-gate checks gain `references`.
+- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`.
 
 ### Phase 8
 
