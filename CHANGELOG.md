@@ -21,6 +21,8 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 - **C1.** The look-back window did not limit unresolved conditions, and the reason "Found within 1095 days." was given for codes sixteen years old. Now only an active problem-list item with no abatement by the as-of date counts as current whatever its date; encounter diagnoses, conditions without a status and single-day event codes (value sets marked `point_in_time`: Y90, R78.0) count by their last date, abatement dates included. Reasons give the dates. Problem-list entries gain `last_date` and `current`.
 
+- **C2.** Related findings were counted as independent signals: one crash visit with a blood-alcohol code fired `two_high_classes` by itself, two crash visits were also "two injuries", and a fracture and its re-check were "two injuries". High-weight classes now count only as far as they rest on separate visits or records, and an injury visit whose injury codes are all subsequent-encounter or sequela codes is a follow-up (`follow_up`), not a new injury.
+
 #### Fixed (privacy)
 
 - **P1.** Under a `withhold` policy, signals whose records were withheld read "Not found in the record" and the result could be `no_recommendation`. They now read "Not checked: records it needs were withheld by the privacy policy", and with no rule fired the result is `insufficient_data`.
@@ -37,7 +39,7 @@ Fixes for [peer review 01](peer_review_01.md), following the owner decisions of 
 
 #### Changed
 
-- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`.
+- Tool contract 0.5.0: safety-gate checks gain `references`; the recommendation enum gains `outside_intended_population`; problem-list entries gain `last_date` and `current`; utilization events gain `follow_up`.
 
 ### Phase 8
 

@@ -160,6 +160,11 @@
               "default": null,
               "description": "Discharge date of a stay, if known"
             },
+            "follow_up": {
+              "default": false,
+              "description": "Injury visits only: true when every injury code on the visit is a subsequent-encounter or sequela code (seventh character other than A, B or C), so the visit is not a new injury and is not counted as one",
+              "type": "boolean"
+            },
             "kind": {
               "enum": [
                 "acute_care_visit",

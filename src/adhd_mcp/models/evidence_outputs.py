@@ -228,6 +228,12 @@ class UtilizationEvent(_Frozen):
     kind: Literal["acute_care_visit", "injury_visit", "crash_as_driver", "psychiatric_stay"]
     date: dt.date | None = Field(description="Visit or admission date; null when undated")
     end: dt.date | None = Field(default=None, description="Discharge date of a stay, if known")
+    follow_up: bool = Field(
+        default=False,
+        description="Injury visits only: true when every injury code on the visit is a "
+        "subsequent-encounter or sequela code (seventh character other than A, B or C), so "
+        "the visit is not a new injury and is not counted as one",
+    )
     references: list[ResourceRef] = Field(
         min_length=1, description="The encounter first, then the conditions coding it"
     )

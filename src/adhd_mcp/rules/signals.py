@@ -189,10 +189,11 @@ def evaluate_signal(  # noqa: PLR0911 - one return per outcome
     if s.source == "events":
         if evidence.utilization_events is None:
             return _finding(s, False, _UNREADABLE)
+        # A follow-up visit for an injury already seen is not a new event (peer review 01, C2).
         events = [
             (e.date, e.date, e.references)
             for e in evidence.utilization_events
-            if e.kind == s.event and e.date is not None
+            if e.kind == s.event and e.date is not None and not e.follow_up
         ]
         return _counted(s, events, as_of)
     if evidence.distinct_agents is None:

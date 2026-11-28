@@ -1,11 +1,15 @@
 """Utilization: acute care and injury visits, crashes as driver, psychiatric stays and the
-overall record volume, counted in windows before the as-of date."""
+overall record volume, counted in windows before the as-of date.
+
+An injury visit whose injury codes are all subsequent-encounter or sequela codes (an ICD-10-CM
+seventh character other than A, B or C) is marked ``follow_up``: it is the same injury seen
+again, not a new one (peer review 01, C2; owner decision 2026-11-28)."""
 
 import asyncio
 import tomllib
 from collections import defaultdict
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from functools import cache
 from importlib.resources import files
@@ -88,6 +92,19 @@ class UtilizationResult:
     psychiatric_stays_checked: bool
     data_completeness: list[DataCompleteness]
     definition_version: str
+    #: Condition id -> the encounter it codes (Condition.encounter or Encounter.diagnosis),
+    #: so the rules can tell when two findings rest on one visit (peer review 01, C2).
+    encounter_of: dict[str, str] = field(default_factory=dict)
+
+
+#: ICD-10-CM seventh characters of an initial encounter (B and C: open fractures).
+_INITIAL = frozenset("ABC")
+
+
+def _initial(coding: Coding) -> bool:
+    """Whether a code is a new injury: no seventh character, or an initial-encounter one."""
+    code = coding.code.replace(".", "")
+    return len(code) < 7 or code[6] in _INITIAL
 
 
 def _any(value_sets: Sequence[ValueSet], codes: tuple[Coding, ...]) -> bool:
@@ -206,7 +223,15 @@ async def assemble_utilization(
             add("acute_care_visit", _start(e), [e.ref])
             if _any(content.injury, codes) and not _any(content.self_harm, codes):
                 injury_refs = [c.ref for c in coded if _any(content.injury, c.codes)]
-                add("injury_visit", _start(e), [e.ref, *_sorted(injury_refs)])
+                injury_codes = [x for x in codes if _any(content.injury, (x,))]
+                events.append(
+                    UtilizationEvent(
+                        kind="injury_visit",
+                        date=_start(e),
+                        follow_up=not any(_initial(x) for x in injury_codes),
+                        references=[e.ref, *_sorted(injury_refs)],
+                    )
+                )
         if any(site.matches(c, e.types + e.service_type) for c in d.psychiatric_concepts):
             add("psychiatric_stay", _start(e), [e.ref], e.period.end if e.period else None)
 
@@ -235,4 +260,5 @@ async def assemble_utilization(
         psychiatric_stays_checked=any(site.maps(c) for c in d.psychiatric_concepts),
         data_completeness=notes,
         definition_version=d.version,
+        encounter_of={c.ref.id: eid for eid, coded in linked.items() for c in coded},
     )

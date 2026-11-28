@@ -74,6 +74,28 @@ class WithheldScope:
     types: frozenset[str] = field(default_factory=frozenset)
 
 
+def _units(
+    signals: Sequence[SignalDefinition],
+    findings: Sequence[SignalFinding],
+    encounter_of: dict[str, str],
+) -> dict[str, tuple[frozenset[str], int]]:
+    """What each present high-weight signal rests on: the visit a condition codes, else the
+    record itself; and how many distinct units it needs (peer review 01, C2)."""
+    units = {}
+    for s, f in zip(signals, findings, strict=True):
+        if not f.present or f.weight != "high":
+            continue
+        pool = set()
+        for r in f.references:
+            if r.resource_type == "Condition" and r.id in encounter_of:
+                pool.add(f"Encounter/{encounter_of[r.id]}")
+            else:
+                pool.add(f"{r.resource_type}/{r.id}")
+        need = s.min_count if s.source in ("events", "distinct_agents") else 1
+        units[s.id] = (frozenset(pool), need)
+    return units
+
+
 def _withheld_from(s: SignalDefinition, scope: WithheldScope) -> bool:
     """Whether a withhold policy may have removed records this signal is evaluated on."""
     if s.source == "events":
@@ -254,7 +276,11 @@ async def assess(
     )
     findings = evaluate_signals(plugin.catalog.signals, evidence, as_of)
     findings, unchecked = _mark_withheld(plugin.catalog.signals, findings, withheld())
-    decision = decide(findings, plugin.ruleset)
+    decision = decide(
+        findings,
+        plugin.ruleset,
+        _units(plugin.catalog.signals, findings, utilization.encounter_of),
+    )
     sources_readable = not unchecked and None not in (
         evidence.problem_families,
         evidence.utilization_events,

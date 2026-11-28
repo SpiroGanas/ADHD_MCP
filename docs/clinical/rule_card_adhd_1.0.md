@@ -42,7 +42,7 @@ Window: days before the as-of date, inclusive. A condition counts when its last 
 | Stimulant-related disorder | High | `sud.stimulant` (F15, includes caffeine); 1095 days | `get_mh_problem_list` | Hamed 2026 (civilian): among strongest predictors | No |
 | Alcohol involvement | High | `sud.alcohol` (F10), `sud.blood_alcohol_level` (Y90.1-Y90.9; Y90.0 excluded), `sud.alcohol_in_blood` (R78.0); 1095 days | `get_mh_problem_list` | Hamed 2026: Y90.3 a top predictor | No |
 | Motor-vehicle crash as driver | High | `injury.motor_vehicle_driver`; one per encounter (or day); at least 1 in 1095 days | `get_utilization_summary` | Crash OR about 1.45 (secondary) | No |
-| Repeated accidental injury | High | Emergency or urgent care visits with an injury or accidental external-cause code and no self-harm code; at least 2 in 730 days | `get_utilization_summary` | Accidents lead excess ADHD deaths (Dalsgaard 2015) | Count of 2 is inference |
+| Repeated accidental injury | High | Emergency or urgent care visits with an injury or accidental external-cause code and no self-harm code; at least 2 new injuries in 730 days. A visit whose injury codes are all subsequent-encounter or sequela codes (seventh character other than A, B or C) is a follow-up of the same injury and does not count (peer review 01, C2) | `get_utilization_summary` | Accidents lead excess ADHD deaths (Dalsgaard 2015) | Count of 2 is inference |
 | TBI overlap | Note | `injury.tbi`, `injury.history_tbi`; 1095 days. Adds a note suggesting neuropsychological evaluation; never counts | `get_mh_problem_list` | Research report: TBI mimics ADHD | No |
 | Other substance use | Modifier | `sud.other` (F11, F12, F14, F17.2, F19); 1095 days | `get_mh_problem_list` | ASRS validated in SUD | No |
 | PTSD | Modifier | `mh.ptsd` (F43.10-F43.12); 1095 days | `get_mh_problem_list` | Howlett 2018 (soldiers) | No |
@@ -65,6 +65,8 @@ Recommend referral for formal screening when, within the windows above, **either
 
 1. at least **one high-weight** signal is present together with **two or more modifiers** (`high_with_modifiers`), **or**
 2. **two or more high-weight** signal classes are present (`two_high_classes`).
+
+**Separate visits** (peer review 01, C2; owner decision 2026-11-28, a draft for the clinical reviewer). High-weight classes count only as far as they rest on separate visits or records. A condition coded at a visit (Condition.encounter or Encounter.diagnosis) rests on that visit; an injury or crash event rests on its visit; anything else rests on its own record. One visit never supplies two high-weight classes, and repeated injury needs two visits no other counted class uses. So a single crash visit with a blood-alcohol code is one class, not two, and two crash visits are not also "two injuries". The decision trace says so: "2 high-weight, 1 resting on separate visits or records (needs 2)". Modifiers are not restricted.
 
 Notes never count. Precedence: positive safety gate; gate not evaluable; already in care; a rule fired; insufficient data (empty record, or a signal source that could not be read completely); otherwise no recommendation.
 
