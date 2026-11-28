@@ -135,6 +135,7 @@ All commands are listed in [CLAUDE.md](CLAUDE.md#commands). To contribute, read 
 | [docs/limitations.md](docs/limitations.md) | What the tool cannot do |
 | [docs/architecture.md](docs/architecture.md) | Components, data flow, tool contracts |
 | [docs/adr/](docs/adr/README.md) | Architecture decision records |
+| [docs/handoff/](docs/handoff/README.md) | Hand-off documents (Word): human review checklist by reviewer role, user guide, clinician quick start |
 | [docs/clinical/](docs/clinical/) | Intended use, rule cards, risk register, glossary, verification backlog |
 | [docs/evaluation/](docs/evaluation/README.md) | Cohort evaluation, sex-balance review, model-in-the-loop and performance |
 | [docs/security/threat_model.md](docs/security/threat_model.md) | Threat model |
